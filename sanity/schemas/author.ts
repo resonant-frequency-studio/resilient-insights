@@ -38,6 +38,30 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'linkedin',
+      title: 'LinkedIn URL',
+      type: 'url',
+      description: 'Full URL to LinkedIn profile',
+    }),
+    defineField({
+      name: 'facebook',
+      title: 'Facebook URL',
+      type: 'url',
+      description: 'Full URL to Facebook profile',
+    }),
+    defineField({
+      name: 'instagram',
+      title: 'Instagram URL',
+      type: 'url',
+      description: 'Full URL to Instagram profile',
+    }),
+    defineField({
+      name: 'youtube',
+      title: 'YouTube URL',
+      type: 'url',
+      description: 'Full URL to YouTube channel',
+    }),
   ],
   preview: {
     select: {

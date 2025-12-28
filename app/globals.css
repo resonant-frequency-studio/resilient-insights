@@ -1,2 +1,186 @@
 @import "tailwindcss";
 
+:root {
+  /* Background Colors */
+  --color-main: #f7f7f2;
+  --color-secondary: #f0eee9;
+  --color-third: #ebe7e1;
+  --color-fourth: #e0dcd5;
+  --color-fifth: #1a1818;
+  
+  /* Text Colors */
+  --color-foreground-dark: #373240;
+  --color-foreground-light: #f7f7f2;
+  --color-placeholder: #9a9690;
+  
+  /* Button Colors */
+  --color-button-primary: #201b29;
+  --color-button-primary-hover: #2a2433;
+  --color-button-inverse: #f7f7f2;
+  --color-button-inverse-hover: #f0eee9;
+  --color-button-outline-border: #d3d3d0;
+  --color-button-glass: #201b29;
+  
+  /* Form Colors */
+  --color-input-bg: #f0eee9;
+  --color-input-border: transparent;
+  --color-input-focus-ring: #373240;
+  
+  /* Checkbox Colors */
+  --color-checkbox-border: #d3d3d0;
+  --color-checkbox-bg: #f0eee9;
+  --color-checkbox-checked: #201b29;
+  --color-checkbox-checkmark: #f7f7f2;
+  
+  /* Tags/Pills */
+  --color-tags-pills: #e0dcd5;
+}
+
+@theme inline {
+  /* Background Colors */
+  --color-main: var(--color-main);
+  --color-secondary: var(--color-secondary);
+  --color-third: var(--color-third);
+  --color-fourth: var(--color-fourth);
+  --color-fifth: var(--color-fifth);
+  
+  /* Text Colors */
+  --color-foreground-dark: var(--color-foreground-dark);
+  --color-foreground-light: var(--color-foreground-light);
+  --color-placeholder: var(--color-placeholder);
+  
+  /* Button Colors - available as bg-button-primary, text-button-primary, etc. */
+  --color-button-primary: var(--color-button-primary);
+  --color-button-primary-hover: var(--color-button-primary-hover);
+  --color-button-inverse: var(--color-button-inverse);
+  --color-button-inverse-hover: var(--color-button-inverse-hover);
+  --color-button-outline-border: var(--color-button-outline-border);
+  --color-button-glass: var(--color-button-glass);
+  
+  /* Form Colors - available as bg-input, ring-input-focus-ring, etc. */
+  --color-input-bg: var(--color-input-bg);
+  --color-input-border: var(--color-input-border);
+  --color-input-focus-ring: var(--color-input-focus-ring);
+  
+  /* Checkbox Colors - available as bg-checkbox-checked, border-checkbox-border, etc. */
+  --color-checkbox-border: var(--color-checkbox-border);
+  --color-checkbox-bg: var(--color-checkbox-bg);
+  --color-checkbox-checked: var(--color-checkbox-checked);
+  --color-checkbox-checkmark: var(--color-checkbox-checkmark);
+  
+  /* Tags/Pills */
+  --color-tags-pills: var(--color-tags-pills);
+
+  /* Font Families - Set via Next.js font variables in layout.tsx */
+
+  /* Typography - Headings */
+  --font-weight-heading-light: 400;
+  --font-weight-heading-medium: 500;
+  --letter-spacing-heading: 0.02em;
+  --line-height-heading: 1.15;
+
+  /* Typography - Body */
+  --font-weight-body: 400;
+  --font-size-body: 16px;
+  --line-height-body: 1.65;
+
+  /* Typography - Navigation / Buttons */
+  --font-weight-nav: 500;
+  --font-weight-button: 600;
+  --letter-spacing-nav: 0.04em;
+
+  /* Typography - Quotes */
+  --font-weight-quote: 400;
+}
+
+/* Base Styles */
+body {
+  background-color: var(--color-main);
+  color: var(--color-foreground-dark);
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: var(--font-weight-body);
+}
+
+/* Typography styles are now handled by the Typography component */
+
+/* Buttons */
+button,
+.btn {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-button);
+  letter-spacing: var(--letter-spacing-nav);
+  cursor: pointer;
+}
+
+/* Typography styles for quotes and testimonials are now handled by the Typography component */
+
+/* Article Content Styles */
+.article-content {
+  font-family: var(--font-body), sans-serif;
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--color-foreground-dark);
+}
+
+.article-content p {
+  margin-bottom: 1.5rem;
+}
+
+.article-content p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--font-heading), serif;
+  font-size: 4.5rem;
+  line-height: 1;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  font-weight: var(--font-weight-heading-medium);
+  color: var(--color-foreground-dark);
+}
+
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  font-family: var(--font-heading), serif;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: var(--font-weight-heading-medium);
+  color: var(--color-foreground-dark);
+}
+
+.article-content h2 {
+  font-size: 2rem;
+}
+
+.article-content h3 {
+  font-size: 1.5rem;
+}
+
+.article-content a {
+  color: var(--color-button-primary);
+  text-decoration: underline;
+}
+
+.article-content a:hover {
+  text-decoration: none;
+}
+
+.article-content img {
+  width: 100%;
+  height: auto;
+  margin: 2rem 0;
+  border-radius: 0.5rem;
+}
+
+.article-content blockquote {
+  font-family: var(--font-heading), serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1.6;
+  margin: 2rem 0;
+  padding-left: 2rem;
+  border-left: 3px solid var(--color-checkbox-border);
+  color: var(--color-foreground-dark);
+}
+

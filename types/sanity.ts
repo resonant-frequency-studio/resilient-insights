@@ -9,6 +9,10 @@ export interface Author {
   }
   image?: SanityImageSource
   bio?: PortableTextBlock[]
+  linkedin?: string
+  facebook?: string
+  instagram?: string
+  youtube?: string
 }
 
 export interface Category {
