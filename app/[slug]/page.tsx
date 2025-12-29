@@ -5,10 +5,9 @@ import { PortableText } from '@portabletext/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import Button from '@/components/Button'
 import AuthorSidebar from '@/components/AuthorSidebar'
 import Typography from '@/components/Typography'
-import { Play } from '@/components/icons/Play'
+import AudioPlayer from '@/components/AudioPlayer'
 import { urlFor } from '@/sanity/lib/image'
 
 async function getPost(slug: string): Promise<Post | null> {
@@ -79,15 +78,7 @@ export default async function BlogPostPage({
 
           {/* Listen to Article Button */}
           <div className="mb-8">
-            <Button
-              variant="outline"
-              size="sm"
-              icon={<Play />}
-              iconPosition="left"
-              className="w-full md:w-auto"
-            >
-              LISTEN TO THIS ARTICLE
-            </Button>
+            <AudioPlayer slug={slug} />
           </div>
 
           {/* Separator */}

@@ -85,7 +85,7 @@ describe('AuthorSidebar', () => {
     render(<AuthorSidebar author={mockAuthor} />)
     const link = screen.getByText(/LEARN MORE ABOUT CHARLENE/i)
     expect(link).toBeInTheDocument()
-    expect(link.closest('a')).toHaveAttribute('href', '/author/charlene-wilson')
+    expect(link.closest('a')).toHaveAttribute('href', 'https://resilientleadership.us/about')
   })
 
   it('shows only first name in learn more text', () => {
