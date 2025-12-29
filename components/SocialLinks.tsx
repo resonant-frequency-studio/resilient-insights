@@ -28,7 +28,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
     { url: instagram, icon: Instagram, label: 'Instagram', key: 'instagram' },
     { url: facebook, icon: Facebook, label: 'Facebook', key: 'facebook' },
     { url: linkedin, icon: LinkedIn, label: 'LinkedIn', key: 'linkedin' },
-  ].filter((link) => link.url) // Only include links that have URLs
+  ].filter(link => link.url) // Only include links that have URLs
 
   if (links.length === 0) return null
 
@@ -58,4 +58,3 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
 }
 
 export default SocialLinks
-

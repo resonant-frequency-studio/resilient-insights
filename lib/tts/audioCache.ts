@@ -40,7 +40,7 @@ export async function findCachedUrl(cacheKey: string): Promise<string | null> {
     })
 
     // Check if we found a blob with the exact path
-    const matchingBlob = blobs.find((blob) => blob.pathname === path)
+    const matchingBlob = blobs.find(blob => blob.pathname === path)
     if (matchingBlob) {
       return matchingBlob.url
     }
@@ -67,4 +67,3 @@ export async function saveMp3(cacheKey: string, buffer: Buffer): Promise<string>
 
   return blob.url
 }
-

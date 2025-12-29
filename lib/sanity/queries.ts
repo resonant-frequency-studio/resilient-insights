@@ -47,4 +47,3 @@ export const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][
 export const postSlugsQuery = groq`*[_type == "post"] {
   slug
 }`
-

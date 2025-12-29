@@ -38,4 +38,3 @@ export interface Post {
   author?: Author
   categories?: Category[]
 }
-

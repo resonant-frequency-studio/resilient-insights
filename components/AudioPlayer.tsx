@@ -70,7 +70,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         loadingTimeoutRef.current = null
       }
       setShowLoadingMessage(false)
-      
+
       // If user wants to play, do it now that audio is ready
       if (wantsToPlayRef.current && isLoadingRef.current) {
         isLoadingRef.current = false
@@ -78,9 +78,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         try {
           await audio.play()
           // play() will trigger the 'play' event which sets state to 'playing'
-        } catch (err: any) {
+        } catch (err) {
           // Ignore AbortError - it happens when play() is interrupted
-          if (err.name !== 'AbortError') {
+          if (err instanceof Error && err.name !== 'AbortError') {
             console.error('Error playing audio:', err)
             setState('error')
             setError('Failed to play audio. Please try again.')
@@ -100,19 +100,19 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         loadingTimeoutRef.current = null
       }
       setShowLoadingMessage(false)
-      
+
       // Audio can play through without stopping
       if (isLoadingRef.current) {
         setLoadingProgress(100)
-        
+
         // If user wants to play, do it now
         if (wantsToPlayRef.current) {
           isLoadingRef.current = false
           wantsToPlayRef.current = false
           try {
             await audio.play()
-          } catch (err: any) {
-            if (err.name !== 'AbortError') {
+          } catch (err) {
+            if (err instanceof Error && err.name !== 'AbortError') {
               console.error('Error playing audio:', err)
               setState('error')
               setError('Failed to play audio. Please try again.')
@@ -181,13 +181,13 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
           // We have duration, calculate percentage
           const bufferedEnd = audio.buffered.end(audio.buffered.length - 1)
           const bufferedPercent = (bufferedEnd / audio.duration) * 100
-          setLoadingProgress((prev) => {
+          setLoadingProgress(prev => {
             // Always increase, never decrease
             return Math.max(prev, Math.min(bufferedPercent, 100))
           })
         } else {
           // No duration yet, but we have buffered data - gradually increase progress
-          setLoadingProgress((prev) => {
+          setLoadingProgress(prev => {
             // Gradually increase to show progress
             if (prev < 20) return 20
             if (prev < 40) return prev + 2
@@ -198,7 +198,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         }
       } else if (isLoadingRef.current) {
         // No buffered data yet, but we're loading - show minimal progress
-        setLoadingProgress((prev) => {
+        setLoadingProgress(prev => {
           if (prev < 10) return 10
           return prev
         })
@@ -236,7 +236,6 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         loadingTimeoutRef.current = null
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Only run once on mount
 
   const handleTogglePlay = async () => {
@@ -247,12 +246,13 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
       if (state === 'idle' || state === 'paused') {
         setHasStarted(true)
         setError(null)
-        
+
         // Set audio source
         const audioUrl = `/api/tts/article?slug=${encodeURIComponent(slug)}`
         const currentSrc = audio.src || ''
-        const needsNewSource = !currentSrc || !currentSrc.includes(`slug=${encodeURIComponent(slug)}`)
-        
+        const needsNewSource =
+          !currentSrc || !currentSrc.includes(`slug=${encodeURIComponent(slug)}`)
+
         if (needsNewSource) {
           // New source - set loading state first
           wantsToPlayRef.current = true
@@ -260,7 +260,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
           setState('loading')
           setLoadingProgress(0)
           setShowLoadingMessage(false) // Reset message, will show after delay if needed
-          
+
           // Set source and load - this will trigger loadstart event
           audio.src = audioUrl
           audio.load()
@@ -283,9 +283,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
       } else if (state === 'playing') {
         audio.pause()
       }
-    } catch (err: any) {
+    } catch (err) {
       // Ignore AbortError - it's expected when play() is interrupted
-      if (err.name === 'AbortError') {
+      if (err instanceof Error && err.name === 'AbortError') {
         return
       }
       console.error('Error playing audio:', err)
@@ -329,9 +329,10 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-primary
               disabled:opacity-50 disabled:cursor-not-allowed
               relative overflow-hidden
-              ${isLoading 
-                ? 'bg-button-outline-border text-foreground-dark border border-button-outline-border' 
-                : 'bg-button-primary text-foreground-light border border-button-primary hover:bg-button-primary-hover'
+              ${
+                isLoading
+                  ? 'bg-button-outline-border text-foreground-dark border border-button-outline-border'
+                  : 'bg-button-primary text-foreground-light border border-button-primary hover:bg-button-primary-hover'
               }
             `}
             aria-label={isPlaying ? 'Pause' : 'Play'}
@@ -339,7 +340,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
           >
             {/* Loading indicator - fills button background with button-primary color */}
             {isLoading && (
-              <div 
+              <div
                 className="absolute inset-0 bg-button-primary transition-all duration-500 ease-out"
                 style={{
                   width: `${Math.min(Math.max(loadingProgress, 0), 100)}%`,
@@ -347,7 +348,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
                 }}
               />
             )}
-            <span className={`relative z-10 transition-colors ${isLoading ? 'text-foreground-light' : ''}`}>
+            <span
+              className={`relative z-10 transition-colors ${isLoading ? 'text-foreground-light' : ''}`}
+            >
               {isLoading ? (
                 <Play className="w-5 h-5" />
               ) : isPlaying ? (
@@ -369,7 +372,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
               aria-valuemax={duration || 0}
               aria-valuenow={currentTime}
               tabIndex={0}
-              onKeyDown={(e) => {
+              onKeyDown={e => {
                 if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                   e.preventDefault()
                   const audio = audioRef.current
@@ -379,14 +382,14 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
                 }
               }}
             >
-            {/* Loading indicator background */}
-            {isLoading && (
-              <div 
-                className="absolute inset-0 bg-button-primary/20 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${Math.min(Math.max(loadingProgress, 0), 100)}%` }}
-              />
-            )}
-              
+              {/* Loading indicator background */}
+              {isLoading && (
+                <div
+                  className="absolute inset-0 bg-button-primary/20 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(Math.max(loadingProgress, 0), 100)}%` }}
+                />
+              )}
+
               {/* Played progress */}
               {!isLoading && (
                 <div
@@ -406,10 +409,18 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
 
             {/* Time Display */}
             <div className="flex justify-between items-center mt-1">
-              <Typography variant="body-small" as="span" className="text-foreground-dark tabular-nums">
+              <Typography
+                variant="body-small"
+                as="span"
+                className="text-foreground-dark tabular-nums"
+              >
                 {formatTime(currentTime)}
               </Typography>
-              <Typography variant="body-small" as="span" className="text-foreground-dark tabular-nums">
+              <Typography
+                variant="body-small"
+                as="span"
+                className="text-foreground-dark tabular-nums"
+              >
                 {formatTime(duration)}
               </Typography>
             </div>

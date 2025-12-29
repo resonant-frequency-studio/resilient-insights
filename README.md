@@ -22,12 +22,14 @@ A modern blog built with Next.js 16, TypeScript, Tailwind CSS, and Sanity CMS.
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <your-repo-url>
 cd resilient-insights
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -37,17 +39,20 @@ npm install
    - Copy your Project ID and Dataset name
 
 4. Configure environment variables:
+
 ```bash
 cp .env.local.example .env.local
 ```
 
 Edit `.env.local` and add your Sanity credentials:
+
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
 NEXT_PUBLIC_SANITY_DATASET=production
 ```
 
 5. Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -99,4 +104,3 @@ The project includes three main content types:
 ## License
 
 MIT
-

@@ -21,4 +21,3 @@ export const Instagram: React.FC<InstagramProps> = ({ className }) => {
 }
 
 export default Instagram
-

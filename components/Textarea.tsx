@@ -1,15 +1,15 @@
-import React from 'react'
+import React, { useId } from 'react'
 import { cn } from '@/lib/utils'
 
-export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
   error?: string
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, className, id, ...props }, ref) => {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
+    const generatedId = useId()
+    const textareaId = id || `textarea-${generatedId}`
 
     return (
       <div className="w-full">
@@ -51,4 +51,3 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 Textarea.displayName = 'Textarea'
 
 export default Textarea
-

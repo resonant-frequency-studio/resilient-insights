@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   /* Background Colors */
@@ -7,12 +7,12 @@
   --color-third: #ebe7e1;
   --color-fourth: #e0dcd5;
   --color-fifth: #1a1818;
-  
+
   /* Text Colors */
   --color-foreground-dark: #373240;
   --color-foreground-light: #f7f7f2;
   --color-placeholder: #9a9690;
-  
+
   /* Button Colors */
   --color-button-primary: #201b29;
   --color-button-primary-hover: #2a2433;
@@ -20,18 +20,18 @@
   --color-button-inverse-hover: #f0eee9;
   --color-button-outline-border: #d3d3d0;
   --color-button-glass: #201b29;
-  
+
   /* Form Colors */
   --color-input-bg: #f0eee9;
   --color-input-border: transparent;
   --color-input-focus-ring: #373240;
-  
+
   /* Checkbox Colors */
   --color-checkbox-border: #d3d3d0;
   --color-checkbox-bg: #f0eee9;
   --color-checkbox-checked: #201b29;
   --color-checkbox-checkmark: #f7f7f2;
-  
+
   /* Tags/Pills */
   --color-tags-pills: #e0dcd5;
 }
@@ -43,12 +43,12 @@
   --color-third: var(--color-third);
   --color-fourth: var(--color-fourth);
   --color-fifth: var(--color-fifth);
-  
+
   /* Text Colors */
   --color-foreground-dark: var(--color-foreground-dark);
   --color-foreground-light: var(--color-foreground-light);
   --color-placeholder: var(--color-placeholder);
-  
+
   /* Button Colors - available as bg-button-primary, text-button-primary, etc. */
   --color-button-primary: var(--color-button-primary);
   --color-button-primary-hover: var(--color-button-primary-hover);
@@ -56,18 +56,18 @@
   --color-button-inverse-hover: var(--color-button-inverse-hover);
   --color-button-outline-border: var(--color-button-outline-border);
   --color-button-glass: var(--color-button-glass);
-  
+
   /* Form Colors - available as bg-input, ring-input-focus-ring, etc. */
   --color-input-bg: var(--color-input-bg);
   --color-input-border: var(--color-input-border);
   --color-input-focus-ring: var(--color-input-focus-ring);
-  
+
   /* Checkbox Colors - available as bg-checkbox-checked, border-checkbox-border, etc. */
   --color-checkbox-border: var(--color-checkbox-border);
   --color-checkbox-bg: var(--color-checkbox-bg);
   --color-checkbox-checked: var(--color-checkbox-checked);
   --color-checkbox-checkmark: var(--color-checkbox-checkmark);
-  
+
   /* Tags/Pills */
   --color-tags-pills: var(--color-tags-pills);
 
@@ -183,4 +183,3 @@ button,
   border-left: 3px solid var(--color-checkbox-border);
   color: var(--color-foreground-dark);
 }
-

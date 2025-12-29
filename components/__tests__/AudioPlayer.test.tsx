@@ -26,13 +26,13 @@ class MockAudio {
 
   removeEventListener(event: string, handler: () => void) {
     if (this.listeners[event]) {
-      this.listeners[event] = this.listeners[event].filter((h) => h !== handler)
+      this.listeners[event] = this.listeners[event].filter(h => h !== handler)
     }
   }
 
   trigger(event: string) {
     if (this.listeners[event]) {
-      this.listeners[event].forEach((handler) => handler())
+      this.listeners[event].forEach(handler => handler())
     }
   }
 
@@ -91,7 +91,7 @@ class MockAudio {
 }
 
 // Mock global Audio constructor
-global.Audio = jest.fn().mockImplementation(() => new MockAudio()) as any
+global.Audio = jest.fn().mockImplementation(() => new MockAudio()) as unknown as typeof Audio
 
 describe('AudioPlayer', () => {
   let mockAudioInstance: MockAudio
@@ -150,7 +150,7 @@ describe('AudioPlayer', () => {
   it('displays loading message after 2 seconds when loading takes time', async () => {
     // Create a slow-loading audio mock that doesn't finish loading
     const slowAudio = new MockAudio()
-    slowAudio.load = function() {
+    slowAudio.load = function () {
       this.trigger('loadstart')
       // Don't call original load - keep it in loading state
       // This simulates a slow network connection
@@ -176,17 +176,15 @@ describe('AudioPlayer', () => {
     })
 
     // Message should appear after 2 seconds of loading
+    // Verify the component doesn't crash
     await waitFor(() => {
-      const message = screen.queryByText(/generating audio\.\.\. this may take a minute on first play\./i)
-      // Message may or may not appear depending on timing, but component should handle it
-      // We'll just verify the component doesn't crash
       expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument()
-    }, { timeout: 1000 })
+    })
   })
 
   it('formats time correctly', async () => {
     const user = userEvent.setup({ delay: null })
-    const { container } = render(<AudioPlayer slug="test-article" />)
+    render(<AudioPlayer slug="test-article" />)
 
     const button = screen.getByRole('button', { name: /listen to this article/i })
     await user.click(button)
@@ -213,12 +211,15 @@ describe('AudioPlayer', () => {
     // Wait for player UI to appear - this verifies the transition works
     // The button should appear after clicking
     let playButton: HTMLElement | null = null
-    await waitFor(() => {
-      playButton = screen.queryByRole('button', { name: /play/i })
-      if (playButton) {
-        expect(playButton).toBeInTheDocument()
-      }
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        playButton = screen.queryByRole('button', { name: /play/i })
+        if (playButton) {
+          expect(playButton).toBeInTheDocument()
+        }
+      },
+      { timeout: 3000 }
+    )
 
     // Fast-forward to allow audio to load
     act(() => {
@@ -262,9 +263,12 @@ describe('AudioPlayer', () => {
       jest.advanceTimersByTime(150)
     })
 
-    await waitFor(() => {
-      expect(screen.getByText(/failed to load audio/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText(/failed to load audio/i)).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
   })
 
   it('applies custom className', () => {
@@ -367,4 +371,3 @@ describe('AudioPlayer', () => {
     expect(wrapper).toHaveClass('min-h-[64px]')
   })
 })
-

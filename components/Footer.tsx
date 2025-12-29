@@ -7,44 +7,64 @@ const Footer = () => {
     <footer className="bg-fifth text-foreground-light">
       <div className="max-w-[1440px] mx-auto px-4 md:px-6 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-              {/* Company Information - Left */}
-              <div className="lg:col-span-1">
-                <Typography variant="heading-3" as="h2" className="mb-4 text-foreground-light">
-                  Resilient Leadership
-                </Typography>
-                <Typography variant="body-small" as="p" className="text-foreground-light/80">
-                  Resilient Leadership helps leaders and teams grow through change with greater self-awareness, resilience, and effectiveness.
-                </Typography>
-              </div>
+          {/* Company Information - Left */}
+          <div className="lg:col-span-1">
+            <Typography variant="heading-3" as="h2" className="mb-4 text-foreground-light">
+              Resilient Leadership
+            </Typography>
+            <Typography variant="body-small" as="p" className="text-foreground-light/80">
+              Resilient Leadership helps leaders and teams grow through change with greater
+              self-awareness, resilience, and effectiveness.
+            </Typography>
+          </div>
 
           {/* Services Column */}
           <div>
-            <Typography variant="nav" as="h3" className="mb-4 text-foreground-light uppercase tracking-wider">
+            <Typography
+              variant="nav"
+              as="h3"
+              className="mb-4 text-foreground-light uppercase tracking-wider"
+            >
               What we do
             </Typography>
             <ul className="space-y-3">
               <li>
-                <a href="https://resilientleadership.us/executive-coaching" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/executive-coaching"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Executive Coaching
                 </a>
               </li>
               <li>
-                <a href="https://resilientleadership.us/team-coaching" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/team-coaching"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Team Coaching
                 </a>
               </li>
               <li>
-                <a href="https://resilientleadership.us/organization-development" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/organization-development"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Change Management
                 </a>
               </li>
               <li>
-                <a href="https://resilientleadership.us/360-feedback" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/360-feedback"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   360˚ Feedback
                 </a>
               </li>
               <li>
-                <a href="https://resilientleadership.us/surveys-assessments" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/surveys-assessments"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Surveys and Assessments
                 </a>
               </li>
@@ -53,27 +73,43 @@ const Footer = () => {
 
           {/* Navigation Column */}
           <div>
-            <Typography variant="nav" as="h3" className="mb-4 text-foreground-light uppercase tracking-wider">
+            <Typography
+              variant="nav"
+              as="h3"
+              className="mb-4 text-foreground-light uppercase tracking-wider"
+            >
               Navigation
             </Typography>
             <ul className="space-y-3">
               <li>
-                <a href="https://resilientleadership.us" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Home
                 </a>
               </li>
               <li>
-                <Link href="/" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <Link
+                  href="/"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Articles
                 </Link>
               </li>
               <li>
-                <a href="https://resilientleadership.us/about" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/about"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   About
                 </a>
               </li>
               <li>
-                <a href="https://resilientleadership.us/contact" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://resilientleadership.us/contact"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Contact
                 </a>
               </li>
@@ -82,12 +118,21 @@ const Footer = () => {
 
           {/* Legal Column */}
           <div>
-            <Typography variant="nav" as="h3" className="mb-4 text-foreground-light uppercase tracking-wider">
+            <Typography
+              variant="nav"
+              as="h3"
+              className="mb-4 text-foreground-light uppercase tracking-wider"
+            >
               Legal
             </Typography>
             <ul className="space-y-3">
               <li>
-                <a href="https://www.iubenda.com/privacy-policy/83253436" target="_blank" rel="noopener noreferrer" className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm">
+                <a
+                  href="https://www.iubenda.com/privacy-policy/83253436"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
                   Privacy Policy
                 </a>
               </li>
@@ -119,4 +164,3 @@ const Footer = () => {
 }
 
 export default Footer
-

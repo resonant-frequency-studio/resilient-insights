@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useId } from 'react'
 import { cn } from '@/lib/utils'
 
-export interface SelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
   placeholder?: string
@@ -10,11 +9,9 @@ export interface SelectProps
 }
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  (
-    { label, error, placeholder, options, className, id, children, ...props },
-    ref
-  ) => {
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`
+  ({ label, error, placeholder, options, className, id, children, ...props }, ref) => {
+    const generatedId = useId()
+    const selectId = id || `select-${generatedId}`
 
     return (
       <div className="w-full">
@@ -48,7 +45,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 {placeholder}
               </option>
             )}
-            {options?.map((option) => (
+            {options?.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -85,4 +82,3 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 Select.displayName = 'Select'
 
 export default Select
-

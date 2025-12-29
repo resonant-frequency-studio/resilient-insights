@@ -21,4 +21,3 @@ export const LinkedIn: React.FC<LinkedInProps> = ({ className }) => {
 }
 
 export default LinkedIn
-

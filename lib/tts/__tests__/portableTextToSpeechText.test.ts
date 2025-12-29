@@ -330,4 +330,3 @@ describe('portableTextToSpeechText', () => {
     expect(result).not.toMatch(/\s+$/)
   })
 })
-

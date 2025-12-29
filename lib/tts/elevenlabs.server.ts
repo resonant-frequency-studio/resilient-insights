@@ -49,4 +49,3 @@ export async function fetchSpeechStream(text: string): Promise<Response> {
 
   return response
 }
-

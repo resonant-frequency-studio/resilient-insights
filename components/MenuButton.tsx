@@ -3,24 +3,17 @@ import { cn } from '@/lib/utils'
 import { Menu } from './icons/Menu'
 import { Close } from './icons/Close'
 
-export interface MenuButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label'> {
+export interface MenuButtonProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'aria-label'
+> {
   isOpen?: boolean
   onToggle?: () => void
   'aria-label'?: string
 }
 
 const MenuButton = React.forwardRef<HTMLButtonElement, MenuButtonProps>(
-  (
-    {
-      isOpen = false,
-      onToggle,
-      className,
-      'aria-label': ariaLabel,
-      ...props
-    },
-    ref
-  ) => {
+  ({ isOpen = false, onToggle, className, 'aria-label': ariaLabel, ...props }, ref) => {
     const defaultAriaLabel = isOpen ? 'Close menu' : 'Open menu'
 
     return (
@@ -42,11 +35,7 @@ const MenuButton = React.forwardRef<HTMLButtonElement, MenuButtonProps>(
         )}
         {...props}
       >
-        {isOpen ? (
-          <Close className="w-5 h-5" />
-        ) : (
-          <Menu className="w-5 h-5" />
-        )}
+        {isOpen ? <Close className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
     )
   }
@@ -55,4 +44,3 @@ const MenuButton = React.forwardRef<HTMLButtonElement, MenuButtonProps>(
 MenuButton.displayName = 'MenuButton'
 
 export default MenuButton
-

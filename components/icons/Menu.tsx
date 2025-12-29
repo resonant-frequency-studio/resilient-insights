@@ -27,4 +27,3 @@ export const Menu: React.FC<MenuProps> = ({ className }) => {
 }
 
 export default Menu
-

@@ -25,4 +25,3 @@ export { default as SocialLinks } from './SocialLinks'
 export type { SocialLinksProps } from './SocialLinks'
 
 export { default as Footer } from './Footer'
-

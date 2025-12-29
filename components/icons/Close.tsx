@@ -27,4 +27,3 @@ export const Close: React.FC<CloseProps> = ({ className }) => {
 }
 
 export default Close
-

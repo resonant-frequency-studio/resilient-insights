@@ -26,9 +26,7 @@ describe('Textarea', () => {
 
   it('renders placeholder text', () => {
     render(<Textarea placeholder="Tell us about your project" />)
-    expect(
-      screen.getByPlaceholderText('Tell us about your project')
-    ).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Tell us about your project')).toBeInTheDocument()
   })
 
   it('displays value when provided', () => {
@@ -41,10 +39,10 @@ describe('Textarea', () => {
     const handleChange = jest.fn()
     const user = userEvent.setup()
     render(<Textarea onChange={handleChange} />)
-    
+
     const textarea = screen.getByRole('textbox')
     await user.type(textarea, 'test message')
-    
+
     expect(handleChange).toHaveBeenCalled()
   })
 
@@ -103,14 +101,7 @@ describe('Textarea', () => {
   })
 
   it('accepts all standard textarea attributes', () => {
-    render(
-      <Textarea
-        name="message"
-        rows={5}
-        required
-        aria-label="Message textarea"
-      />
-    )
+    render(<Textarea name="message" rows={5} required aria-label="Message textarea" />)
     const textarea = screen.getByLabelText('Message textarea')
     expect(textarea).toHaveAttribute('name', 'message')
     expect(textarea).toHaveAttribute('rows', '5')
@@ -125,4 +116,3 @@ describe('Textarea', () => {
     expect(label?.getAttribute('for')).toBe(textarea?.id)
   })
 })
-

@@ -15,13 +15,9 @@ export const Pause: React.FC<PauseProps> = ({ className }) => {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <path
-        d="M5 3H7V13H5V3ZM9 3H11V13H9V3Z"
-        fill="currentColor"
-      />
+      <path d="M5 3H7V13H5V3ZM9 3H11V13H9V3Z" fill="currentColor" />
     </svg>
   )
 }
 
 export default Pause
-

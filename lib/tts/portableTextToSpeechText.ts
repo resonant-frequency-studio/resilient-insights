@@ -30,7 +30,7 @@ export function portableTextToSpeechText(body: PortableTextBlock[] | undefined):
     // Process text blocks
     if (block.children && Array.isArray(block.children)) {
       let blockText = ''
-      
+
       for (const child of block.children) {
         if (child._type === 'span' && child.text) {
           blockText += child.text
@@ -46,11 +46,10 @@ export function portableTextToSpeechText(body: PortableTextBlock[] | undefined):
   // Join blocks with double newlines (paragraph breaks)
   // Normalize whitespace: collapse multiple blank lines
   let result = textBlocks.join('\n\n')
-  
+
   // Collapse 3+ consecutive newlines to 2
   result = result.replace(/\n{3,}/g, '\n\n')
-  
+
   // Trim leading/trailing whitespace
   return result.trim()
 }
-

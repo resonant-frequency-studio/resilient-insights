@@ -15,13 +15,9 @@ export const Play: React.FC<PlayProps> = ({ className }) => {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <path
-        d="M4 3L12 8L4 13V3Z"
-        fill="currentColor"
-      />
+      <path d="M4 3L12 8L4 13V3Z" fill="currentColor" />
     </svg>
   )
 }
 
 export default Play
-

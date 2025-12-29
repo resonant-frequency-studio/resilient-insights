@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -15,8 +15,14 @@ const Header = () => {
   const pathname = usePathname()
 
   // Close mobile menu on route change
+  const prevPathname = useRef(pathname)
   useEffect(() => {
-    setIsMobileMenuOpen(false)
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname
+      // Close menu when route changes - this is intentional side effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsMobileMenuOpen(false)
+    }
   }, [pathname])
 
   // Lock body scroll when mobile menu is open
@@ -89,61 +95,59 @@ const Header = () => {
         `}
       >
         <div className="max-w-[1440px] mx-auto h-full px-6 flex items-center justify-between">
-              {/* Logo */}
-              <div className="shrink-0">
-                <a href="https://resilientleadership.us" className="flex items-center">
-                  <Image
-                    src="/resilient-leadership.png"
-                    alt="Resilient Leadership"
-                    width={200}
-                    height={60}
-                    className="h-12 w-auto invert"
-                    priority
-                  />
-                </a>
-              </div>
+          {/* Logo */}
+          <div className="shrink-0">
+            <a href="https://resilientleadership.us" className="flex items-center">
+              <Image
+                src="/resilient-leadership.png"
+                alt="Resilient Leadership"
+                width={200}
+                height={60}
+                className="h-12 w-auto invert"
+                priority
+              />
+            </a>
+          </div>
 
-              {/* Navigation Links - Center */}
-              <nav className="flex-1 flex items-center justify-center gap-8">
-                <a
-                  href="https://resilientleadership.us"
-                  className="hover:text-button-primary transition-colors"
-                >
-                  <Typography variant="nav" as="span">What We Do</Typography>
-                </a>
-                {articlesLink.startsWith('http') ? (
-                  <a
-                    href={articlesLink}
-                    className="hover:text-button-primary transition-colors"
-                  >
-                    <Typography variant="nav" as="span">Articles</Typography>
-                  </a>
-                ) : (
-                  <Link
-                    href={articlesLink}
-                    className="hover:text-button-primary transition-colors"
-                  >
-                    <Typography variant="nav" as="span">Articles</Typography>
-                  </Link>
-                )}
-                <a
-                  href="https://resilientleadership.us/about"
-                  className="hover:text-button-primary transition-colors"
-                >
-                  <Typography variant="nav" as="span">About</Typography>
-                </a>
-              </nav>
+          {/* Navigation Links - Center */}
+          <nav className="flex-1 flex items-center justify-center gap-8">
+            <a
+              href="https://resilientleadership.us"
+              className="hover:text-button-primary transition-colors"
+            >
+              <Typography variant="nav" as="span">
+                What We Do
+              </Typography>
+            </a>
+            {articlesLink.startsWith('http') ? (
+              <a href={articlesLink} className="hover:text-button-primary transition-colors">
+                <Typography variant="nav" as="span">
+                  Articles
+                </Typography>
+              </a>
+            ) : (
+              <Link href={articlesLink} className="hover:text-button-primary transition-colors">
+                <Typography variant="nav" as="span">
+                  Articles
+                </Typography>
+              </Link>
+            )}
+            <a
+              href="https://resilientleadership.us/about"
+              className="hover:text-button-primary transition-colors"
+            >
+              <Typography variant="nav" as="span">
+                About
+              </Typography>
+            </a>
+          </nav>
 
-              {/* CTA Button - Right */}
-              <div className="shrink-0">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  href="https://resilientleadership.us/contact"
-                >
-                  Schedule a Consultation
-                </Button>
-              </div>
+          {/* CTA Button - Right */}
+          <div className="shrink-0">
+            <Button variant="primary" size="sm" href="https://resilientleadership.us/contact">
+              Schedule a Consultation
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -157,34 +161,31 @@ const Header = () => {
         "
       >
         <div className="max-w-[1440px] mx-auto h-full px-4 flex items-center justify-between">
-              {/* Left: MenuButton and Logo */}
-              <div className="flex items-center gap-3">
-                <MenuButton
-                  isOpen={isMobileMenuOpen}
-                  onToggle={handleMobileMenuToggle}
-                />
-                <a href="https://resilientleadership.us" className="flex items-center" onClick={handleNavLinkClick}>
-                  <Image
-                    src="/resilient-leadership.png"
-                    alt="Resilient Leadership"
-                    width={200}
-                    height={60}
-                    className="h-10 w-auto invert"
-                    priority
-                  />
-                </a>
-              </div>
+          {/* Left: MenuButton and Logo */}
+          <div className="flex items-center gap-3">
+            <MenuButton isOpen={isMobileMenuOpen} onToggle={handleMobileMenuToggle} />
+            <a
+              href="https://resilientleadership.us"
+              className="flex items-center"
+              onClick={handleNavLinkClick}
+            >
+              <Image
+                src="/resilient-leadership.png"
+                alt="Resilient Leadership"
+                width={200}
+                height={60}
+                className="h-10 w-auto invert"
+                priority
+              />
+            </a>
+          </div>
 
-              {/* Right: CTA Button */}
-              <div className="shrink-0">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  href="https://resilientleadership.us/contact"
-                >
-                  Schedule a Consultation
-                </Button>
-              </div>
+          {/* Right: CTA Button */}
+          <div className="shrink-0">
+            <Button variant="primary" size="sm" href="https://resilientleadership.us/contact">
+              Schedule a Consultation
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -248,4 +249,3 @@ const Header = () => {
 }
 
 export default Header
-

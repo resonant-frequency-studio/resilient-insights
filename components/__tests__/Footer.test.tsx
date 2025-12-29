@@ -42,7 +42,10 @@ describe('Footer', () => {
   it('service links have correct href attributes', () => {
     render(<Footer />)
     const executiveCoaching = screen.getByText('Executive Coaching').closest('a')
-    expect(executiveCoaching).toHaveAttribute('href', 'https://resilientleadership.us/executive-coaching')
+    expect(executiveCoaching).toHaveAttribute(
+      'href',
+      'https://resilientleadership.us/executive-coaching'
+    )
   })
 
   it('navigation links have correct href attributes', () => {
@@ -87,4 +90,3 @@ describe('Footer', () => {
     expect(divider).toBeInTheDocument()
   })
 })
-

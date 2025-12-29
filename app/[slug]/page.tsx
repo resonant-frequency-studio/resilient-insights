@@ -24,11 +24,7 @@ export async function generateStaticParams() {
   return slugs.map((slug: string) => ({ slug }))
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = await getPost(slug)
 
@@ -36,18 +32,15 @@ export default async function BlogPostPage({
     notFound()
   }
 
-  const categoriesText = post.categories
-    ?.map((cat) => cat.title.toUpperCase())
-    .join(' | ') || ''
+  const categoriesText = post.categories?.map(cat => cat.title.toUpperCase()).join(' | ') || ''
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6">
       {/* Back Link */}
-      <Link
-        href="/"
-        className="hover:text-button-primary transition-colors mb-6 inline-block"
-      >
-        <Typography variant="body-small" as="span">← Back to Articles</Typography>
+      <Link href="/" className="hover:text-button-primary transition-colors mb-6 inline-block">
+        <Typography variant="body-small" as="span">
+          ← Back to Articles
+        </Typography>
       </Link>
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0">
@@ -91,7 +84,7 @@ export default async function BlogPostPage({
                 value={post.body}
                 components={{
                   types: {
-                    image: ({ value }: any) => {
+                    image: ({ value }: { value?: { asset?: { _ref?: string } } }) => {
                       if (!value?.asset) return null
                       return (
                         <div className="my-8">
@@ -120,4 +113,3 @@ export default async function BlogPostPage({
     </div>
   )
 }
-

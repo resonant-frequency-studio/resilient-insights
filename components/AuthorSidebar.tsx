@@ -32,7 +32,7 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
             ABOUT THE AUTHOR
           </Typography>
         </div>
-        
+
         {author.bio && (
           <div className="text-sm text-foreground-dark mb-6 leading-relaxed">
             <PortableText value={author.bio} />
@@ -65,4 +65,3 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
 }
 
 export default AuthorSidebar
-

@@ -55,10 +55,10 @@ describe('Select', () => {
       { value: 'design', label: 'Design' },
     ]
     render(<Select onChange={handleChange} options={options} />)
-    
+
     const select = screen.getByRole('combobox')
     await user.selectOptions(select, 'design')
-    
+
     expect(handleChange).toHaveBeenCalled()
     expect(select).toHaveValue('design')
   })
@@ -112,13 +112,7 @@ describe('Select', () => {
   })
 
   it('accepts all standard select attributes', () => {
-    render(
-      <Select
-        name="subject"
-        required
-        aria-label="Select subject"
-      />
-    )
+    render(<Select name="subject" required aria-label="Select subject" />)
     const select = screen.getByLabelText('Select subject')
     expect(select).toHaveAttribute('name', 'subject')
     expect(select).toBeRequired()
@@ -132,4 +126,3 @@ describe('Select', () => {
     expect(label?.getAttribute('for')).toBe(select?.id)
   })
 })
-

@@ -1,3 +1,4 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import AuthorSidebar from '../AuthorSidebar'
 import { Author } from '@/types/sanity'
@@ -5,19 +6,23 @@ import { Author } from '@/types/sanity'
 // Mock Next.js Image and PortableText
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, fill, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    const imgProps = fill ? { style: { position: 'absolute', inset: 0 } } : {}
+  default: ({ src, alt, fill, ...props }: { src: string; alt: string; fill?: boolean }) => {
+    const imgProps: { style?: React.CSSProperties } = fill
+      ? { style: { position: 'absolute', inset: 0 } }
+      : {}
+    // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} {...imgProps} {...props} />
   },
 }))
 
 jest.mock('@portabletext/react', () => ({
-  PortableText: ({ value }: any) => <div data-testid="portable-text">{JSON.stringify(value)}</div>,
+  PortableText: ({ value }: { value: unknown }) => (
+    <div data-testid="portable-text">{JSON.stringify(value)}</div>
+  ),
 }))
 
 jest.mock('@/sanity/lib/image', () => ({
-  urlFor: (source: any) => ({
+  urlFor: (source: { _ref?: string }) => ({
     width: () => ({
       height: () => ({
         url: () => `https://cdn.sanity.io/images/test/${source?._ref || 'image'}.jpg`,
@@ -102,8 +107,8 @@ describe('AuthorSidebar', () => {
     const authorWithoutSlug = {
       ...mockAuthor,
       slug: undefined,
-    }
-    render(<AuthorSidebar author={authorWithoutSlug as any} />)
+    } as unknown as Author
+    render(<AuthorSidebar author={authorWithoutSlug} />)
     expect(screen.queryByText(/LEARN MORE/i)).not.toBeInTheDocument()
   })
 
@@ -136,4 +141,3 @@ describe('AuthorSidebar', () => {
     expect(screen.queryByTestId('portable-text')).not.toBeInTheDocument()
   })
 })
-
