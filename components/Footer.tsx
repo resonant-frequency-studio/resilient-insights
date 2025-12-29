@@ -145,10 +145,10 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             {/* Social Media Icons */}
             <SocialLinks
-              linkedin="#"
-              facebook="#"
-              instagram="#"
-              youtube="#"
+              linkedin="https://www.linkedin.com/in/charlene-e-wilson-m-a-acc-8114283"
+              facebook="https://www.facebook.com/resilientleadershipcoaching"
+              instagram="https://www.instagram.com/resilient.leadership.us/"
+              youtube="https://www.youtube.com/@resilientleadership"
               iconClassName="border-foreground-light/30 bg-transparent text-foreground-light/80 hover:border-foreground-light hover:text-foreground-light"
             />
 

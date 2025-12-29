@@ -59,8 +59,8 @@ export async function GET(request: NextRequest) {
     const bodyTextHash = getBodyTextHash(text)
     const cacheKey = getCacheKey(postSlug, bodyTextHash)
 
-    // Check cache first
-    const cachedUrl = await findCachedUrl(cacheKey)
+    // Check cache first (with backward compatibility for old timestamp-based format)
+    const cachedUrl = await findCachedUrl(cacheKey, postSlug, post._updatedAt)
 
     if (cachedUrl) {
       // Cache hit: fetch and stream the cached MP3

@@ -84,7 +84,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 value={post.body}
                 components={{
                   types: {
-                    image: ({ value }: { value?: { asset?: { _ref?: string } } }) => {
+                    image: ({ value }: { value?: { asset?: { _ref?: string }; alt?: string } }) => {
                       if (!value?.asset) return null
                       return (
                         <div className="my-8">

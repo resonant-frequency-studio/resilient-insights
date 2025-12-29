@@ -28,13 +28,18 @@ export function getBlobPath(cacheKey: string): string {
 
 /**
  * Finds a cached audio URL if it exists in Vercel Blob storage
+ * Checks both new format (hash-based) and old format (timestamp-based) for backward compatibility
  * Returns the public URL if found, null otherwise
  */
-export async function findCachedUrl(cacheKey: string): Promise<string | null> {
+export async function findCachedUrl(
+  cacheKey: string,
+  slug?: string,
+  updatedAt?: string
+): Promise<string | null> {
   const path = getBlobPath(cacheKey)
 
   try {
-    // List blobs with the exact path as prefix
+    // Try new format first (hash-based)
     const { blobs } = await list({
       prefix: path,
     })
@@ -42,7 +47,29 @@ export async function findCachedUrl(cacheKey: string): Promise<string | null> {
     // Check if we found a blob with the exact path
     const matchingBlob = blobs.find(blob => blob.pathname === path)
     if (matchingBlob) {
+      console.log(`[TTS Cache] Found cached audio using new format (hash-based)`)
       return matchingBlob.url
+    }
+
+    // Fallback: try old format (timestamp-based) if slug and updatedAt provided
+    if (slug && updatedAt) {
+      const oldCacheKey = `${slug}-${updatedAt}`
+      const oldPath = getBlobPath(oldCacheKey)
+
+      try {
+        const { blobs: oldBlobs } = await list({
+          prefix: oldPath,
+        })
+
+        const oldMatchingBlob = oldBlobs.find(blob => blob.pathname === oldPath)
+        if (oldMatchingBlob) {
+          console.log(`[TTS Cache] Found cached audio using old format (timestamp-based)`)
+          return oldMatchingBlob.url
+        }
+      } catch (oldError) {
+        // If old format lookup fails, continue (don't log as error since it's optional)
+        console.log(`[TTS Cache] Old format lookup failed, continuing with cache miss`, oldError)
+      }
     }
   } catch (error) {
     // If list fails, treat as cache miss
