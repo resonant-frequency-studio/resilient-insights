@@ -1,12 +1,22 @@
 import { list, put } from '@vercel/blob'
+import crypto from 'crypto'
 
 const BLOB_PREFIX = 'tts/'
 
 /**
- * Generates a cache key from slug and updatedAt timestamp
+ * Generates a hash from the body text for cache key generation
+ * This ensures cache invalidation only happens when body content changes
  */
-export function getCacheKey(slug: string, updatedAt: string): string {
-  return `${slug}-${updatedAt}`
+export function getBodyTextHash(bodyText: string): string {
+  return crypto.createHash('sha256').update(bodyText).digest('hex').slice(0, 16)
+}
+
+/**
+ * Generates a cache key from slug and body text hash
+ * Using body text hash ensures cache only invalidates when actual content changes
+ */
+export function getCacheKey(slug: string, bodyTextHash: string): string {
+  return `${slug}-${bodyTextHash}`
 }
 
 /**

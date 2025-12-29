@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { client } from '@/sanity/lib/client'
 import { postBySlugQuery } from '@/lib/sanity/queries'
 import { portableTextToSpeechText } from '@/lib/tts/portableTextToSpeechText'
-import { getCacheKey, findCachedUrl, saveMp3 } from '@/lib/tts/audioCache'
+import { getCacheKey, getBodyTextHash, findCachedUrl, saveMp3 } from '@/lib/tts/audioCache'
 import { fetchSpeechStream } from '@/lib/tts/elevenlabs.server'
 
 export const runtime = 'nodejs'
@@ -53,10 +53,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Build cache key from slug and updatedAt
+    // Build cache key from slug and body text hash
+    // Using body text hash ensures cache only invalidates when actual content changes
     const postSlug = post.slug?.current || slug
-    const updatedAt = post._updatedAt || post.publishedAt || Date.now().toString()
-    const cacheKey = getCacheKey(postSlug, updatedAt)
+    const bodyTextHash = getBodyTextHash(text)
+    const cacheKey = getCacheKey(postSlug, bodyTextHash)
 
     // Check cache first
     const cachedUrl = await findCachedUrl(cacheKey)
