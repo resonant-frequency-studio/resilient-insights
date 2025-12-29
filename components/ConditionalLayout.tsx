@@ -1,13 +1,14 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import type { ReactNode } from 'react'
 import Header from './Header'
 import Footer from './Footer'
 
 export default function ConditionalLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const pathname = usePathname()
   const isStudio = pathname?.startsWith('/studio')

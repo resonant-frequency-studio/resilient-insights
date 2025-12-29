@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/providers/SmoothScrollProvider";
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`}>
