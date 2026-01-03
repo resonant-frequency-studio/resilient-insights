@@ -65,10 +65,10 @@ describe('Header', () => {
     expect(logos.length).toBeGreaterThan(0)
   })
 
-  it('renders Schedule a Consultation button', () => {
+  it('renders Start a Conversation button', () => {
     render(<Header />)
     // Button appears in both desktop and mobile
-    const buttons = screen.getAllByText('Schedule a Consultation')
+    const buttons = screen.getAllByText('Start a Conversation')
     expect(buttons.length).toBeGreaterThan(0)
   })
 

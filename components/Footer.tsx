@@ -5,7 +5,7 @@ import SocialLinks from './SocialLinks'
 const Footer = () => {
   return (
     <footer className="bg-fifth text-foreground-light">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-6 py-12 md:py-16">
+      <div className="max-width-container py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Company Information - Left */}
           <div className="lg:col-span-1">
@@ -30,7 +30,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://resilientleadership.us/executive-coaching"
+                  href="https://resilientleadership.us/services/executive-coaching"
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Executive Coaching
@@ -38,7 +38,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/team-coaching"
+                  href="https://resilientleadership.us/services/team-coaching"
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Team Coaching
@@ -46,7 +46,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/organization-development"
+                  href="https://resilientleadership.us/services/change-management"
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Change Management
@@ -54,7 +54,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/360-feedback"
+                  href="https://resilientleadership.us/services/360-feedback"
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   360˚ Feedback
@@ -62,10 +62,18 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/surveys-assessments"
+                  href="https://resilientleadership.us/services/surveys-assessments"
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Surveys and Assessments
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://resilientleadership.us/services/custom-engagements"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
+                  Custom Engagements
                 </a>
               </li>
             </ul>
@@ -128,12 +136,26 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://www.iubenda.com/privacy-policy/83253436"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="https://resilientleadership.us/privacy"
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://resilientleadership.us/cookies"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
+                  Cookie Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://resilientleadership.us/terms"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                >
+                  Terms of Service
                 </a>
               </li>
             </ul>

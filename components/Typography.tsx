@@ -25,6 +25,9 @@ type TypographyVariant =
   | 'body'
   | 'body-large'
   | 'body-small'
+  | 'body-muted'
+  | 'body-light'
+  | 'body-semibold'
   | 'caption'
   | 'nav'
   | 'button'
@@ -39,24 +42,30 @@ export interface TypographyProps {
 
 const variantStyles: Record<TypographyVariant, string> = {
   'heading-1':
-    '[font-family:var(--font-heading)] font-medium text-4xl md:text-5xl leading-[1.15] tracking-[0.02em] text-foreground-dark',
+    '[font-family:var(--font-heading)] font-medium text-4xl md:text-heading-1 leading-tight tracking-tight text-foreground-dark',
   'heading-2':
-    '[font-family:var(--font-heading)] font-medium text-3xl md:text-4xl leading-[1.15] tracking-[0.02em] text-foreground-dark',
+    '[font-family:var(--font-heading)] font-medium text-3xl md:text-heading-2 leading-tight tracking-tight text-foreground-dark',
   'heading-3':
-    '[font-family:var(--font-heading)] font-normal text-2xl md:text-3xl leading-[1.15] tracking-[0.02em] text-foreground-dark',
+    '[font-family:var(--font-heading)] font-normal text-2xl md:text-heading-3 leading-tight tracking-tight text-foreground-dark',
   'heading-4':
-    '[font-family:var(--font-heading)] font-normal text-xl md:text-2xl leading-[1.15] tracking-[0.02em] text-foreground-dark',
+    '[font-family:var(--font-heading)] font-normal text-xl md:text-heading-4 leading-tight tracking-tight text-foreground-dark',
   'heading-5':
-    '[font-family:var(--font-heading)] font-normal text-lg md:text-xl leading-[1.15] tracking-[0.02em] text-foreground-dark',
+    '[font-family:var(--font-heading)] font-normal text-lg md:text-heading-5 leading-tight tracking-tight text-foreground-dark',
   'heading-6':
-    '[font-family:var(--font-heading)] font-normal text-base md:text-lg leading-[1.15] tracking-[0.02em] text-foreground-dark',
-  body: '[font-family:var(--font-body)] text-base leading-[1.65] text-foreground-dark',
-  'body-large': '[font-family:var(--font-body)] text-lg leading-[1.65] text-foreground-dark',
-  'body-small': '[font-family:var(--font-body)] text-sm leading-[1.65] text-foreground-dark',
+    '[font-family:var(--font-heading)] font-normal text-base md:text-heading-6 leading-tight tracking-tight text-foreground-dark',
+  body: '[font-family:var(--font-body)] text-base leading-body text-foreground-dark',
+  'body-large':
+    '[font-family:var(--font-body)] text-lg md:text-xl leading-body text-foreground-dark',
+  'body-small': '[font-family:var(--font-body)] text-sm leading-body text-foreground-dark',
+  'body-muted': '[font-family:var(--font-body)] text-base leading-body text-foreground-dark/70',
+  'body-light':
+    '[font-family:var(--font-body)] text-base md:text-lg leading-body text-foreground-light',
+  'body-semibold':
+    '[font-family:var(--font-body)] text-base leading-body text-foreground-dark font-semibold',
   caption: '[font-family:var(--font-body)] text-xs leading-normal text-foreground-dark',
-  nav: '[font-family:var(--font-body)] font-medium tracking-[0.04em] text-foreground-dark',
-  button: '[font-family:var(--font-body)] font-semibold tracking-[0.04em] text-foreground-dark',
-  quote: '[font-family:var(--font-heading)] italic text-xl leading-[1.65] text-foreground-dark',
+  nav: '[font-family:var(--font-body)] font-medium tracking-nav text-foreground-dark',
+  button: '[font-family:var(--font-body)] font-semibold tracking-nav text-foreground-dark',
+  quote: '[font-family:var(--font-heading)] italic text-xl leading-body text-foreground-dark',
 }
 
 const defaultElements: Record<TypographyVariant, TypographyElement> = {
@@ -69,6 +78,9 @@ const defaultElements: Record<TypographyVariant, TypographyElement> = {
   body: 'p',
   'body-large': 'p',
   'body-small': 'p',
+  'body-muted': 'p',
+  'body-light': 'p',
+  'body-semibold': 'p',
   caption: 'span',
   nav: 'span',
   button: 'span',

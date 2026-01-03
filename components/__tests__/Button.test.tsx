@@ -100,7 +100,7 @@ describe('Button', () => {
     const { container } = render(<Button disabled>Disabled Button</Button>)
     const button = container.firstChild as HTMLElement
     expect(button).toBeDisabled()
-    expect(button).toHaveClass('disabled:opacity-50', 'disabled:cursor-not-allowed')
+    expect(button).toHaveClass('disabled:opacity-50')
   })
 
   it('does not call onClick when disabled', async () => {

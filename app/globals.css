@@ -22,18 +22,19 @@
   --color-button-glass: #201b29;
 
   /* Form Colors */
-  --color-input-bg: #f0eee9;
+  --color-input-bg: #f7f7f2;
   --color-input-border: transparent;
   --color-input-focus-ring: #373240;
 
   /* Checkbox Colors */
   --color-checkbox-border: #d3d3d0;
-  --color-checkbox-bg: #f0eee9;
+  --color-checkbox-bg: #f7f7f2;
   --color-checkbox-checked: #201b29;
   --color-checkbox-checkmark: #f7f7f2;
 
   /* Tags/Pills */
-  --color-tags-pills: #e0dcd5;
+  --color-tags-pills: #efede7;
+  --color-tags-pills-dark: #9a9690;
 }
 
 @theme inline {
@@ -70,8 +71,17 @@
 
   /* Tags/Pills */
   --color-tags-pills: var(--color-tags-pills);
+  --color-tags-pills-dark: var(--color-tags-pills-dark);
 
   /* Font Families - Set via Next.js font variables in layout.tsx */
+
+  /* Custom Font Sizes */
+  --font-size-64: 64px;
+  --font-size-48: 48px;
+  --font-size-40: 40px;
+  --font-size-32: 32px;
+  --font-size-24: 24px;
+  --font-size-20: 20px;
 
   /* Typography - Headings */
   --font-weight-heading-light: 400;
@@ -93,6 +103,51 @@
   --font-weight-quote: 400;
 }
 
+@utility max-width-container {
+  max-width: 1728px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  @media (min-width: 1280px) {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* Typography Utilities */
+@utility text-heading-1 {
+  font-size: var(--font-size-64);
+}
+
+@utility text-heading-2 {
+  font-size: var(--font-size-48);
+}
+
+@utility text-heading-3 {
+  font-size: var(--font-size-40);
+}
+
+@utility text-heading-4 {
+  font-size: var(--font-size-32);
+}
+
+@utility text-heading-5 {
+  font-size: var(--font-size-24);
+}
+
+@utility text-heading-6 {
+  font-size: var(--font-size-20);
+}
+
+@utility leading-body {
+  line-height: var(--line-height-body);
+}
+
+@utility tracking-nav {
+  letter-spacing: var(--letter-spacing-nav);
+}
+
 /* Base Styles */
 body {
   background-color: var(--color-main);
@@ -112,6 +167,125 @@ button,
   font-weight: var(--font-weight-button);
   letter-spacing: var(--letter-spacing-nav);
   cursor: pointer;
+}
+
+button:disabled,
+.btn:disabled {
+  cursor: not-allowed !important;
+}
+
+/* Form Elements - Reset native styles to allow Tailwind customization */
+/* Only reset appearance - let Tailwind classes handle styling */
+input,
+textarea,
+select {
+  /* Remove default appearance */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Ensure font inheritance */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Input specific resets */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='tel'],
+input[type='url'],
+input[type='search'],
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='week'] {
+  /* Remove all native styling */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Date/Time input specific resets */
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* Textarea specific resets */
+textarea {
+  /* Remove default resize handle styling */
+  resize: vertical;
+
+  /* Remove scrollbar styling on some browsers */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-placeholder) transparent;
+}
+
+textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background-color: var(--color-placeholder);
+  border-radius: 4px;
+}
+
+/* Checkbox specific resets */
+input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Radio button resets (for consistency) */
+input[type='radio'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Select dropdown resets */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+}
+
+/* Remove autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-input-bg) inset !important;
+  -webkit-text-fill-color: var(--color-foreground-dark) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Override Tailwind base layer for form elements */
+@layer base {
+  input.bg-input-bg,
+  textarea.bg-input-bg {
+    background-color: var(--color-input-bg) !important;
+  }
+
+  /* Checkbox checked state */
+  input[type='checkbox']:checked ~ div,
+  input[type='checkbox'].peer:checked ~ div {
+    background-color: var(--color-checkbox-checked) !important;
+    border-color: var(--color-checkbox-checked) !important;
+  }
 }
 
 /* Typography styles for quotes and testimonials are now handled by the Typography component */

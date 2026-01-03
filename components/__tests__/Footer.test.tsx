@@ -44,7 +44,7 @@ describe('Footer', () => {
     const executiveCoaching = screen.getByText('Executive Coaching').closest('a')
     expect(executiveCoaching).toHaveAttribute(
       'href',
-      'https://resilientleadership.us/executive-coaching'
+      'https://resilientleadership.us/services/executive-coaching'
     )
   })
 

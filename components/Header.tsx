@@ -94,16 +94,16 @@ const Header = () => {
           hidden md:block
         `}
       >
-        <div className="max-w-[1440px] mx-auto h-full px-6 flex items-center justify-between">
+        <div className="max-width-container h-full flex items-center justify-between">
           {/* Logo */}
           <div className="shrink-0">
             <a href="https://resilientleadership.us" className="flex items-center">
               <Image
-                src="/resilient-leadership.png"
+                src="/resilient-leadership-dark.png"
                 alt="Resilient Leadership"
                 width={200}
                 height={60}
-                className="h-12 w-auto invert"
+                className="h-18 w-auto"
                 priority
               />
             </a>
@@ -112,7 +112,7 @@ const Header = () => {
           {/* Navigation Links - Center */}
           <nav className="flex-1 flex items-center justify-center gap-8">
             <a
-              href="https://resilientleadership.us"
+              href="https://resilientleadership.us/services"
               className="hover:text-button-primary transition-colors"
             >
               <Typography variant="nav" as="span">
@@ -145,7 +145,7 @@ const Header = () => {
           {/* CTA Button - Right */}
           <div className="shrink-0">
             <Button variant="primary" size="sm" href="https://resilientleadership.us/contact">
-              Schedule a Consultation
+              Start a Conversation
             </Button>
           </div>
         </div>
@@ -160,7 +160,7 @@ const Header = () => {
           md:hidden
         "
       >
-        <div className="max-w-[1440px] mx-auto h-full px-4 flex items-center justify-between">
+        <div className="mx-auto h-full px-4 flex items-center justify-between">
           {/* Left: MenuButton and Logo */}
           <div className="flex items-center gap-3">
             <MenuButton isOpen={isMobileMenuOpen} onToggle={handleMobileMenuToggle} />
@@ -170,11 +170,11 @@ const Header = () => {
               onClick={handleNavLinkClick}
             >
               <Image
-                src="/resilient-leadership.png"
+                src="/resilient-leadership-dark.png"
                 alt="Resilient Leadership"
                 width={200}
                 height={60}
-                className="h-10 w-auto invert"
+                className="h-16 w-auto"
                 priority
               />
             </a>
@@ -183,7 +183,7 @@ const Header = () => {
           {/* Right: CTA Button */}
           <div className="shrink-0">
             <Button variant="primary" size="sm" href="https://resilientleadership.us/contact">
-              Schedule a Consultation
+              Start a Conversation
             </Button>
           </div>
         </div>

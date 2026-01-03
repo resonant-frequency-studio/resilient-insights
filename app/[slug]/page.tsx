@@ -43,7 +43,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </Typography>
       </Link>
 
-      <div className="flex flex-col md:flex-row gap-8 md:gap-0">
+      <div className="flex flex-col md:flex-row gap-8 md:gap-0 md:items-start">
         {/* Main Article Content - Left Column */}
         <article className="flex-1 min-w-0 md:pr-12 md:border-r md:border-checkbox-border">
           {/* Title */}
@@ -106,7 +106,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </article>
 
         {/* Author Sidebar - Right Column (Desktop) / Bottom (Mobile) */}
-        <aside className="md:order-last order-first md:pl-12">
+        <aside className="md:order-last order-first md:pl-12 md:sticky md:top-50 md:self-start">
           <AuthorSidebar author={post.author} />
         </aside>
       </div>
