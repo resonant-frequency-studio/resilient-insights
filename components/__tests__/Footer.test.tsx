@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import Footer from '../Footer'
 
+// Mock the mainSiteUrl utility to return production URL in tests
+jest.mock('@/lib/mainSiteUrl', () => ({
+  getMainSiteUrl: jest.fn(() => 'https://resilientleadership.us'),
+}))
+
 describe('Footer', () => {
   it('renders company name', () => {
     render(<Footer />)

@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import Typography from './Typography'
 import SocialLinks from './SocialLinks'
+import { getMainSiteUrl } from '@/lib/mainSiteUrl'
 
 const Footer = () => {
+  const mainSiteUrl = getMainSiteUrl()
   return (
     <footer className="bg-fifth text-foreground-light">
       <div className="max-width-container py-12 md:py-16">
@@ -30,7 +32,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://resilientleadership.us/services/executive-coaching"
+                  href={`${mainSiteUrl}/services/executive-coaching`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Executive Coaching
@@ -38,7 +40,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/services/team-coaching"
+                  href={`${mainSiteUrl}/services/team-coaching`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Team Coaching
@@ -46,7 +48,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/services/change-management"
+                  href={`${mainSiteUrl}/services/change-management`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Change Management
@@ -54,7 +56,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/services/360-feedback"
+                  href={`${mainSiteUrl}/services/360-feedback`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   360˚ Feedback
@@ -62,7 +64,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/services/surveys-assessments"
+                  href={`${mainSiteUrl}/services/surveys-assessments`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Surveys and Assessments
@@ -70,7 +72,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/services/custom-engagements"
+                  href={`${mainSiteUrl}/services/custom-engagements`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Custom Engagements
@@ -91,7 +93,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://resilientleadership.us"
+                  href={mainSiteUrl}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Home
@@ -107,7 +109,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/about"
+                  href={`${mainSiteUrl}/about`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   About
@@ -115,7 +117,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/contact"
+                  href={`${mainSiteUrl}/contact`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Contact
@@ -136,7 +138,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://resilientleadership.us/privacy"
+                  href={`${mainSiteUrl}/privacy`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Privacy Policy
@@ -144,7 +146,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/cookies"
+                  href={`${mainSiteUrl}/cookies`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Cookie Policy
@@ -152,7 +154,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://resilientleadership.us/terms"
+                  href={`${mainSiteUrl}/terms`}
                   className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
                 >
                   Terms of Service

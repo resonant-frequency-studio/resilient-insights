@@ -31,6 +31,11 @@ jest.mock('@/sanity/lib/image', () => ({
   }),
 }))
 
+// Mock the mainSiteUrl utility to return production URL in tests
+jest.mock('@/lib/mainSiteUrl', () => ({
+  getMainSiteUrl: jest.fn(() => 'https://resilientleadership.us'),
+}))
+
 const mockAuthor: Author = {
   _id: 'author-1',
   name: 'Charlene Wilson',

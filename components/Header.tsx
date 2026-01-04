@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import Button from './Button'
 import MenuButton from './MenuButton'
 import Typography from './Typography'
+import { getMainSiteUrl } from '@/lib/mainSiteUrl'
 
 const Header = () => {
   const [isVisible, setIsVisible] = useState(true)
@@ -72,6 +73,7 @@ const Header = () => {
   }
 
   const articlesLink = getArticlesLink()
+  const mainSiteUrl = getMainSiteUrl()
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -97,7 +99,7 @@ const Header = () => {
         <div className="max-width-container h-full flex items-center justify-between">
           {/* Logo */}
           <div className="shrink-0">
-            <a href="https://resilientleadership.us" className="flex items-center">
+            <a href={mainSiteUrl} className="flex items-center">
               <Image
                 src="/resilient-leadership-dark.png"
                 alt="Resilient Leadership"
@@ -112,7 +114,7 @@ const Header = () => {
           {/* Navigation Links - Center */}
           <nav className="flex-1 flex items-center justify-center gap-8">
             <a
-              href="https://resilientleadership.us/services"
+              href={`${mainSiteUrl}/services`}
               className="hover:text-button-primary transition-colors"
             >
               <Typography variant="nav" as="span">
@@ -133,7 +135,7 @@ const Header = () => {
               </Link>
             )}
             <a
-              href="https://resilientleadership.us/about"
+              href={`${mainSiteUrl}/about`}
               className="hover:text-button-primary transition-colors"
             >
               <Typography variant="nav" as="span">
@@ -144,7 +146,7 @@ const Header = () => {
 
           {/* CTA Button - Right */}
           <div className="shrink-0">
-            <Button variant="primary" size="sm" href="https://resilientleadership.us/contact">
+            <Button variant="primary" size="sm" href={`${mainSiteUrl}/contact`}>
               Start a Conversation
             </Button>
           </div>
@@ -164,11 +166,7 @@ const Header = () => {
           {/* Left: MenuButton and Logo */}
           <div className="flex items-center gap-3">
             <MenuButton isOpen={isMobileMenuOpen} onToggle={handleMobileMenuToggle} />
-            <a
-              href="https://resilientleadership.us"
-              className="flex items-center"
-              onClick={handleNavLinkClick}
-            >
+            <a href={mainSiteUrl} className="flex items-center" onClick={handleNavLinkClick}>
               <Image
                 src="/resilient-leadership-dark.png"
                 alt="Resilient Leadership"
@@ -196,7 +194,7 @@ const Header = () => {
         <nav className="h-full flex flex-col pt-[90px] px-6">
           <div className="flex flex-col gap-6">
             <a
-              href="https://resilientleadership.us"
+              href={`${mainSiteUrl}/services`}
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
@@ -226,7 +224,7 @@ const Header = () => {
               </Link>
             )}
             <a
-              href="https://resilientleadership.us/about"
+              href={`${mainSiteUrl}/about`}
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
