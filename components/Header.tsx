@@ -179,13 +179,6 @@ const Header = () => {
               />
             </a>
           </div>
-
-          {/* Right: CTA Button */}
-          <div className="shrink-0">
-            <Button variant="primary" size="sm" href="https://resilientleadership.us/contact">
-              Start a Conversation
-            </Button>
-          </div>
         </div>
       </header>
 

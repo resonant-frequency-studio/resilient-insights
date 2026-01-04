@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { client } from '@/sanity/lib/client'
 import { postsQuery } from '@/lib/sanity/queries'
 import { Post } from '@/types/sanity'
@@ -5,6 +6,25 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import Typography from '@/components/Typography'
+
+export const metadata: Metadata = {
+  title: 'Articles | Resilient Leadership',
+  description:
+    'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  openGraph: {
+    title: 'Articles | Resilient Leadership',
+    description:
+      'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+    type: 'website',
+    siteName: 'Resilient Leadership',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Articles | Resilient Leadership',
+    description:
+      'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  },
+}
 
 async function getPosts(): Promise<Post[]> {
   return await client.fetch(postsQuery)

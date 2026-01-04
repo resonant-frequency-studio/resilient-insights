@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { client } from '@/sanity/lib/client'
 import { postBySlugQuery, postSlugsQuery } from '@/lib/sanity/queries'
 import { Post } from '@/types/sanity'
@@ -9,6 +10,7 @@ import AuthorSidebar from '@/components/AuthorSidebar'
 import Typography from '@/components/Typography'
 import AudioPlayer from '@/components/AudioPlayer'
 import { urlFor } from '@/sanity/lib/image'
+import { portableTextToSpeechText } from '@/lib/tts/portableTextToSpeechText'
 
 async function getPost(slug: string): Promise<Post | null> {
   return await client.fetch(postBySlugQuery, { slug })
@@ -22,6 +24,80 @@ async function getPostSlugs() {
 export async function generateStaticParams() {
   const slugs = await getPostSlugs()
   return slugs.map((slug: string) => ({ slug }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPost(slug)
+
+  if (!post) {
+    return {
+      title: 'Article Not Found | Resilient Leadership',
+      description: 'The requested article could not be found.',
+    }
+  }
+
+  // Generate description from excerpt or body text
+  const description = post.excerpt
+    ? post.excerpt
+    : post.body
+      ? portableTextToSpeechText(post.body).slice(0, 160).trim() + '...'
+      : 'Read this article from Resilient Leadership.'
+
+  // Generate title with author if available
+  const title = post.author
+    ? `${post.title} | by ${post.author.name} | Resilient Leadership`
+    : `${post.title} | Resilient Leadership`
+
+  // Get image URL if available
+  const imageUrl = post.mainImage ? urlFor(post.mainImage).width(1200).height(630).url() : undefined
+
+  // Generate categories text for keywords
+  const categories = post.categories?.map(cat => cat.title).join(', ') || ''
+
+  return {
+    title,
+    description,
+    keywords: categories
+      ? [
+          categories,
+          'leadership',
+          'resilience',
+          'coaching',
+          'executive coaching',
+          'leadership development',
+        ]
+      : ['leadership', 'resilience', 'coaching', 'executive coaching', 'leadership development'],
+    authors: post.author ? [{ name: post.author.name }] : undefined,
+    openGraph: {
+      title: post.title,
+      description,
+      type: 'article',
+      siteName: 'Resilient Leadership',
+      publishedTime: post.publishedAt,
+      authors: post.author ? [post.author.name] : undefined,
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
+    },
+  }
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {

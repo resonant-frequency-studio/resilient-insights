@@ -21,8 +21,35 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Resilient Insights',
-  description: 'A blog powered by Next.js and Sanity CMS',
+  title: {
+    default: 'Articles | Resilient Leadership',
+    template: '%s | Resilient Leadership',
+  },
+  description:
+    'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  keywords: [
+    'leadership',
+    'resilience',
+    'coaching',
+    'executive coaching',
+    'team coaching',
+    'leadership development',
+  ],
+  authors: [{ name: 'Resilient Leadership' }],
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Resilient Leadership',
+    title: 'Articles | Resilient Leadership',
+    description:
+      'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Articles | Resilient Leadership',
+    description:
+      'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  },
 }
 
 export default function RootLayout({
