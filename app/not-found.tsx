@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Typography from '@/components/Typography'
 import Button from '@/components/Button'
-import { Pill } from '@/components'
+import Pill from '@/components/Pill'
 
 export const metadata: Metadata = {
   title: 'Page Not Found | Resilient Leadership',

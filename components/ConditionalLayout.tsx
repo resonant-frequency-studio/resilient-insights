@@ -18,7 +18,7 @@ export default function ConditionalLayout({ children }: { children: ReactNode })
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-main pt-36 pb-20">{children}</main>
+      <main className="min-h-screen bg-main pt-32 pb-16 md:py-32">{children}</main>
       <Footer />
     </>
   )
