@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { client } from '@/sanity/lib/client'
 import { postsQuery } from '@/lib/sanity/queries'
 import { Post } from '@/types/sanity'
@@ -6,14 +7,33 @@ import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import Typography from '@/components/Typography'
 
+export const metadata: Metadata = {
+  title: 'Articles | Resilient Leadership',
+  description:
+    'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  openGraph: {
+    title: 'Articles | Resilient Leadership',
+    description:
+      'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+    type: 'website',
+    siteName: 'Resilient Leadership',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Articles | Resilient Leadership',
+    description:
+      'Leadership insights and practical reflections for executives and teams navigating complexity, responsibility, and change.',
+  },
+}
+
 async function getPosts(): Promise<Post[]> {
   return await client.fetch(postsQuery)
 }
 
 // Helper function to extract first few lines of text from PortableText
-function extractPreviewText(body: any, maxLength: number = 150): string {
+function extractPreviewText(body: unknown, maxLength: number = 150): string {
   if (!body || !Array.isArray(body)) return ''
-  
+
   let text = ''
   for (const block of body) {
     if (block._type === 'block' && block.children) {
@@ -33,18 +53,17 @@ function extractPreviewText(body: any, maxLength: number = 150): string {
 // Helper function to group posts by category
 function groupPostsByCategory(posts: Post[]): Record<string, Post[]> {
   const grouped: Record<string, Post[]> = {}
-  
-  posts.forEach((post) => {
-    const category = post.categories && post.categories.length > 0 
-      ? post.categories[0].title 
-      : 'Uncategorized'
-    
+
+  posts.forEach(post => {
+    const category =
+      post.categories && post.categories.length > 0 ? post.categories[0].title : 'Uncategorized'
+
     if (!grouped[category]) {
       grouped[category] = []
     }
     grouped[category].push(post)
   })
-  
+
   return grouped
 }
 
@@ -59,8 +78,13 @@ export default async function Home() {
         <Typography variant="heading-1" as="h1" className="mb-4">
           Resilient Insights for Thoughtful Leaders
         </Typography>
-        <Typography variant="body-large" as="p" className="max-w-2xl mx-auto text-foreground-dark/80">
-          Practical reflections on leadership, resilience, and growth—for navigating complexity with clarity and confidence.
+        <Typography
+          variant="body-large"
+          as="p"
+          className="max-w-2xl mx-auto text-foreground-dark/80"
+        >
+          Practical reflections on leadership, resilience, and growth—for navigating complexity with
+          clarity and confidence.
         </Typography>
       </div>
 
@@ -69,10 +93,7 @@ export default async function Home() {
           <Typography variant="body" as="p" className="mb-4 text-foreground-dark/60">
             No blog posts yet.
           </Typography>
-          <Link
-            href="/studio"
-            className="text-button-primary hover:underline"
-          >
+          <Link href="/studio" className="text-button-primary hover:underline">
             Create your first post in Sanity Studio →
           </Link>
         </div>
@@ -81,44 +102,37 @@ export default async function Home() {
           {Object.entries(groupedPosts).map(([category, categoryPosts]) => (
             <section key={category}>
               {/* Category Header */}
-              <Typography 
-                variant="heading-3" 
-                as="h2" 
-                className="mb-8 uppercase tracking-wider"
-              >
+              <Typography variant="heading-3" as="h2" className="mb-8 uppercase tracking-wider">
                 {category}
               </Typography>
 
               {/* Articles in this category */}
               <div className="space-y-0">
                 {categoryPosts.map((post, index) => {
-                  const previewText = post.body 
+                  const previewText = post.body
                     ? extractPreviewText(post.body, 200)
                     : post.excerpt || ''
-                  
+
                   const isLast = index === categoryPosts.length - 1
-                  
+
                   return (
                     <div key={post._id}>
-                      <Link
-                        href={`/${post.slug.current}`}
-                        className="block group"
-                      >
+                      <Link href={`/${post.slug.current}`} className="block group">
                         <article className="flex flex-col md:flex-row gap-6 md:gap-8 pb-8">
                           {/* Article Content */}
                           <div className="flex-1 min-w-0">
-                            <Typography 
-                              variant="heading-4" 
-                              as="h3" 
+                            <Typography
+                              variant="heading-4"
+                              as="h3"
                               className="mb-3 group-hover:text-button-primary transition-colors"
                             >
                               {post.title}
                             </Typography>
-                            
+
                             {previewText && (
-                              <Typography 
-                                variant="body" 
-                                as="p" 
+                              <Typography
+                                variant="body"
+                                as="p"
                                 className="text-foreground-dark/70 line-clamp-3 mb-4"
                               >
                                 {previewText}
@@ -127,15 +141,15 @@ export default async function Home() {
 
                             {/* Date - Bottom Left */}
                             {post.publishedAt && (
-                              <Typography 
-                                variant="body-small" 
-                                as="p" 
+                              <Typography
+                                variant="body-small"
+                                as="p"
                                 className="text-foreground-dark/50"
                               >
                                 {new Date(post.publishedAt).toLocaleDateString('en-US', {
                                   year: 'numeric',
                                   month: 'long',
-                                  day: 'numeric'
+                                  day: 'numeric',
                                 })}
                               </Typography>
                             )}
@@ -154,7 +168,7 @@ export default async function Home() {
                           )}
                         </article>
                       </Link>
-                      
+
                       {/* Dividing Line - Only if not last article */}
                       {!isLast && categoryPosts.length > 1 && (
                         <div className="h-px bg-checkbox-border mb-8" />

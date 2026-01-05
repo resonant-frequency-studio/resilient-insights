@@ -3,6 +3,14 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Checkbox from '../Checkbox'
 
+// Mock Next.js Link
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
+}))
+
 describe('Checkbox', () => {
   it('renders checkbox input element', () => {
     render(<Checkbox />)
@@ -25,12 +33,14 @@ describe('Checkbox', () => {
   })
 
   it('renders label with React node content', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Link = require('next/link').default
     render(
       <Checkbox
         label={
           <>
             By sending this form, I agree to the{' '}
-            <a href="/terms">Terms of Service</a>.
+            <Link href="/terms/terms-of-service">Terms of Service</Link>.
           </>
         }
       />
@@ -39,7 +49,10 @@ describe('Checkbox', () => {
     const label = screen.getByText(/By sending this form, I agree to the/)
     expect(label).toBeInTheDocument()
     expect(screen.getByText('Terms of Service')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Terms of Service' })).toHaveAttribute('href', '/terms')
+    expect(screen.getByRole('link', { name: 'Terms of Service' })).toHaveAttribute(
+      'href',
+      '/terms/terms-of-service'
+    )
   })
 
   it('is unchecked by default', () => {
@@ -57,13 +70,13 @@ describe('Checkbox', () => {
   it('toggles when clicked', async () => {
     const user = userEvent.setup()
     render(<Checkbox />)
-    
+
     const checkbox = screen.getByRole('checkbox')
     expect(checkbox).not.toBeChecked()
-    
+
     await user.click(checkbox)
     expect(checkbox).toBeChecked()
-    
+
     await user.click(checkbox)
     expect(checkbox).not.toBeChecked()
   })
@@ -72,10 +85,10 @@ describe('Checkbox', () => {
     const handleChange = jest.fn()
     const user = userEvent.setup()
     render(<Checkbox onChange={handleChange} />)
-    
+
     const checkbox = screen.getByRole('checkbox')
     await user.click(checkbox)
-    
+
     expect(handleChange).toHaveBeenCalledTimes(1)
   })
 
@@ -87,7 +100,6 @@ describe('Checkbox', () => {
 
   it('applies error styles when error is present', () => {
     const { container } = render(<Checkbox error="Error message" />)
-    const checkbox = container.querySelector('input[type="checkbox"]')
     const visualBox = container.querySelector('div[aria-hidden="true"]')
     expect(visualBox).toHaveClass('border-red-300')
   })
@@ -102,10 +114,10 @@ describe('Checkbox', () => {
     const handleChange = jest.fn()
     const user = userEvent.setup()
     render(<Checkbox onChange={handleChange} disabled />)
-    
+
     const checkbox = screen.getByRole('checkbox')
     await user.click(checkbox)
-    
+
     expect(handleChange).not.toHaveBeenCalled()
   })
 
@@ -114,15 +126,15 @@ describe('Checkbox', () => {
     const svg = container.querySelector('svg')
     expect(svg).toBeInTheDocument()
     // Check that the SVG has the classes for showing when checked
-    expect(svg).toHaveClass('opacity-0', 'peer-checked:opacity-100')
+    expect(svg).toHaveClass('opacity-100', 'scale-100')
   })
 
   it('hides checkmark icon when unchecked', () => {
     const { container } = render(<Checkbox />)
     const svg = container.querySelector('svg')
     expect(svg).toBeInTheDocument()
-    // Check that the SVG has the opacity-0 class when unchecked
-    expect(svg).toHaveClass('opacity-0')
+    // Check that the SVG has the opacity-0 and scale-75 classes when unchecked
+    expect(svg).toHaveClass('opacity-0', 'scale-75')
   })
 
   it('applies custom className', () => {
@@ -146,19 +158,12 @@ describe('Checkbox', () => {
   it('has proper focus styles', () => {
     const { container } = render(<Checkbox />)
     const visualBox = container.querySelector('div[aria-hidden="true"]')
-    // The visual box should have peer-focus styles
-    expect(visualBox).toHaveClass('peer-focus:ring-2')
+    // The visual box should have focus-within styles
+    expect(visualBox).toHaveClass('focus-within:ring-2', 'focus-within:ring-input-focus-ring/20')
   })
 
   it('accepts all standard checkbox attributes', () => {
-    render(
-      <Checkbox
-        name="agree"
-        value="yes"
-        required
-        aria-label="Agree to terms"
-      />
-    )
+    render(<Checkbox name="agree" value="yes" required aria-label="Agree to terms" />)
     const checkbox = screen.getByLabelText('Agree to terms')
     expect(checkbox).toHaveAttribute('name', 'agree')
     expect(checkbox).toHaveAttribute('value', 'yes')
@@ -173,4 +178,3 @@ describe('Checkbox', () => {
     expect(label?.getAttribute('for')).toBe(checkbox?.id)
   })
 })
-

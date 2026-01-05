@@ -2,8 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-export interface ButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href'> {
+export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href'> {
   variant?: 'primary' | 'inverse' | 'outline' | 'glass'
   size?: 'sm' | 'md' | 'lg'
   icon?: React.ReactNode
@@ -23,23 +22,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       children,
       href,
-      asChild,
       ...props
     },
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+      'inline-flex items-center justify-center rounded-full font-semibold transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 cursor-pointer'
 
     const variantStyles = {
       primary:
-        'bg-button-primary border border-button-primary text-foreground-light hover:bg-button-inverse-hover hover:text-button-primary hover:border-button-primary focus:ring-button-primary',
+        'bg-button-primary border border-button-primary text-foreground-light hover:bg-button-inverse-hover hover:text-button-primary hover:border-button-primary focus:ring-button-primary disabled:hover:bg-button-primary disabled:hover:text-foreground-light disabled:hover:border-button-primary',
       inverse:
-        'bg-button-inverse border border-button-inverse text-button-primary hover:bg-button-primary-hover hover:text-button-inverse hover:border-button-inverse focus:ring-button-primary',
+        'bg-button-inverse border border-button-inverse text-button-primary hover:bg-button-primary-hover hover:text-button-inverse hover:border-button-inverse focus:ring-button-primary disabled:hover:bg-button-inverse disabled:hover:text-button-primary disabled:hover:border-button-inverse',
       outline:
-        'bg-transparent border border-button-outline text-foreground-dark hover:bg-button-primary-hover hover:border-foreground-dark hover:text-foreground-light focus:ring-foreground-dark',
+        'bg-transparent border border-button-outline text-foreground-dark hover:bg-button-primary-hover hover:border-foreground-dark hover:text-foreground-light focus:ring-foreground-dark disabled:hover:bg-transparent disabled:hover:border-button-outline disabled:hover:text-foreground-dark',
       glass:
-        'bg-button-glass/80 backdrop-blur-sm border border-white/10 text-foreground-light hover:bg-button-glass/90 focus:ring-button-primary',
+        'bg-button-glass/80 backdrop-blur-sm border border-white/10 text-foreground-light hover:bg-button-glass/90 focus:ring-button-primary disabled:hover:bg-button-glass/80',
     }
 
     const sizeStyles = {
@@ -48,22 +46,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'px-8 py-4 text-lg',
     }
 
-    const buttonClasses = cn(
-      baseStyles,
-      variantStyles[variant],
-      sizeStyles[size],
-      className
-    )
+    const buttonClasses = cn(baseStyles, variantStyles[variant], sizeStyles[size], className)
 
     const content = (
       <>
-        {icon && iconPosition === 'left' && (
-          <span className="shrink-0 mr-2">{icon}</span>
-        )}
+        {icon && iconPosition === 'left' && <span className="shrink-0 mr-2">{icon}</span>}
         {children}
-        {icon && iconPosition === 'right' && (
-          <span className="shrink-0 ml-2">{icon}</span>
-        )}
+        {icon && iconPosition === 'right' && <span className="shrink-0 ml-2">{icon}</span>}
       </>
     )
 
@@ -76,11 +65,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <button
-        ref={ref}
-        className={buttonClasses}
-        {...props}
-      >
+      <button ref={ref} className={buttonClasses} {...props}>
         {content}
       </button>
     )
@@ -90,4 +75,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 export default Button
-

@@ -17,25 +17,19 @@ describe('Button', () => {
   })
 
   it('renders primary variant correctly', () => {
-    const { container } = render(
-      <Button variant="primary">Primary Button</Button>
-    )
+    const { container } = render(<Button variant="primary">Primary Button</Button>)
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('bg-button-primary', 'text-foreground-light')
   })
 
   it('renders inverse variant correctly', () => {
-    const { container } = render(
-      <Button variant="inverse">Inverse Button</Button>
-    )
+    const { container } = render(<Button variant="inverse">Inverse Button</Button>)
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('bg-button-inverse', 'text-button-primary')
   })
 
   it('renders outline variant correctly', () => {
-    const { container } = render(
-      <Button variant="outline">Outline Button</Button>
-    )
+    const { container } = render(<Button variant="outline">Outline Button</Button>)
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('bg-transparent', 'border', 'border-button-outline')
   })
@@ -95,10 +89,10 @@ describe('Button', () => {
     const handleClick = jest.fn()
     const user = userEvent.setup()
     render(<Button onClick={handleClick}>Click me</Button>)
-    
+
     const button = screen.getByRole('button', { name: /click me/i })
     await user.click(button)
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
@@ -106,7 +100,7 @@ describe('Button', () => {
     const { container } = render(<Button disabled>Disabled Button</Button>)
     const button = container.firstChild as HTMLElement
     expect(button).toBeDisabled()
-    expect(button).toHaveClass('disabled:opacity-50', 'disabled:cursor-not-allowed')
+    expect(button).toHaveClass('disabled:opacity-50')
   })
 
   it('does not call onClick when disabled', async () => {
@@ -117,17 +111,15 @@ describe('Button', () => {
         Disabled Button
       </Button>
     )
-    
+
     const button = screen.getByRole('button', { name: /disabled button/i })
     await user.click(button)
-    
+
     expect(handleClick).not.toHaveBeenCalled()
   })
 
   it('applies custom className', () => {
-    const { container } = render(
-      <Button className="custom-class">Button</Button>
-    )
+    const { container } = render(<Button className="custom-class">Button</Button>)
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('custom-class')
   })
@@ -167,4 +159,3 @@ describe('Button', () => {
     expect(button).toHaveAttribute('type', 'submit')
   })
 })
-

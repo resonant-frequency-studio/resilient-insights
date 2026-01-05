@@ -4,6 +4,9 @@ export type { ButtonProps } from './Button'
 export { default as Input } from './Input'
 export type { InputProps } from './Input'
 
+export { default as Pill } from './Pill'
+export type { PillProps } from './Pill'
+
 export { default as Select } from './Select'
 export type { SelectProps } from './Select'
 
@@ -25,4 +28,3 @@ export { default as SocialLinks } from './SocialLinks'
 export type { SocialLinksProps } from './SocialLinks'
 
 export { default as Footer } from './Footer'
-

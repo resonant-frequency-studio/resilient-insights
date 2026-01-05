@@ -27,4 +27,3 @@ export const ArrowRight: React.FC<ArrowRightProps> = ({ className }) => {
 }
 
 export default ArrowRight
-

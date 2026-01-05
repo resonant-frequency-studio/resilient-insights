@@ -10,9 +10,30 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, width, height, className, priority, fill, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img src={src} alt={alt} className={className} {...(fill ? { style: { position: 'absolute', inset: 0 } } : { width, height })} />
+  default: ({
+    src,
+    alt,
+    width,
+    height,
+    className,
+    fill,
+  }: {
+    src: string
+    alt: string
+    width?: number
+    height?: number
+    className?: string
+    fill?: boolean
+  }) => {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        {...(fill ? { style: { position: 'absolute', inset: 0 } } : { width, height })}
+      />
+    )
   },
 }))
 
@@ -44,23 +65,23 @@ describe('Header', () => {
     expect(logos.length).toBeGreaterThan(0)
   })
 
-  it('renders Schedule a Consultation button', () => {
+  it('renders Start a Conversation button', () => {
     render(<Header />)
     // Button appears in both desktop and mobile
-    const buttons = screen.getAllByText('Schedule a Consultation')
+    const buttons = screen.getAllByText('Start a Conversation')
     expect(buttons.length).toBeGreaterThan(0)
   })
 
   it('toggles mobile menu when MenuButton is clicked', async () => {
     const user = userEvent.setup()
     render(<Header />)
-    
+
     const menuButtons = screen.getAllByLabelText(/open menu|close menu/i)
     const menuButton = menuButtons[0] // Mobile menu button
-    
+
     // Click to open mobile menu
     await user.click(menuButton)
-    
+
     // Check that body scroll is locked
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
@@ -70,20 +91,20 @@ describe('Header', () => {
   it('closes mobile menu on route change', async () => {
     const user = userEvent.setup()
     const { rerender } = render(<Header />)
-    
+
     const menuButtons = screen.getAllByLabelText(/open menu|close menu/i)
     const menuButton = menuButtons[0]
-    
+
     // Open menu
     await user.click(menuButton)
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
     })
-    
+
     // Simulate route change
     mockUsePathname.mockReturnValue('/new-page')
     rerender(<Header />)
-    
+
     // Menu should be closed
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('')
@@ -93,16 +114,16 @@ describe('Header', () => {
   it('restores body scroll when menu closes', async () => {
     const user = userEvent.setup()
     render(<Header />)
-    
+
     const menuButtons = screen.getAllByLabelText(/open menu|close menu/i)
     const menuButton = menuButtons[0]
-    
+
     // Open menu
     await user.click(menuButton)
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
     })
-    
+
     // Close menu
     await user.click(menuButton)
     await waitFor(() => {

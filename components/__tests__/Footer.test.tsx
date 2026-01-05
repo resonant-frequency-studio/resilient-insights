@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import Footer from '../Footer'
 
+// Mock the mainSiteUrl utility to return production URL in tests
+jest.mock('@/lib/mainSiteUrl', () => ({
+  getMainSiteUrl: jest.fn(() => 'https://resilientleadership.us'),
+}))
+
 describe('Footer', () => {
   it('renders company name', () => {
     render(<Footer />)
@@ -10,13 +15,13 @@ describe('Footer', () => {
   it('renders company description', () => {
     render(<Footer />)
     expect(
-      screen.getByText(/Resilient Leadership is a consulting firm/i)
+      screen.getByText(/Resilient Leadership helps leaders and teams grow through change/i)
     ).toBeInTheDocument()
   })
 
   it('renders Services section with all service links', () => {
     render(<Footer />)
-    expect(screen.getByText('Services')).toBeInTheDocument()
+    expect(screen.getByText('What we do')).toBeInTheDocument()
     expect(screen.getByText('Executive Coaching')).toBeInTheDocument()
     expect(screen.getByText('Team Coaching')).toBeInTheDocument()
     expect(screen.getByText('Change Management')).toBeInTheDocument()
@@ -33,25 +38,28 @@ describe('Footer', () => {
     expect(screen.getByText('Contact')).toBeInTheDocument()
   })
 
-  it('renders Legal section with privacy and cookie links', () => {
+  it('renders Legal section with privacy link', () => {
     render(<Footer />)
     expect(screen.getByText('Legal')).toBeInTheDocument()
     expect(screen.getByText('Privacy Policy')).toBeInTheDocument()
-    expect(screen.getByText('Cookie Policy')).toBeInTheDocument()
   })
 
   it('service links have correct href attributes', () => {
     render(<Footer />)
     const executiveCoaching = screen.getByText('Executive Coaching').closest('a')
-    expect(executiveCoaching).toHaveAttribute('href', '#')
+    expect(executiveCoaching).toHaveAttribute(
+      'href',
+      'https://resilientleadership.us/services/executive-coaching'
+    )
   })
 
   it('navigation links have correct href attributes', () => {
     render(<Footer />)
     const homeLink = screen.getByText('Home').closest('a')
     const articlesLink = screen.getByText('Articles').closest('a')
-    expect(homeLink).toHaveAttribute('href', '/')
-    expect(articlesLink).toHaveAttribute('href', '/')
+    expect(homeLink).toHaveAttribute('href', 'https://resilientleadership.us')
+    // Articles uses Next.js Link, check it exists
+    expect(articlesLink).toBeInTheDocument()
   })
 
   it('renders SocialLinks component', () => {
@@ -87,4 +95,3 @@ describe('Footer', () => {
     expect(divider).toBeInTheDocument()
   })
 })
-

@@ -24,6 +24,7 @@ export const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][
   title,
   slug,
   publishedAt,
+  _updatedAt,
   excerpt,
   mainImage,
   body,
@@ -46,4 +47,3 @@ export const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][
 export const postSlugsQuery = groq`*[_type == "post"] {
   slug
 }`
-

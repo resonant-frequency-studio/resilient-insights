@@ -21,4 +21,3 @@ export const Facebook: React.FC<FacebookProps> = ({ className }) => {
 }
 
 export default Facebook
-

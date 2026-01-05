@@ -1,15 +1,15 @@
-import React from 'react'
+import React, { useId } from 'react'
 import { cn } from '@/lib/utils'
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className, id, ...props }, ref) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+    const generatedId = useId()
+    const inputId = id || generatedId
 
     return (
       <div className="w-full">
@@ -26,7 +26,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           className={cn(
             'w-full px-4 py-3 rounded-lg',
-            'bg-input text-foreground-dark',
+            'bg-input-bg text-foreground-dark',
             'border border-transparent',
             'placeholder:text-placeholder',
             'focus:outline-none focus:ring-2 focus:ring-input-focus-ring/20 focus:border-input-focus-ring',
@@ -50,4 +50,3 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input'
 
 export default Input
-

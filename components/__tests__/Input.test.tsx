@@ -39,10 +39,10 @@ describe('Input', () => {
     const handleChange = jest.fn()
     const user = userEvent.setup()
     render(<Input onChange={handleChange} />)
-    
+
     const input = screen.getByRole('textbox')
     await user.type(input, 'test')
-    
+
     expect(handleChange).toHaveBeenCalled()
   })
 
@@ -89,14 +89,7 @@ describe('Input', () => {
   })
 
   it('accepts all standard input attributes', () => {
-    render(
-      <Input
-        type="email"
-        name="email"
-        required
-        aria-label="Email address"
-      />
-    )
+    render(<Input type="email" name="email" required aria-label="Email address" />)
     const input = screen.getByLabelText('Email address')
     expect(input).toHaveAttribute('type', 'email')
     expect(input).toHaveAttribute('name', 'email')
@@ -111,4 +104,3 @@ describe('Input', () => {
     expect(label?.getAttribute('for')).toBe(input?.id)
   })
 })
-

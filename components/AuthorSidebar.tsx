@@ -1,3 +1,6 @@
+'use client'
+
+import React from 'react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import { PortableText } from '@portabletext/react'
@@ -5,6 +8,7 @@ import { ArrowRight } from './icons/ArrowRight'
 import Typography from './Typography'
 import SocialLinks from './SocialLinks'
 import { Author } from '@/types/sanity'
+import { getMainSiteUrl } from '@/lib/mainSiteUrl'
 
 interface AuthorSidebarProps {
   author?: Author
@@ -12,6 +16,8 @@ interface AuthorSidebarProps {
 
 const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
   if (!author) return null
+
+  const mainSiteUrl = getMainSiteUrl()
 
   return (
     <div className="w-full md:w-80 shrink-0">
@@ -31,7 +37,7 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
             ABOUT THE AUTHOR
           </Typography>
         </div>
-        
+
         {author.bio && (
           <div className="text-sm text-foreground-dark mb-6 leading-relaxed">
             <PortableText value={author.bio} />
@@ -41,7 +47,7 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
         {author.slug && (
           <>
             <a
-              href="https://resilientleadership.us/about"
+              href={`${mainSiteUrl}/about`}
               className="inline-flex items-center gap-3 text-foreground-dark font-medium hover:text-button-primary transition-colors group mb-6"
             >
               <div className="w-10 h-10 rounded-full border border-foreground-dark flex items-center justify-center transition-all group-hover:border-button-primary group-hover:bg-button-primary group-hover:text-foreground-light">
@@ -64,4 +70,3 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
 }
 
 export default AuthorSidebar
-

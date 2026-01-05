@@ -31,10 +31,10 @@ export interface Post {
     current: string
   }
   publishedAt: string
+  _updatedAt?: string
   excerpt?: string
   mainImage?: SanityImageSource
   body?: PortableTextBlock[]
   author?: Author
   categories?: Category[]
 }
-

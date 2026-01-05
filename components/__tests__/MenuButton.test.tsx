@@ -81,9 +81,7 @@ describe('MenuButton', () => {
   })
 
   it('applies custom className', () => {
-    const { container } = render(
-      <MenuButton isOpen={false} className="custom-class" />
-    )
+    const { container } = render(<MenuButton isOpen={false} className="custom-class" />)
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('custom-class')
   })
@@ -132,15 +130,8 @@ describe('MenuButton', () => {
   })
 
   it('accepts all standard button HTML attributes', () => {
-    render(
-      <MenuButton
-        isOpen={false}
-        type="button"
-        data-testid="menu-button"
-      />
-    )
+    render(<MenuButton isOpen={false} type="button" data-testid="menu-button" />)
     const button = screen.getByTestId('menu-button')
     expect(button).toHaveAttribute('type', 'button')
   })
 })
-

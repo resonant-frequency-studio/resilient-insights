@@ -21,4 +21,3 @@ export const YouTube: React.FC<YouTubeProps> = ({ className }) => {
 }
 
 export default YouTube
-

@@ -31,12 +31,7 @@ describe('SocialLinks', () => {
   })
 
   it('links have correct href attributes', () => {
-    render(
-      <SocialLinks
-        linkedin="https://linkedin.com/test"
-        youtube="https://youtube.com/test"
-      />
-    )
+    render(<SocialLinks linkedin="https://linkedin.com/test" youtube="https://youtube.com/test" />)
     expect(screen.getByLabelText('LinkedIn')).toHaveAttribute('href', 'https://linkedin.com/test')
     expect(screen.getByLabelText('YouTube')).toHaveAttribute('href', 'https://youtube.com/test')
   })
@@ -56,12 +51,7 @@ describe('SocialLinks', () => {
   })
 
   it('applies custom iconClassName to links', () => {
-    render(
-      <SocialLinks
-        linkedin="https://linkedin.com/test"
-        iconClassName="custom-icon-class"
-      />
-    )
+    render(<SocialLinks linkedin="https://linkedin.com/test" iconClassName="custom-icon-class" />)
     const link = screen.getByLabelText('LinkedIn')
     expect(link).toHaveClass('custom-icon-class')
   })
@@ -93,4 +83,3 @@ describe('SocialLinks', () => {
     expect(link).toHaveClass('w-10', 'h-10', 'rounded-full', 'border')
   })
 })
-

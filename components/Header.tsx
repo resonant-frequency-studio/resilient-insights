@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import Button from './Button'
 import MenuButton from './MenuButton'
 import Typography from './Typography'
+import { getMainSiteUrl } from '@/lib/mainSiteUrl'
 
 const Header = () => {
   const [isVisible, setIsVisible] = useState(true)
@@ -15,8 +16,14 @@ const Header = () => {
   const pathname = usePathname()
 
   // Close mobile menu on route change
+  const prevPathname = useRef(pathname)
   useEffect(() => {
-    setIsMobileMenuOpen(false)
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname
+      // Close menu when route changes - this is intentional side effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsMobileMenuOpen(false)
+    }
   }, [pathname])
 
   // Lock body scroll when mobile menu is open
@@ -66,6 +73,7 @@ const Header = () => {
   }
 
   const articlesLink = getArticlesLink()
+  const mainSiteUrl = getMainSiteUrl()
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -88,62 +96,60 @@ const Header = () => {
           hidden md:block
         `}
       >
-        <div className="max-w-[1440px] mx-auto h-full px-6 flex items-center justify-between">
-              {/* Logo */}
-              <div className="shrink-0">
-                <a href="https://resilientleadership.us" className="flex items-center">
-                  <Image
-                    src="/resilient-leadership.png"
-                    alt="Resilient Leadership"
-                    width={200}
-                    height={60}
-                    className="h-12 w-auto invert"
-                    priority
-                  />
-                </a>
-              </div>
+        <div className="max-width-container h-full flex items-center justify-between">
+          {/* Logo */}
+          <div className="shrink-0">
+            <a href={mainSiteUrl} className="flex items-center">
+              <Image
+                src="/resilient-leadership-dark.png"
+                alt="Resilient Leadership"
+                width={200}
+                height={60}
+                className="h-18 w-auto"
+                priority
+              />
+            </a>
+          </div>
 
-              {/* Navigation Links - Center */}
-              <nav className="flex-1 flex items-center justify-center gap-8">
-                <a
-                  href="https://resilientleadership.us"
-                  className="hover:text-button-primary transition-colors"
-                >
-                  <Typography variant="nav" as="span">What We Do</Typography>
-                </a>
-                {articlesLink.startsWith('http') ? (
-                  <a
-                    href={articlesLink}
-                    className="hover:text-button-primary transition-colors"
-                  >
-                    <Typography variant="nav" as="span">Articles</Typography>
-                  </a>
-                ) : (
-                  <Link
-                    href={articlesLink}
-                    className="hover:text-button-primary transition-colors"
-                  >
-                    <Typography variant="nav" as="span">Articles</Typography>
-                  </Link>
-                )}
-                <a
-                  href="https://resilientleadership.us/about"
-                  className="hover:text-button-primary transition-colors"
-                >
-                  <Typography variant="nav" as="span">About</Typography>
-                </a>
-              </nav>
+          {/* Navigation Links - Center */}
+          <nav className="flex-1 flex items-center justify-center gap-8">
+            <a
+              href={`${mainSiteUrl}/services`}
+              className="hover:text-button-primary transition-colors"
+            >
+              <Typography variant="nav" as="span">
+                What We Do
+              </Typography>
+            </a>
+            {articlesLink.startsWith('http') ? (
+              <a href={articlesLink} className="hover:text-button-primary transition-colors">
+                <Typography variant="nav" as="span">
+                  Articles
+                </Typography>
+              </a>
+            ) : (
+              <Link href={articlesLink} className="hover:text-button-primary transition-colors">
+                <Typography variant="nav" as="span">
+                  Articles
+                </Typography>
+              </Link>
+            )}
+            <a
+              href={`${mainSiteUrl}/about`}
+              className="hover:text-button-primary transition-colors"
+            >
+              <Typography variant="nav" as="span">
+                About
+              </Typography>
+            </a>
+          </nav>
 
-              {/* CTA Button - Right */}
-              <div className="shrink-0">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  href="https://resilientleadership.us/contact"
-                >
-                  Schedule a Consultation
-                </Button>
-              </div>
+          {/* CTA Button - Right */}
+          <div className="shrink-0">
+            <Button variant="primary" size="sm" href={`${mainSiteUrl}/contact`}>
+              Start a Conversation
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -156,35 +162,21 @@ const Header = () => {
           md:hidden
         "
       >
-        <div className="max-w-[1440px] mx-auto h-full px-4 flex items-center justify-between">
-              {/* Left: MenuButton and Logo */}
-              <div className="flex items-center gap-3">
-                <MenuButton
-                  isOpen={isMobileMenuOpen}
-                  onToggle={handleMobileMenuToggle}
-                />
-                <a href="https://resilientleadership.us" className="flex items-center" onClick={handleNavLinkClick}>
-                  <Image
-                    src="/resilient-leadership.png"
-                    alt="Resilient Leadership"
-                    width={200}
-                    height={60}
-                    className="h-10 w-auto invert"
-                    priority
-                  />
-                </a>
-              </div>
-
-              {/* Right: CTA Button */}
-              <div className="shrink-0">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  href="https://resilientleadership.us/contact"
-                >
-                  Schedule a Consultation
-                </Button>
-              </div>
+        <div className="mx-auto h-full px-4 flex items-center justify-between">
+          {/* Left: MenuButton and Logo */}
+          <div className="flex items-center gap-3">
+            <MenuButton isOpen={isMobileMenuOpen} onToggle={handleMobileMenuToggle} />
+            <a href={mainSiteUrl} className="flex items-center" onClick={handleNavLinkClick}>
+              <Image
+                src="/resilient-leadership-dark.png"
+                alt="Resilient Leadership"
+                width={200}
+                height={60}
+                className="h-16 w-auto"
+                priority
+              />
+            </a>
+          </div>
         </div>
       </header>
 
@@ -202,7 +194,7 @@ const Header = () => {
         <nav className="h-full flex flex-col pt-[90px] px-6">
           <div className="flex flex-col gap-6">
             <a
-              href="https://resilientleadership.us"
+              href={`${mainSiteUrl}/services`}
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
@@ -232,7 +224,7 @@ const Header = () => {
               </Link>
             )}
             <a
-              href="https://resilientleadership.us/about"
+              href={`${mainSiteUrl}/about`}
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
@@ -248,4 +240,3 @@ const Header = () => {
 }
 
 export default Header
-

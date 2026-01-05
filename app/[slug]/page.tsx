@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { client } from '@/sanity/lib/client'
 import { postBySlugQuery, postSlugsQuery } from '@/lib/sanity/queries'
 import { Post } from '@/types/sanity'
@@ -5,11 +6,11 @@ import { PortableText } from '@portabletext/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import Button from '@/components/Button'
 import AuthorSidebar from '@/components/AuthorSidebar'
 import Typography from '@/components/Typography'
-import { Play } from '@/components/icons/Play'
+import AudioPlayer from '@/components/AudioPlayer'
 import { urlFor } from '@/sanity/lib/image'
+import { portableTextToSpeechText } from '@/lib/tts/portableTextToSpeechText'
 
 async function getPost(slug: string): Promise<Post | null> {
   return await client.fetch(postBySlugQuery, { slug })
@@ -25,11 +26,81 @@ export async function generateStaticParams() {
   return slugs.map((slug: string) => ({ slug }))
 }
 
-export default async function BlogPostPage({
+export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>
-}) {
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPost(slug)
+
+  if (!post) {
+    return {
+      title: 'Article Not Found | Resilient Leadership',
+      description: 'The requested article could not be found.',
+    }
+  }
+
+  // Generate description from excerpt or body text
+  const description = post.excerpt
+    ? post.excerpt
+    : post.body
+      ? portableTextToSpeechText(post.body).slice(0, 160).trim() + '...'
+      : 'Read this article from Resilient Leadership.'
+
+  // Generate title with author if available
+  const title = post.author
+    ? `${post.title} | by ${post.author.name} | Resilient Leadership`
+    : `${post.title} | Resilient Leadership`
+
+  // Get image URL if available
+  const imageUrl = post.mainImage ? urlFor(post.mainImage).width(1200).height(630).url() : undefined
+
+  // Generate categories text for keywords
+  const categories = post.categories?.map(cat => cat.title).join(', ') || ''
+
+  return {
+    title,
+    description,
+    keywords: categories
+      ? [
+          categories,
+          'leadership',
+          'resilience',
+          'coaching',
+          'executive coaching',
+          'leadership development',
+        ]
+      : ['leadership', 'resilience', 'coaching', 'executive coaching', 'leadership development'],
+    authors: post.author ? [{ name: post.author.name }] : undefined,
+    openGraph: {
+      title: post.title,
+      description,
+      type: 'article',
+      siteName: 'Resilient Leadership',
+      publishedTime: post.publishedAt,
+      authors: post.author ? [post.author.name] : undefined,
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
+    },
+  }
+}
+
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = await getPost(slug)
 
@@ -37,21 +108,18 @@ export default async function BlogPostPage({
     notFound()
   }
 
-  const categoriesText = post.categories
-    ?.map((cat) => cat.title.toUpperCase())
-    .join(' | ') || ''
+  const categoriesText = post.categories?.map(cat => cat.title.toUpperCase()).join(' | ') || ''
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6">
       {/* Back Link */}
-      <Link
-        href="/"
-        className="hover:text-button-primary transition-colors mb-6 inline-block"
-      >
-        <Typography variant="body-small" as="span">← Back to Articles</Typography>
+      <Link href="/" className="hover:text-button-primary transition-colors mb-6 inline-block">
+        <Typography variant="body-small" as="span">
+          ← Back to Articles
+        </Typography>
       </Link>
 
-      <div className="flex flex-col md:flex-row gap-8 md:gap-0">
+      <div className="flex flex-col md:flex-row gap-8 md:gap-0 md:items-start">
         {/* Main Article Content - Left Column */}
         <article className="flex-1 min-w-0 md:pr-12 md:border-r md:border-checkbox-border">
           {/* Title */}
@@ -79,15 +147,7 @@ export default async function BlogPostPage({
 
           {/* Listen to Article Button */}
           <div className="mb-8">
-            <Button
-              variant="outline"
-              size="sm"
-              icon={<Play />}
-              iconPosition="left"
-              className="w-full md:w-auto"
-            >
-              LISTEN TO THIS ARTICLE
-            </Button>
+            <AudioPlayer slug={slug} />
           </div>
 
           {/* Separator */}
@@ -100,7 +160,7 @@ export default async function BlogPostPage({
                 value={post.body}
                 components={{
                   types: {
-                    image: ({ value }: any) => {
+                    image: ({ value }: { value?: { asset?: { _ref?: string }; alt?: string } }) => {
                       if (!value?.asset) return null
                       return (
                         <div className="my-8">
@@ -122,11 +182,10 @@ export default async function BlogPostPage({
         </article>
 
         {/* Author Sidebar - Right Column (Desktop) / Bottom (Mobile) */}
-        <aside className="md:order-last order-first md:pl-12">
+        <aside className="md:order-last order-first md:pl-12 md:sticky md:top-50 md:self-start">
           <AuthorSidebar author={post.author} />
         </aside>
       </div>
     </div>
   )
 }
-

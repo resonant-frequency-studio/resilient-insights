@@ -27,7 +27,11 @@ describe('Typography', () => {
   })
 
   it('overrides element with as prop', () => {
-    render(<Typography variant="heading-1" as="h2">Heading</Typography>)
+    render(
+      <Typography variant="heading-1" as="h2">
+        Heading
+      </Typography>
+    )
     const element = screen.getByText('Heading')
     expect(element.tagName).toBe('H2')
   })
@@ -35,7 +39,7 @@ describe('Typography', () => {
   it('applies variant styles correctly', () => {
     const { container } = render(<Typography variant="heading-1">Title</Typography>)
     const element = container.firstChild as HTMLElement
-    expect(element).toHaveClass('text-4xl', 'md:text-5xl')
+    expect(element).toHaveClass('text-4xl', 'md:text-heading-1')
   })
 
   it('applies custom className', () => {
@@ -55,8 +59,15 @@ describe('Typography', () => {
   })
 
   it('renders all heading variants', () => {
-    const variants = ['heading-1', 'heading-2', 'heading-3', 'heading-4', 'heading-5', 'heading-6'] as const
-    variants.forEach((variant) => {
+    const variants = [
+      'heading-1',
+      'heading-2',
+      'heading-3',
+      'heading-4',
+      'heading-5',
+      'heading-6',
+    ] as const
+    variants.forEach(variant => {
       const { container } = render(<Typography variant={variant}>Heading</Typography>)
       expect(container.firstChild).toBeInTheDocument()
     })
@@ -64,7 +75,7 @@ describe('Typography', () => {
 
   it('renders all body variants', () => {
     const variants = ['body', 'body-large', 'body-small'] as const
-    variants.forEach((variant) => {
+    variants.forEach(variant => {
       const { container } = render(<Typography variant={variant}>Body text</Typography>)
       expect(container.firstChild).toBeInTheDocument()
     })
@@ -108,4 +119,3 @@ describe('Typography', () => {
     expect(element).toHaveClass('text-foreground-dark')
   })
 })
-
