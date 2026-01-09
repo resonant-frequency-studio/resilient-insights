@@ -207,6 +207,7 @@ export default defineType({
               name: 'status',
               title: 'Status',
               type: 'string',
+              hidden: true,
               options: {
                 list: [
                   { title: 'Idle', value: 'idle' },
@@ -215,14 +216,6 @@ export default defineType({
                 ],
               },
               initialValue: 'idle',
-            },
-            {
-              name: 'generatedContent',
-              title: 'Generated Content',
-              type: 'array',
-              of: [{ type: 'block' }],
-              description:
-                'Medium-ready content - copy and paste into Medium editor',
             },
             {
               name: 'title',
@@ -237,6 +230,14 @@ export default defineType({
               description: 'Optional subtitle for Medium',
             },
             {
+              name: 'generatedContent',
+              title: 'Generated Content',
+              type: 'array',
+              of: [{ type: 'block' }],
+              description:
+                'Medium-ready content - copy and paste into Medium editor',
+            },
+            {
               name: 'tags',
               title: 'Medium Tags',
               type: 'array',
@@ -247,16 +248,19 @@ export default defineType({
               name: 'canonicalUrl',
               title: 'Canonical URL',
               type: 'url',
+              hidden: true,
             },
             {
               name: 'generatedAt',
               title: 'Generated At',
               type: 'datetime',
+              hidden: true,
             },
             {
               name: 'error',
               title: 'Error',
               type: 'text',
+              hidden: true,
             },
           ],
         },

@@ -22,6 +22,14 @@ export function MediumInput(props: ObjectInputProps) {
   const mediumStatus = useFormValue(['distribution', 'medium', 'status']) as
     | string
     | undefined
+  const generatedAt = useFormValue([
+    'distribution',
+    'medium',
+    'generatedAt',
+  ]) as string | undefined
+  const storedError = useFormValue(['distribution', 'medium', 'error']) as
+    | string
+    | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,6 +72,18 @@ export function MediumInput(props: ObjectInputProps) {
     }
   }
 
+  // Format generatedAt date
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleString()
+    } catch {
+      return dateString
+    }
+  }
+
+  // Combine local error state with stored error
+  const displayError = error || storedError
+
   return (
     <Card padding={3} radius={2} tone="transparent" border>
       <Stack space={4}>
@@ -88,14 +108,22 @@ export function MediumInput(props: ObjectInputProps) {
           </Flex>
         </Flex>
 
-        {error && (
-          <Text size={0} style={{ color: 'red' }}>
-            {error}
+        {/* Display error as text, not textarea */}
+        {displayError && (
+          <Text size={0} style={{ color: '#f03e3e' }}>
+            Error: {displayError}
           </Text>
         )}
 
-        {/* Render all fields using Sanity's default rendering */}
+        {/* Render visible fields using Sanity's default rendering */}
         {props.renderDefault(props)}
+
+        {/* Display generatedAt as small muted text */}
+        {generatedAt && (
+          <Text size={0} muted>
+            Generated: {formatDate(generatedAt)}
+          </Text>
+        )}
 
         {/* Copy button for content */}
         {mediumContent && mediumContent.length > 0 && (
