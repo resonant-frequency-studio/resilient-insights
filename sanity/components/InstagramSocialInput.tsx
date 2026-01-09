@@ -81,6 +81,7 @@ export function InstagramSocialInput(props: ObjectInputProps) {
             Instagram
           </Text>
           <Button
+            type="button"
             text={isGenerating ? 'Generating...' : 'Generate Instagram Draft'}
             mode="ghost"
             tone="primary"

@@ -65,6 +65,7 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
             LinkedIn
           </Text>
           <Button
+            type="button"
             text={isGenerating ? 'Generating...' : 'Generate LinkedIn Draft'}
             mode="ghost"
             tone="primary"

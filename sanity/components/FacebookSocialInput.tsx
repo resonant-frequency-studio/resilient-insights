@@ -65,6 +65,7 @@ export function FacebookSocialInput(props: ObjectInputProps) {
             Facebook
           </Text>
           <Button
+            type="button"
             text={isGenerating ? 'Generating...' : 'Generate Facebook Draft'}
             mode="ghost"
             tone="primary"
