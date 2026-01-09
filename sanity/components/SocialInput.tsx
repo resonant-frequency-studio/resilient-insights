@@ -16,7 +16,6 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
 /**
  * Custom input for the social object that renders each platform
  * with its custom input component (LinkedInSocialInput, etc.)
- * and the suggestedFirstComment as an editable field.
  */
 export function SocialInput(props: ObjectInputProps) {
   const { members } = props
@@ -40,14 +39,6 @@ export function SocialInput(props: ObjectInputProps) {
     () =>
       members?.find(
         (m): m is FieldMember => isFieldMember(m) && m.name === 'instagram'
-      ),
-    [members]
-  )
-  const suggestedFirstCommentMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember =>
-          isFieldMember(m) && m.name === 'suggestedFirstComment'
       ),
     [members]
   )
@@ -86,20 +77,6 @@ export function SocialInput(props: ObjectInputProps) {
       {instagramMember && (
         <MemberField
           member={instagramMember}
-          renderAnnotation={props.renderAnnotation}
-          renderBlock={props.renderBlock}
-          renderField={props.renderField}
-          renderInlineBlock={props.renderInlineBlock}
-          renderInput={props.renderInput}
-          renderItem={props.renderItem}
-          renderPreview={props.renderPreview}
-        />
-      )}
-
-      {/* Suggested First Comment - editable */}
-      {suggestedFirstCommentMember && (
-        <MemberField
-          member={suggestedFirstCommentMember}
           renderAnnotation={props.renderAnnotation}
           renderBlock={props.renderBlock}
           renderField={props.renderField}

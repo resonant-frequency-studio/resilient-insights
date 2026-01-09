@@ -283,9 +283,6 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
         {socialMember && (
           <Card padding={3} radius={2} tone="transparent" border>
             <Stack space={4}>
-              <Text size={1} weight="bold">
-                Social Media
-              </Text>
               <MemberField
                 member={socialMember}
                 renderAnnotation={props.renderAnnotation}

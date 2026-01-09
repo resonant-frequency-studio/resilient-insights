@@ -41,5 +41,11 @@ export const instagramSocial = defineType({
       type: 'array',
       of: [{ type: 'string' }],
     }),
+    defineField({
+      name: 'suggestedFirstComment',
+      title: 'Suggested First Comment',
+      type: 'text',
+      rows: 3,
+    }),
   ],
 })

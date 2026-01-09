@@ -43,6 +43,14 @@ export function InstagramSocialInput(props: ObjectInputProps) {
       ),
     [members]
   )
+  const suggestedFirstCommentMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember =>
+          isFieldMember(m) && m.name === 'suggestedFirstComment'
+      ),
+    [members]
+  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -120,6 +128,20 @@ export function InstagramSocialInput(props: ObjectInputProps) {
         {hashtagsMember ? (
           <MemberField
             member={hashtagsMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        ) : null}
+
+        {/* Render suggested first comment */}
+        {suggestedFirstCommentMember ? (
+          <MemberField
+            member={suggestedFirstCommentMember}
             renderAnnotation={props.renderAnnotation}
             renderBlock={props.renderBlock}
             renderField={props.renderField}

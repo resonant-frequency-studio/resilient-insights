@@ -61,8 +61,8 @@ export interface GeneratedSocial {
   instagram: {
     caption: string
     hashtags: string[]
+    suggestedFirstComment?: string
   }
-  suggestedFirstComment?: string
 }
 
 export interface GeneratedLinkedIn {
@@ -440,8 +440,8 @@ export async function generateSocial(
     instagram: {
       caption: instagramValidated.caption,
       hashtags: instagramValidated.hashtags,
+      suggestedFirstComment: instagramValidated.suggestedFirstComment,
     },
-    suggestedFirstComment: instagramValidated.suggestedFirstComment,
   }
 }
 

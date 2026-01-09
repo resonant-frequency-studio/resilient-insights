@@ -79,8 +79,11 @@ export async function POST(request: NextRequest) {
       social?: {
         linkedin?: { text: string }
         facebook?: { text: string }
-        instagram?: { caption: string; hashtags: string[] }
-        suggestedFirstComment?: string
+        instagram?: {
+          caption: string
+          hashtags: string[]
+          suggestedFirstComment?: string
+        }
         generatedAt?: string
         model?: string
       }
@@ -216,8 +219,8 @@ export async function POST(request: NextRequest) {
           instagram: {
             caption: instagram.caption,
             hashtags: instagram.hashtags,
+            suggestedFirstComment: instagram.suggestedFirstComment,
           },
-          suggestedFirstComment: instagram.suggestedFirstComment,
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
         }
