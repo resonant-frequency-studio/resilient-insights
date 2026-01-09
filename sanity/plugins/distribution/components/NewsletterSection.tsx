@@ -165,22 +165,16 @@ export function NewsletterSection({
 
         {newsletter.ctaUrl !== undefined && (
           <Stack space={2}>
-            <Label>CTA URL</Label>
+            <Label muted>CTA URL</Label>
             <TextArea
               value={newsletter.ctaUrl || ''}
-              onChange={e => {
-                if (onChange) {
-                  onChange(
-                    PatchEvent.from(
-                      set(e.currentTarget.value, ['newsletter', 'ctaUrl'])
-                    )
-                  )
-                }
-              }}
+              readOnly
               rows={1}
+              style={{ opacity: 0.6, cursor: 'default' }}
             />
             <Flex gap={2}>
               <Button
+                type="button"
                 text="Copy"
                 mode="ghost"
                 fontSize={0}
