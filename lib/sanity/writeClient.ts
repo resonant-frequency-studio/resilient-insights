@@ -88,7 +88,11 @@ export async function patchSocialPlatform(
   postId: string,
   platform: 'linkedin' | 'facebook' | 'instagram',
   data: Record<string, unknown>,
-  metadata?: { generatedAt?: string; model?: string; suggestedFirstComment?: string }
+  metadata?: {
+    generatedAt?: string
+    model?: string
+    suggestedFirstComment?: string
+  }
 ): Promise<void> {
   if (!writeToken) {
     throw new Error('SANITY_WRITE_TOKEN is required for distribution updates')
@@ -109,7 +113,8 @@ export async function patchSocialPlatform(
     }
     if (metadata?.suggestedFirstComment !== undefined) {
       patch.set({
-        'distribution.social.suggestedFirstComment': metadata.suggestedFirstComment,
+        'distribution.social.suggestedFirstComment':
+          metadata.suggestedFirstComment,
       })
     }
 

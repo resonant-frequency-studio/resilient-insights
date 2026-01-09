@@ -1,7 +1,16 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Stack, Text, Button, Flex, Card, Label, TextArea, Badge } from '@sanity/ui'
+import {
+  Stack,
+  Text,
+  Button,
+  Flex,
+  Card,
+  Label,
+  TextArea,
+  Badge,
+} from '@sanity/ui'
 import {
   ObjectInputProps,
   ObjectMember,

@@ -1,6 +1,15 @@
 'use client'
 
-import { Card, Stack, Button, Text, Flex, Label, TextArea, Badge } from '@sanity/ui'
+import {
+  Card,
+  Stack,
+  Button,
+  Text,
+  Flex,
+  Label,
+  TextArea,
+  Badge,
+} from '@sanity/ui'
 import { set, PatchEvent } from 'sanity'
 
 interface NewsletterData {
