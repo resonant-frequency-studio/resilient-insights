@@ -1,8 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
+import {
+  ObjectInputProps,
+  useFormValue,
+  PatchEvent,
+  set,
+  MemberField,
+  FieldMember,
+  ObjectMember,
+} from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
@@ -19,8 +27,12 @@ interface GenerateResponse {
   error?: string
 }
 
+function isFieldMember(member: ObjectMember): member is FieldMember {
+  return member.kind === 'field'
+}
+
 export function MediumInput(props: ObjectInputProps) {
-  const { onChange } = props
+  const { onChange, members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const mediumContent = useFormValue([
     'distribution',
@@ -40,6 +52,20 @@ export function MediumInput(props: ObjectInputProps) {
     | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Find visible field members (exclude hidden fields)
+  const visibleMembers = useMemo(() => {
+    return (
+      members?.filter(
+        (m): m is FieldMember =>
+          isFieldMember(m) &&
+          m.name !== 'status' &&
+          m.name !== 'canonicalUrl' &&
+          m.name !== 'generatedAt' &&
+          m.name !== 'error'
+      ) || []
+    )
+  }, [members])
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -148,8 +174,20 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Render visible fields using Sanity's default rendering */}
-        {props.renderDefault(props)}
+        {/* Render each field using MemberField */}
+        {visibleMembers.map(member => (
+          <MemberField
+            key={member.key}
+            member={member}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        ))}
 
         {/* Footer with generated date and copy button - only show when content exists */}
         {generatedAt && (
