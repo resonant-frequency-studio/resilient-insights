@@ -7,7 +7,6 @@ import {
   Text,
   Flex,
   Badge,
-  Box,
   Label,
   TextArea,
 } from '@sanity/ui'
@@ -24,8 +23,10 @@ interface MediumData {
 }
 
 interface MediumStatusSectionProps {
-  medium: MediumData
+  medium?: MediumData
   onCopy: (text: string) => void
+  onGenerate?: () => void
+  isGenerating?: boolean
 }
 
 function getStatusBadge(status?: string) {
@@ -47,80 +48,104 @@ function getStatusBadge(status?: string) {
 export function MediumStatusSection({
   medium,
   onCopy,
+  onGenerate,
+  isGenerating,
 }: MediumStatusSectionProps) {
   return (
     <Card padding={3} radius={2} tone="transparent" border>
-      <Stack space={3}>
+      <Stack space={4}>
         <Flex align="center" justify="space-between">
           <Text size={1} weight="bold">
             Medium Draft
           </Text>
-          {getStatusBadge(medium.status)}
+          <Flex align="center" gap={2}>
+            {medium?.status && getStatusBadge(medium.status)}
+            {onGenerate && (
+              <Button
+                type="button"
+                text={isGenerating ? 'Generating...' : 'Generate Medium Draft'}
+                mode="ghost"
+                tone="primary"
+                fontSize={0}
+                padding={2}
+                onClick={onGenerate}
+                disabled={isGenerating}
+              />
+            )}
+          </Flex>
         </Flex>
-        {medium.generatedAt && (
+
+        {medium?.generatedAt && (
           <Text size={0} muted>
             Generated: {new Date(medium.generatedAt).toLocaleString()}
           </Text>
         )}
-        {medium.title && (
-          <Box>
+
+        {medium?.title && (
+          <Stack space={2}>
             <Label>Title</Label>
             <Text size={1} weight="semibold">
               {medium.title}
             </Text>
             <Button
+              type="button"
               text="Copy Title"
               mode="ghost"
               fontSize={0}
               padding={1}
               onClick={() => onCopy(medium.title || '')}
             />
-          </Box>
+          </Stack>
         )}
-        {medium.subtitle && (
-          <Box>
+
+        {medium?.subtitle && (
+          <Stack space={2}>
             <Label>Subtitle</Label>
             <Text size={1} muted>
               {medium.subtitle}
             </Text>
             <Button
+              type="button"
               text="Copy Subtitle"
               mode="ghost"
               fontSize={0}
               padding={1}
               onClick={() => onCopy(medium.subtitle || '')}
             />
-          </Box>
+          </Stack>
         )}
-        {medium.tags && medium.tags.length > 0 && (
-          <Box>
+
+        {medium?.tags && medium.tags.length > 0 && (
+          <Stack space={2}>
             <Label>Tags</Label>
             <Text size={1}>{medium.tags.join(', ')}</Text>
             <Button
+              type="button"
               text="Copy Tags"
               mode="ghost"
               fontSize={0}
               padding={1}
               onClick={() => onCopy(medium.tags?.join(', ') || '')}
             />
-          </Box>
+          </Stack>
         )}
-        {medium.generatedContent && medium.status === 'ready' && (
-          <Box>
-            <Label>
-              Medium-Ready Content (Copy & Paste into Medium Editor)
-            </Label>
-            <Text
-              size={0}
-              muted
-              style={{ marginBottom: '8px', display: 'block' }}
-            >
+
+        {medium?.generatedContent && medium?.status === 'ready' && (
+          <Stack space={2}>
+            <Label>Medium-Ready Content (Copy &amp; Paste into Medium Editor)</Label>
+            <Text size={0} muted>
               Copy the content below and paste it into Medium&apos;s post
               editor. The content is formatted and ready to use.
             </Text>
-            <TextArea value={medium.generatedContent} readOnly rows={20} />
-            <Stack space={2} marginTop={2}>
+            <TextArea
+              value={medium.generatedContent}
+              readOnly
+              rows={20}
+              style={{ opacity: 0.8, cursor: 'default' }}
+            />
+            <Stack space={2}>
               <Button
+                type="button"
                 text="Copy Full Content to Clipboard"
                 tone="primary"
                 mode="default"
@@ -140,9 +165,10 @@ export function MediumStatusSection({
                 and paste the content.
               </Text>
             </Stack>
-          </Box>
+          </Stack>
         )}
-        {medium.error && (
+
+        {medium?.error && (
           <Text size={0} style={{ color: '#721c24' }}>
             Error: {medium.error}
           </Text>

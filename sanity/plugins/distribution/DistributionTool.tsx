@@ -17,7 +17,6 @@ import { ScheduledPostsList } from './ScheduledPostsList'
 import { NewsletterSection } from './components/NewsletterSection'
 import { SocialAccountsMenu } from './components/SocialAccountsMenu'
 import { MediumStatusSection } from './components/MediumStatusSection'
-import { ActionButtons } from './components/ActionButtons'
 import { StatusMessages } from './components/StatusMessages'
 import imageUrlBuilder from '@sanity/image-url'
 
@@ -293,12 +292,6 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
           />
         </Flex>
 
-        {/* Action Buttons */}
-        <ActionButtons
-          loading={loading}
-          onPublishToMedium={handleGenerateMediumDraft}
-        />
-
         {/* Status Messages */}
         <StatusMessages loading={loading} error={error} success={success} />
 
@@ -409,12 +402,12 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
           )}
 
         {/* Medium Status */}
-        {distribution?.medium && (
-          <MediumStatusSection
-            medium={distribution.medium}
-            onCopy={copyToClipboard}
-          />
-        )}
+        <MediumStatusSection
+          medium={distribution?.medium}
+          onCopy={copyToClipboard}
+          onGenerate={handleGenerateMediumDraft}
+          isGenerating={loading === 'Generating Medium draft...'}
+        />
       </Stack>
     </Card>
   )
