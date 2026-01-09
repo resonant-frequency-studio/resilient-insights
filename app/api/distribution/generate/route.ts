@@ -11,6 +11,7 @@ import {
   patchPostDistribution,
   patchSocialPlatform,
 } from '@/lib/sanity/writeClient'
+import { plainTextToPortableText } from '@/lib/sanity/portableTextConverter'
 import { z } from 'zod'
 
 export const runtime = 'nodejs'
@@ -105,6 +106,8 @@ export async function POST(request: NextRequest) {
 
         generated.newsletter = {
           ...newsletter,
+          // Convert body text to Portable Text blocks
+          body: plainTextToPortableText(newsletter.body),
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
         }
@@ -132,7 +135,19 @@ export async function POST(request: NextRequest) {
         })
 
         generated.social = {
-          ...social,
+          linkedin: {
+            ...social.linkedin,
+            text: plainTextToPortableText(social.linkedin.text),
+          },
+          facebook: {
+            ...social.facebook,
+            text: plainTextToPortableText(social.facebook.text),
+          },
+          instagram: {
+            ...social.instagram,
+            caption: plainTextToPortableText(social.instagram.caption),
+          },
+          suggestedFirstComment: social.suggestedFirstComment,
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
         }
@@ -160,13 +175,18 @@ export async function POST(request: NextRequest) {
           postId,
         })
 
+        // Convert text to Portable Text
+        const linkedinData = {
+          text: plainTextToPortableText(linkedin.text),
+        }
+
         // Patch only LinkedIn data (preserves Facebook, Instagram, etc.)
-        await patchSocialPlatform(post._id, 'linkedin', linkedin, {
+        await patchSocialPlatform(post._id, 'linkedin', linkedinData, {
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
         })
 
-        generated.social = { linkedin }
+        generated.social = { linkedin: linkedinData }
       } catch (error) {
         console.error('LinkedIn generation error:', error)
         return NextResponse.json(
@@ -191,13 +211,18 @@ export async function POST(request: NextRequest) {
           postId,
         })
 
+        // Convert text to Portable Text
+        const facebookData = {
+          text: plainTextToPortableText(facebook.text),
+        }
+
         // Patch only Facebook data (preserves LinkedIn, Instagram, etc.)
-        await patchSocialPlatform(post._id, 'facebook', facebook, {
+        await patchSocialPlatform(post._id, 'facebook', facebookData, {
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
         })
 
-        generated.social = { ...generated.social, facebook }
+        generated.social = { ...generated.social, facebook: facebookData }
       } catch (error) {
         console.error('Facebook generation error:', error)
         return NextResponse.json(
@@ -223,7 +248,7 @@ export async function POST(request: NextRequest) {
         })
 
         const instagramData = {
-          caption: instagram.caption,
+          caption: plainTextToPortableText(instagram.caption),
           hashtags: instagram.hashtags,
         }
 

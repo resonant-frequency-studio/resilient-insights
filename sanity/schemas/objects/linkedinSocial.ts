@@ -13,8 +13,8 @@ export const linkedinSocial = defineType({
     defineField({
       name: 'text',
       title: 'Text',
-      type: 'text',
-      rows: 6,
+      type: 'array',
+      of: [{ type: 'block' }],
     }),
     defineField({
       name: 'image',

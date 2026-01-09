@@ -23,7 +23,7 @@ interface GenerateResponse {
     generated?: {
       social?: {
         facebook?: {
-          text?: string
+          text?: unknown[] // Portable Text blocks
         }
       }
     }
@@ -39,12 +39,12 @@ export function FacebookSocialInput(props: ObjectInputProps) {
     'social',
     'facebook',
     'text',
-  ]) as string | undefined
+  ]) as unknown[] | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Determine status based on content
-  const status = facebookText ? 'ready' : 'idle'
+  // Determine status based on content (now Portable Text array)
+  const status = facebookText && facebookText.length > 0 ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const textMember = useMemo(

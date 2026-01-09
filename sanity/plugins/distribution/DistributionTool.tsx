@@ -8,15 +8,11 @@ import {
   MemberField,
   FieldMember,
   ObjectMember,
-  PatchEvent,
-  set,
 } from 'sanity'
-import { generateContent, publishToMedium, schedulePost } from './actions'
+import { generateContent, schedulePost } from './actions'
 import { SchedulePicker } from './SchedulePicker'
 import { ScheduledPostsList } from './ScheduledPostsList'
-import { NewsletterSection } from './components/NewsletterSection'
 import { SocialAccountsMenu } from './components/SocialAccountsMenu'
-import { MediumStatusSection } from './components/MediumStatusSection'
 import imageUrlBuilder from '@sanity/image-url'
 
 /**
@@ -127,11 +123,29 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
   >(null)
   const [recommendations] = useState<string[]>([])
 
+  // Find the newsletter member for MemberField rendering
+  const newsletterMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'newsletter'
+      ),
+    [members]
+  )
+
   // Find the social member for MemberField rendering
   const socialMember = useMemo(
     () =>
       members?.find(
         (m): m is FieldMember => isFieldMember(m) && m.name === 'social'
+      ),
+    [members]
+  )
+
+  // Find the medium member for MemberField rendering
+  const mediumMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'medium'
       ),
     [members]
   )
@@ -215,60 +229,6 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
     }
   }
 
-  const handleGenerateMediumDraft = async () => {
-    if (!postId) {
-      setError('Post ID not found')
-      return
-    }
-
-    setLoading('Generating Medium draft...')
-    setError(null)
-
-    try {
-      const result = (await publishToMedium(postId)) as {
-        success: boolean
-        data?: {
-          data?: {
-            title?: string
-            subtitle?: string
-            content?: string
-            tags?: string[]
-          }
-        }
-        error?: string
-      }
-      if (result.success) {
-        setSuccess('Medium draft generated! See below to copy content.')
-
-        // Update local form state with generated content
-        const mediumData = result.data?.data
-        if (mediumData) {
-          props.onChange(
-            PatchEvent.from(
-              set(
-                {
-                  status: 'ready',
-                  title: mediumData.title,
-                  subtitle: mediumData.subtitle,
-                  generatedContent: mediumData.content,
-                  tags: mediumData.tags,
-                  generatedAt: new Date().toISOString(),
-                },
-                ['medium']
-              )
-            )
-          )
-        }
-      } else {
-        setError(result.error || 'Medium draft generation failed')
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setLoading(null)
-    }
-  }
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     setSuccess('Copied to clipboard!')
@@ -291,14 +251,19 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
           />
         </Flex>
 
-        {/* Newsletter Section */}
-        <NewsletterSection
-          newsletter={distribution?.newsletter || {}}
-          onChange={props.onChange}
-          onCopy={copyToClipboard}
-          onGenerate={() => handleGenerate(['newsletter'])}
-          isGenerating={loading === 'Generating newsletter...'}
-        />
+        {/* Newsletter Section - Using MemberField for native Sanity rendering */}
+        {newsletterMember && (
+          <MemberField
+            member={newsletterMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        )}
 
         {/* Social Media Section - Using MemberField for native Sanity rendering */}
         {socialMember && (
@@ -397,14 +362,19 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
             </Card>
           )}
 
-        {/* Medium Status */}
-        <MediumStatusSection
-          medium={distribution?.medium}
-          onCopy={copyToClipboard}
-          onChange={props.onChange}
-          onGenerate={handleGenerateMediumDraft}
-          isGenerating={loading === 'Generating Medium draft...'}
-        />
+        {/* Medium Section - Using MemberField for native Sanity rendering */}
+        {mediumMember && (
+          <MemberField
+            member={mediumMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        )}
       </Stack>
     </Card>
   )

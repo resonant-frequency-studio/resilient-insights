@@ -23,7 +23,7 @@ interface GenerateResponse {
     generated?: {
       social?: {
         linkedin?: {
-          text?: string
+          text?: unknown[] // Portable Text blocks
         }
       }
     }
@@ -39,12 +39,12 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     'social',
     'linkedin',
     'text',
-  ]) as string | undefined
+  ]) as unknown[] | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Determine status based on content
-  const status = linkedInText ? 'ready' : 'idle'
+  // Determine status based on content (now Portable Text array)
+  const status = linkedInText && linkedInText.length > 0 ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const textMember = useMemo(

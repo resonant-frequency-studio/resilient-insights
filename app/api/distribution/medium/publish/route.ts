@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { client } from '@/sanity/lib/client'
 import { patchPostDistribution } from '@/lib/sanity/writeClient'
 import { generateMedium } from '@/lib/distribution/generate'
+import { plainTextToPortableText } from '@/lib/sanity/portableTextConverter'
 import { z } from 'zod'
 
 export const runtime = 'nodejs'
@@ -101,12 +102,13 @@ export async function POST(request: NextRequest) {
     })
 
     // Save to Sanity (use actual document ID from query result)
+    // Convert content to Portable Text blocks
     await patchPostDistribution(post._id, {
       distribution: {
         medium: {
           status: 'ready',
           canonicalUrl,
-          generatedContent: mediumContent.content,
+          generatedContent: plainTextToPortableText(mediumContent.content),
           title: mediumContent.title,
           subtitle: mediumContent.subtitle || '',
           tags: mediumContent.tags,

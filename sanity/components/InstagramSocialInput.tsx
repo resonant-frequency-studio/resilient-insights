@@ -32,7 +32,7 @@ interface GenerateResponse {
     generated?: {
       social?: {
         instagram?: {
-          caption?: string
+          caption?: unknown[] // Portable Text blocks
           hashtags?: string[]
         }
         suggestedFirstComment?: string
@@ -50,7 +50,7 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     'social',
     'instagram',
     'caption',
-  ]) as string | undefined
+  ]) as unknown[] | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -61,8 +61,9 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     'suggestedFirstComment',
   ]) as string | undefined
 
-  // Determine status based on content
-  const status = instagramCaption ? 'ready' : 'idle'
+  // Determine status based on content (now Portable Text array)
+  const status =
+    instagramCaption && instagramCaption.length > 0 ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const captionMember = useMemo(

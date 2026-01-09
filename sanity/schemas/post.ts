@@ -1,6 +1,8 @@
 import { defineField, defineType } from 'sanity'
 import { DistributionTool } from '../plugins/distribution/DistributionTool'
 import { SocialInput } from '../components/SocialInput'
+import { NewsletterInput } from '../components/NewsletterInput'
+import { MediumInput } from '../components/MediumInput'
 // These imports are used in the schema type references (lines 148, 153, 158)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { linkedinSocial } from './objects/linkedinSocial'
@@ -102,6 +104,9 @@ export default defineType({
           name: 'newsletter',
           title: 'Newsletter',
           type: 'object',
+          components: {
+            input: NewsletterInput,
+          },
           fields: [
             {
               name: 'subject',
@@ -116,8 +121,8 @@ export default defineType({
             {
               name: 'body',
               title: 'Body',
-              type: 'text',
-              rows: 10,
+              type: 'array',
+              of: [{ type: 'block' }],
             },
             {
               name: 'ctaText',
@@ -194,6 +199,9 @@ export default defineType({
           name: 'medium',
           title: 'Medium',
           type: 'object',
+          components: {
+            input: MediumInput,
+          },
           fields: [
             {
               name: 'status',
@@ -211,10 +219,10 @@ export default defineType({
             {
               name: 'generatedContent',
               title: 'Generated Content',
-              type: 'text',
-              rows: 30,
+              type: 'array',
+              of: [{ type: 'block' }],
               description:
-                'Medium-ready markdown content - copy and paste into Medium editor',
+                'Medium-ready content - copy and paste into Medium editor',
             },
             {
               name: 'title',
