@@ -264,22 +264,20 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
         {/* Action Buttons */}
         <ActionButtons
           loading={loading}
-          onGenerateNewsletter={() => handleGenerate(['newsletter'])}
-          onGenerateSocial={() => handleGenerate(['social'])}
           onPublishToMedium={handlePublishToMedium}
         />
 
         {/* Status Messages */}
         <StatusMessages loading={loading} error={error} success={success} />
 
-        {/* Newsletter Preview */}
-        {distribution?.newsletter && (
-          <NewsletterSection
-            newsletter={distribution.newsletter}
-            onChange={props.onChange}
-            onCopy={copyToClipboard}
-          />
-        )}
+        {/* Newsletter Section */}
+        <NewsletterSection
+          newsletter={distribution?.newsletter || {}}
+          onChange={props.onChange}
+          onCopy={copyToClipboard}
+          onGenerate={() => handleGenerate(['newsletter'])}
+          isGenerating={loading === 'Generating newsletter...'}
+        />
 
         {/* Social Media Section - Using MemberField for native Sanity rendering */}
         {socialMember && (

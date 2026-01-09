@@ -17,12 +17,16 @@ interface NewsletterSectionProps {
   newsletter: NewsletterData
   onChange?: (event: PatchEvent) => void
   onCopy: (text: string) => void
+  onGenerate?: () => void
+  isGenerating?: boolean
 }
 
 export function NewsletterSection({
   newsletter,
   onChange,
   onCopy,
+  onGenerate,
+  isGenerating,
 }: NewsletterSectionProps) {
   return (
     <Card padding={3} radius={2} tone="transparent" border>
@@ -31,6 +35,17 @@ export function NewsletterSection({
           <Text size={1} weight="bold">
             Newsletter
           </Text>
+          {onGenerate && (
+            <Button
+              text={isGenerating ? 'Generating...' : 'Generate Newsletter Draft'}
+              mode="ghost"
+              tone="primary"
+              fontSize={0}
+              padding={2}
+              onClick={onGenerate}
+              disabled={isGenerating}
+            />
+          )}
         </Flex>
 
         {newsletter.subject !== undefined && (
