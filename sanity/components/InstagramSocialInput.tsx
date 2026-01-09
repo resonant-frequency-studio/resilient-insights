@@ -1,13 +1,15 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Stack, Text, Button, Flex, Card } from '@sanity/ui'
+import { Stack, Text, Button, Flex, Card, Label, TextArea } from '@sanity/ui'
 import {
   ObjectInputProps,
   ObjectMember,
   FieldMember,
   MemberField,
   useFormValue,
+  PatchEvent,
+  set,
 } from 'sanity'
 import { generateInstagramDraft } from '../plugins/distribution/actions'
 
@@ -20,6 +22,13 @@ export function InstagramSocialInput(props: ObjectInputProps) {
   const postId = useFormValue(['_id']) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Read suggested first comment from parent social object
+  const suggestedFirstComment = useFormValue([
+    'distribution',
+    'social',
+    'suggestedFirstComment',
+  ]) as string | undefined
 
   // Find the field members that Sanity already prepared for you
   const captionMember = useMemo(
@@ -40,14 +49,6 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     () =>
       members?.find(
         (m): m is FieldMember => isFieldMember(m) && m.name === 'hashtags'
-      ),
-    [members]
-  )
-  const suggestedFirstCommentMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember =>
-          isFieldMember(m) && m.name === 'suggestedFirstComment'
       ),
     [members]
   )
@@ -138,19 +139,25 @@ export function InstagramSocialInput(props: ObjectInputProps) {
           />
         ) : null}
 
-        {/* Render suggested first comment */}
-        {suggestedFirstCommentMember ? (
-          <MemberField
-            member={suggestedFirstCommentMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
+        {/* Render suggested first comment - reads from parent social object */}
+        <Stack space={2}>
+          <Label>Suggested First Comment</Label>
+          <TextArea
+            value={suggestedFirstComment || ''}
+            onChange={e => {
+              // Patch at the social level path
+              const event = PatchEvent.from(
+                set(e.currentTarget.value, [
+                  'distribution',
+                  'social',
+                  'suggestedFirstComment',
+                ])
+              )
+              props.onChange(event)
+            }}
+            rows={3}
           />
-        ) : null}
+        </Stack>
       </Stack>
     </Card>
   )
