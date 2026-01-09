@@ -39,6 +39,11 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     'instagram',
     'caption',
   ]) as unknown[] | undefined
+  const generatedAt = useFormValue([
+    'distribution',
+    'social',
+    'generatedAt',
+  ]) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,6 +57,15 @@ export function InstagramSocialInput(props: ObjectInputProps) {
   // Determine status based on content (now Portable Text array)
   const status =
     instagramCaption && instagramCaption.length > 0 ? 'ready' : 'idle'
+
+  // Format generatedAt date
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleString()
+    } catch {
+      return dateString
+    }
+  }
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -136,6 +150,15 @@ export function InstagramSocialInput(props: ObjectInputProps) {
             rows={3}
           />
         </Stack>
+
+        {/* Display generated date */}
+        {generatedAt && (
+          <Flex justify="flex-end">
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          </Flex>
+        )}
       </Stack>
     </Card>
   )

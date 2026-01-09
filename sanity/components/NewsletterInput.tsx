@@ -14,14 +14,30 @@ interface GenerateResponse {
 
 export function NewsletterInput(props: ObjectInputProps) {
   const postId = useFormValue(['_id']) as string | undefined
-  const newsletterBody = useFormValue(['distribution', 'newsletter', 'body']) as
-    | PortableTextBlock[]
-    | undefined
+  const newsletterBody = useFormValue([
+    'distribution',
+    'newsletter',
+    'body',
+  ]) as PortableTextBlock[] | undefined
+  const generatedAt = useFormValue([
+    'distribution',
+    'newsletter',
+    'generatedAt',
+  ]) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
+
+  // Format generatedAt date
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleString()
+    } catch {
+      return dateString
+    }
+  }
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -31,10 +47,9 @@ export function NewsletterInput(props: ObjectInputProps) {
     setIsGenerating(true)
     setError(null)
     try {
-      const result = (await generateContent(
-        postId,
-        ['newsletter']
-      )) as GenerateResponse
+      const result = (await generateContent(postId, [
+        'newsletter',
+      ])) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
       }
@@ -67,7 +82,9 @@ export function NewsletterInput(props: ObjectInputProps) {
             )}
             <Button
               type="button"
-              text={isGenerating ? 'Generating...' : 'Generate Newsletter Draft'}
+              text={
+                isGenerating ? 'Generating...' : 'Generate Newsletter Draft'
+              }
               mode="ghost"
               tone="primary"
               fontSize={0}
@@ -87,9 +104,9 @@ export function NewsletterInput(props: ObjectInputProps) {
         {/* Render all fields using Sanity's default rendering */}
         {props.renderDefault(props)}
 
-        {/* Copy button for body */}
-        {newsletterBody && newsletterBody.length > 0 && (
-          <Flex gap={2}>
+        {/* Copy button and generated date */}
+        <Flex align="center" justify="space-between">
+          {newsletterBody && newsletterBody.length > 0 ? (
             <Button
               type="button"
               text="Copy Body (Markdown)"
@@ -98,8 +115,15 @@ export function NewsletterInput(props: ObjectInputProps) {
               padding={1}
               onClick={copyBodyAsMarkdown}
             />
-          </Flex>
-        )}
+          ) : (
+            <span />
+          )}
+          {generatedAt && (
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          )}
+        </Flex>
       </Stack>
     </Card>
   )
