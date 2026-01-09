@@ -2,17 +2,25 @@
 
 import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import { ObjectInputProps, useFormValue } from 'sanity'
+import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
+import { plainTextToPortableText } from '@/lib/sanity/portableTextConverter'
 
 interface GenerateResponse {
   success: boolean
+  data?: {
+    title?: string
+    subtitle?: string
+    content?: string
+    tags?: string[]
+  }
   error?: string
 }
 
 export function MediumInput(props: ObjectInputProps) {
+  const { onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
   const mediumContent = useFormValue([
     'distribution',
@@ -44,6 +52,31 @@ export function MediumInput(props: ObjectInputProps) {
       const result = (await publishToMedium(postId)) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
+        return
+      }
+
+      // Update local form state with generated content
+      const data = result.data
+      if (data) {
+        if (data.title) {
+          onChange(PatchEvent.from(set(data.title, ['title'])))
+        }
+        if (data.subtitle) {
+          onChange(PatchEvent.from(set(data.subtitle, ['subtitle'])))
+        }
+        if (data.content) {
+          // Convert plain text to Portable Text for local state
+          const portableText = plainTextToPortableText(data.content)
+          onChange(PatchEvent.from(set(portableText, ['generatedContent'])))
+        }
+        if (data.tags) {
+          onChange(PatchEvent.from(set(data.tags, ['tags'])))
+        }
+        // Set status and generatedAt
+        onChange(PatchEvent.from(set('ready', ['status'])))
+        onChange(
+          PatchEvent.from(set(new Date().toISOString(), ['generatedAt']))
+        )
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -122,13 +155,11 @@ export function MediumInput(props: ObjectInputProps) {
             {props.renderDefault(props)}
 
             {/* Display generatedAt as small muted text - bottom right */}
-            {generatedAt && (
-              <Flex justify="flex-end">
-                <Text size={0} muted>
-                  Generated: {formatDate(generatedAt)}
-                </Text>
-              </Flex>
-            )}
+            <Flex justify="flex-end">
+              <Text size={0} muted>
+                Generated: {formatDate(generatedAt)}
+              </Text>
+            </Flex>
 
             {/* Copy button for content */}
             <Stack space={2}>

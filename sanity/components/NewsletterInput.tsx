@@ -2,17 +2,29 @@
 
 import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import { ObjectInputProps, useFormValue } from 'sanity'
+import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { generateContent } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
 
 interface GenerateResponse {
   success: boolean
+  generated?: {
+    newsletter?: {
+      subject?: string
+      preheader?: string
+      body?: PortableTextBlock[]
+      ctaText?: string
+      ctaUrl?: string
+      generatedAt?: string
+      model?: string
+    }
+  }
   error?: string
 }
 
 export function NewsletterInput(props: ObjectInputProps) {
+  const { onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
   const newsletterBody = useFormValue([
     'distribution',
@@ -52,6 +64,35 @@ export function NewsletterInput(props: ObjectInputProps) {
       ])) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
+        return
+      }
+
+      // Update local form state with generated content
+      const newsletter = result.generated?.newsletter
+      if (newsletter) {
+        if (newsletter.subject) {
+          onChange(PatchEvent.from(set(newsletter.subject, ['subject'])))
+        }
+        if (newsletter.preheader) {
+          onChange(PatchEvent.from(set(newsletter.preheader, ['preheader'])))
+        }
+        if (newsletter.body) {
+          onChange(PatchEvent.from(set(newsletter.body, ['body'])))
+        }
+        if (newsletter.ctaText) {
+          onChange(PatchEvent.from(set(newsletter.ctaText, ['ctaText'])))
+        }
+        if (newsletter.ctaUrl) {
+          onChange(PatchEvent.from(set(newsletter.ctaUrl, ['ctaUrl'])))
+        }
+        if (newsletter.generatedAt) {
+          onChange(
+            PatchEvent.from(set(newsletter.generatedAt, ['generatedAt']))
+          )
+        }
+        if (newsletter.model) {
+          onChange(PatchEvent.from(set(newsletter.model, ['model'])))
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -117,11 +158,9 @@ export function NewsletterInput(props: ObjectInputProps) {
                 padding={1}
                 onClick={copyBodyAsMarkdown}
               />
-              {generatedAt && (
-                <Text size={0} muted>
-                  Generated: {formatDate(generatedAt)}
-                </Text>
-              )}
+              <Text size={0} muted>
+                Generated: {formatDate(generatedAt)}
+              </Text>
             </Flex>
           </>
         )}
