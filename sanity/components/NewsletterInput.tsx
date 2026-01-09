@@ -1,21 +1,11 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import {
-  ObjectInputProps,
-  ObjectMember,
-  FieldMember,
-  MemberField,
-  useFormValue,
-} from 'sanity'
+import { ObjectInputProps, useFormValue } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { generateContent } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
-
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
 
 interface GenerateResponse {
   success: boolean
@@ -23,7 +13,6 @@ interface GenerateResponse {
 }
 
 export function NewsletterInput(props: ObjectInputProps) {
-  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const newsletterBody = useFormValue(['distribution', 'newsletter', 'body']) as
     | PortableTextBlock[]
@@ -33,43 +22,6 @@ export function NewsletterInput(props: ObjectInputProps) {
 
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
-
-  // Find all field members
-  const subjectMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'subject'
-      ),
-    [members]
-  )
-  const preheaderMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'preheader'
-      ),
-    [members]
-  )
-  const bodyMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
-      ),
-    [members]
-  )
-  const ctaTextMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaText'
-      ),
-    [members]
-  )
-  const ctaUrlMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaUrl'
-      ),
-    [members]
-  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -86,7 +38,6 @@ export function NewsletterInput(props: ObjectInputProps) {
       if (!result.success) {
         setError(result.error || 'Generation failed')
       }
-      // Content will update via useFormValue reactivity
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -94,14 +45,10 @@ export function NewsletterInput(props: ObjectInputProps) {
     }
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
-
   const copyBodyAsMarkdown = () => {
     if (newsletterBody) {
       const markdown = portableTextToMarkdown(newsletterBody)
-      copyToClipboard(markdown)
+      navigator.clipboard.writeText(markdown)
     }
   }
 
@@ -137,86 +84,21 @@ export function NewsletterInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Subject field */}
-        {subjectMember && (
-          <MemberField
-            member={subjectMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
+        {/* Render all fields using Sanity's default rendering */}
+        {props.renderDefault(props)}
 
-        {/* Preheader field */}
-        {preheaderMember && (
-          <MemberField
-            member={preheaderMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
-
-        {/* Body field - Portable Text editor */}
-        {bodyMember && (
-          <Stack space={2}>
-            <MemberField
-              member={bodyMember}
-              renderAnnotation={props.renderAnnotation}
-              renderBlock={props.renderBlock}
-              renderField={props.renderField}
-              renderInlineBlock={props.renderInlineBlock}
-              renderInput={props.renderInput}
-              renderItem={props.renderItem}
-              renderPreview={props.renderPreview}
+        {/* Copy button for body */}
+        {newsletterBody && newsletterBody.length > 0 && (
+          <Flex gap={2}>
+            <Button
+              type="button"
+              text="Copy Body (Markdown)"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={copyBodyAsMarkdown}
             />
-            <Flex gap={2}>
-              <Button
-                type="button"
-                text="Copy Body (Markdown)"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={copyBodyAsMarkdown}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* CTA Text field */}
-        {ctaTextMember && (
-          <MemberField
-            member={ctaTextMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
-
-        {/* CTA URL field */}
-        {ctaUrlMember && (
-          <MemberField
-            member={ctaUrlMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
+          </Flex>
         )}
       </Stack>
     </Card>

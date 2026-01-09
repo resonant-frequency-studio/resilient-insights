@@ -1,21 +1,11 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import {
-  ObjectInputProps,
-  ObjectMember,
-  FieldMember,
-  MemberField,
-  useFormValue,
-} from 'sanity'
+import { ObjectInputProps, useFormValue } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
-
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
 
 interface GenerateResponse {
   success: boolean
@@ -23,7 +13,6 @@ interface GenerateResponse {
 }
 
 export function MediumInput(props: ObjectInputProps) {
-  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const mediumContent = useFormValue([
     'distribution',
@@ -35,36 +24,6 @@ export function MediumInput(props: ObjectInputProps) {
     | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Find all field members (excluding status which we handle specially)
-  const titleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
-      ),
-    [members]
-  )
-  const subtitleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
-      ),
-    [members]
-  )
-  const tagsMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'tags'
-      ),
-    [members]
-  )
-  const generatedContentMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'generatedContent'
-      ),
-    [members]
-  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -78,7 +37,6 @@ export function MediumInput(props: ObjectInputProps) {
       if (!result.success) {
         setError(result.error || 'Generation failed')
       }
-      // Content will update via useFormValue reactivity
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -86,14 +44,10 @@ export function MediumInput(props: ObjectInputProps) {
     }
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
-
   const copyContentAsMarkdown = () => {
     if (mediumContent) {
       const markdown = portableTextToMarkdown(mediumContent)
-      copyToClipboard(markdown)
+      navigator.clipboard.writeText(markdown)
     }
   }
 
@@ -140,61 +94,12 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Title field */}
-        {titleMember && (
-          <MemberField
-            member={titleMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
+        {/* Render all fields using Sanity's default rendering */}
+        {props.renderDefault(props)}
 
-        {/* Subtitle field */}
-        {subtitleMember && (
-          <MemberField
-            member={subtitleMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
-
-        {/* Tags field */}
-        {tagsMember && (
-          <MemberField
-            member={tagsMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
-
-        {/* Generated Content field - Portable Text editor */}
-        {generatedContentMember && (
+        {/* Copy button for content */}
+        {mediumContent && mediumContent.length > 0 && (
           <Stack space={2}>
-            <MemberField
-              member={generatedContentMember}
-              renderAnnotation={props.renderAnnotation}
-              renderBlock={props.renderBlock}
-              renderField={props.renderField}
-              renderInlineBlock={props.renderInlineBlock}
-              renderInput={props.renderInput}
-              renderItem={props.renderItem}
-              renderPreview={props.renderPreview}
-            />
             <Flex gap={2}>
               <Button
                 type="button"
