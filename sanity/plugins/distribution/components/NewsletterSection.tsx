@@ -28,8 +28,8 @@ export function NewsletterSection({
   onGenerate,
   isGenerating,
 }: NewsletterSectionProps) {
-  // Determine status based on content and generation state
-  const status = isGenerating ? 'generating' : newsletter.body ? 'ready' : 'idle'
+  // Determine status based on content
+  const status = newsletter.body ? 'ready' : 'idle'
 
   return (
     <Card padding={3} radius={2} tone="transparent" border>
@@ -39,17 +39,11 @@ export function NewsletterSection({
             Newsletter
           </Text>
           <Flex align="center" gap={2}>
-            <Badge
-              tone={
-                status === 'generating'
-                  ? 'default'
-                  : status === 'ready'
-                    ? 'caution'
-                    : 'primary'
-              }
-            >
-              {status}
-            </Badge>
+            {!isGenerating && (
+              <Badge tone={status === 'ready' ? 'caution' : 'primary'}>
+                {status}
+              </Badge>
+            )}
             {onGenerate && (
               <Button
                 type="button"

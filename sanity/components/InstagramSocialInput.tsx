@@ -52,12 +52,8 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     'suggestedFirstComment',
   ]) as string | undefined
 
-  // Determine status based on content and generation state
-  const status = isGenerating
-    ? 'generating'
-    : instagramCaption
-      ? 'ready'
-      : 'idle'
+  // Determine status based on content
+  const status = instagramCaption ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const captionMember = useMemo(
@@ -120,17 +116,11 @@ export function InstagramSocialInput(props: ObjectInputProps) {
             Instagram
           </Text>
           <Flex align="center" gap={2}>
-            <Badge
-              tone={
-                status === 'generating'
-                  ? 'default'
-                  : status === 'ready'
-                    ? 'caution'
-                    : 'primary'
-              }
-            >
-              {status}
-            </Badge>
+            {!isGenerating && (
+              <Badge tone={status === 'ready' ? 'caution' : 'primary'}>
+                {status}
+              </Badge>
+            )}
             <Button
               type="button"
               text={isGenerating ? 'Generating...' : 'Generate Instagram Draft'}
