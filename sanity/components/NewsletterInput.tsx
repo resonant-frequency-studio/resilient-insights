@@ -142,27 +142,24 @@ export function NewsletterInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Only show fields if content has been generated */}
-        {generatedAt && (
-          <>
-            {/* Render all fields using Sanity's default rendering */}
-            {props.renderDefault(props)}
+        {/* Render all fields using Sanity's default rendering */}
+        {props.renderDefault(props)}
 
-            {/* Copy button and generated date */}
-            <Flex align="center" justify="space-between">
-              <Button
-                type="button"
-                text="Copy Body (Markdown)"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={copyBodyAsMarkdown}
-              />
-              <Text size={0} muted>
-                Generated: {formatDate(generatedAt)}
-              </Text>
-            </Flex>
-          </>
+        {/* Copy button and generated date - only show when content exists */}
+        {generatedAt && (
+          <Flex align="center" justify="space-between">
+            <Button
+              type="button"
+              text="Copy Body (Markdown)"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={copyBodyAsMarkdown}
+            />
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          </Flex>
         )}
       </Stack>
     </Card>

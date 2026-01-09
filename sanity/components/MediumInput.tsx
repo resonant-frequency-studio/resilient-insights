@@ -148,12 +148,12 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Only show fields if content has been generated */}
+        {/* Render visible fields using Sanity's default rendering */}
+        {props.renderDefault(props)}
+
+        {/* Footer with generated date and copy button - only show when content exists */}
         {generatedAt && (
           <>
-            {/* Render visible fields using Sanity's default rendering */}
-            {props.renderDefault(props)}
-
             {/* Display generatedAt as small muted text - bottom right */}
             <Flex justify="flex-end">
               <Text size={0} muted>
