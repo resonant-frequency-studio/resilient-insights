@@ -169,6 +169,12 @@ export default defineType({
               type: 'instagramSocial',
             },
             {
+              name: 'suggestedFirstComment',
+              title: 'Suggested First Comment',
+              type: 'text',
+              rows: 3,
+            },
+            {
               name: 'generatedAt',
               title: 'Generated At',
               type: 'datetime',

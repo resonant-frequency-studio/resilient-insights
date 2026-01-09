@@ -48,9 +48,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { postId, targets } = RequestSchema.parse(body)
 
-    // Fetch post from Sanity by _id
+    // Handle draft IDs - strip 'drafts.' prefix if present for querying
+    const basePostId = postId.replace(/^drafts\./, '')
+
+    // Fetch post from Sanity by _id (check both draft and published versions)
     const post = await client.fetch(
-      `*[_type == "post" && _id == $postId][0]{
+      `*[_type == "post" && (_id == $postId || _id == $basePostId || _id == "drafts." + $basePostId)][0]{
         _id,
         title,
         slug,
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
         body,
         mainImage
       }`,
-      { postId }
+      { postId, basePostId }
     )
 
     if (!post) {
@@ -233,7 +236,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Save to Sanity
+    // Save to Sanity (use the actual document ID from the query result)
     try {
       const distribution: Record<string, unknown> = {}
       if (generated.newsletter) {
@@ -243,7 +246,7 @@ export async function POST(request: NextRequest) {
         distribution.social = generated.social
       }
 
-      await patchPostDistribution(postId, {
+      await patchPostDistribution(post._id, {
         publishedUrl: canonicalUrl,
         distribution,
       })
