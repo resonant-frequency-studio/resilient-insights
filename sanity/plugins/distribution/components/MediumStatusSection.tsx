@@ -10,6 +10,7 @@ import {
   Label,
   TextArea,
 } from '@sanity/ui'
+import { PatchEvent, set } from 'sanity'
 
 interface MediumData {
   status?: 'idle' | 'ready' | 'error'
@@ -25,6 +26,7 @@ interface MediumData {
 interface MediumStatusSectionProps {
   medium?: MediumData
   onCopy: (text: string) => void
+  onChange?: (event: PatchEvent) => void
   onGenerate?: () => void
   isGenerating?: boolean
 }
@@ -48,6 +50,7 @@ function getStatusBadge(status?: string) {
 export function MediumStatusSection({
   medium,
   onCopy,
+  onChange,
   onGenerate,
   isGenerating,
 }: MediumStatusSectionProps) {
@@ -81,92 +84,134 @@ export function MediumStatusSection({
           </Text>
         )}
 
-        {medium?.title && (
-          <Stack space={2}>
-            <Label>Title</Label>
-            <Text size={1} weight="semibold">
-              {medium.title}
-            </Text>
+        {/* Title */}
+        <Stack space={2}>
+          <Label>Title</Label>
+          <TextArea
+            value={medium?.title || ''}
+            onChange={e => {
+              if (onChange) {
+                onChange(
+                  PatchEvent.from(
+                    set(e.currentTarget.value, ['medium', 'title'])
+                  )
+                )
+              }
+            }}
+            rows={2}
+          />
+          <Flex gap={2}>
             <Button
               type="button"
               text="Copy Title"
               mode="ghost"
               fontSize={0}
               padding={1}
-              onClick={() => onCopy(medium.title || '')}
+              onClick={() => onCopy(medium?.title || '')}
             />
-          </Stack>
-        )}
+          </Flex>
+        </Stack>
 
-        {medium?.subtitle && (
-          <Stack space={2}>
-            <Label>Subtitle</Label>
-            <Text size={1} muted>
-              {medium.subtitle}
-            </Text>
+        {/* Subtitle */}
+        <Stack space={2}>
+          <Label>Subtitle</Label>
+          <TextArea
+            value={medium?.subtitle || ''}
+            onChange={e => {
+              if (onChange) {
+                onChange(
+                  PatchEvent.from(
+                    set(e.currentTarget.value, ['medium', 'subtitle'])
+                  )
+                )
+              }
+            }}
+            rows={2}
+          />
+          <Flex gap={2}>
             <Button
               type="button"
               text="Copy Subtitle"
               mode="ghost"
               fontSize={0}
               padding={1}
-              onClick={() => onCopy(medium.subtitle || '')}
+              onClick={() => onCopy(medium?.subtitle || '')}
             />
-          </Stack>
-        )}
+          </Flex>
+        </Stack>
 
-        {medium?.tags && medium.tags.length > 0 && (
-          <Stack space={2}>
-            <Label>Tags</Label>
-            <Text size={1}>{medium.tags.join(', ')}</Text>
+        {/* Tags */}
+        <Stack space={2}>
+          <Label>Tags</Label>
+          <TextArea
+            value={medium?.tags?.join(', ') || ''}
+            onChange={e => {
+              if (onChange) {
+                const tags = e.currentTarget.value
+                  .split(',')
+                  .map(t => t.trim())
+                  .filter(Boolean)
+                onChange(PatchEvent.from(set(tags, ['medium', 'tags'])))
+              }
+            }}
+            rows={1}
+          />
+          <Flex gap={2}>
             <Button
               type="button"
               text="Copy Tags"
               mode="ghost"
               fontSize={0}
               padding={1}
-              onClick={() => onCopy(medium.tags?.join(', ') || '')}
+              onClick={() => onCopy(medium?.tags?.join(', ') || '')}
             />
-          </Stack>
-        )}
+          </Flex>
+        </Stack>
 
-        {medium?.generatedContent && medium?.status === 'ready' && (
-          <Stack space={2}>
-            <Label>Medium-Ready Content (Copy &amp; Paste into Medium Editor)</Label>
-            <Text size={0} muted>
-              Copy the content below and paste it into Medium&apos;s post
-              editor. The content is formatted and ready to use.
-            </Text>
-            <TextArea
-              value={medium.generatedContent}
-              readOnly
-              rows={20}
-              style={{ opacity: 0.8, cursor: 'default' }}
+        {/* Content */}
+        <Stack space={2}>
+          <Label>
+            Medium-Ready Content (Copy &amp; Paste into Medium Editor)
+          </Label>
+          <Text size={0} muted>
+            Copy the content below and paste it into Medium&apos;s post editor.
+            The content is formatted and ready to use.
+          </Text>
+          <TextArea
+            value={medium?.generatedContent || ''}
+            onChange={e => {
+              if (onChange) {
+                onChange(
+                  PatchEvent.from(
+                    set(e.currentTarget.value, ['medium', 'generatedContent'])
+                  )
+                )
+              }
+            }}
+            rows={20}
+          />
+          <Flex gap={2}>
+            <Button
+              type="button"
+              text="Copy Full Content"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => onCopy(medium?.generatedContent || '')}
             />
-            <Stack space={2}>
-              <Button
-                type="button"
-                text="Copy Full Content to Clipboard"
-                tone="primary"
-                mode="default"
-                fontSize={1}
-                padding={2}
-                onClick={() => onCopy(medium.generatedContent || '')}
-              />
-              <Text size={0} muted>
-                After copying, go to{' '}
-                <a
-                  href="https://medium.com/new-story"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Medium&apos;s new story page
-                </a>{' '}
-                and paste the content.
-              </Text>
-            </Stack>
-          </Stack>
-        )}
+          </Flex>
+          <Text size={0} muted>
+            After copying, go to{' '}
+            <a
+              href="https://medium.com/new-story"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Medium&apos;s new story page
+            </a>{' '}
+            and paste the content.
+          </Text>
+        </Stack>
 
         {medium?.error && (
           <Text size={0} style={{ color: '#721c24' }}>

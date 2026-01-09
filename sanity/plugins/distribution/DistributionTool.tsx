@@ -405,6 +405,7 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
         <MediumStatusSection
           medium={distribution?.medium}
           onCopy={copyToClipboard}
+          onChange={props.onChange}
           onGenerate={handleGenerateMediumDraft}
           isGenerating={loading === 'Generating Medium draft...'}
         />
