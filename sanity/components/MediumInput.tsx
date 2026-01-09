@@ -116,7 +116,7 @@ export function MediumInput(props: ObjectInputProps) {
         )}
 
         {/* Only show fields if content has been generated */}
-        {mediumContent && mediumContent.length > 0 && (
+        {generatedAt && (
           <>
             {/* Render visible fields using Sanity's default rendering */}
             {props.renderDefault(props)}

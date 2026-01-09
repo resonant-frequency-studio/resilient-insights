@@ -102,7 +102,7 @@ export function NewsletterInput(props: ObjectInputProps) {
         )}
 
         {/* Only show fields if content has been generated */}
-        {newsletterBody && newsletterBody.length > 0 && (
+        {generatedAt && (
           <>
             {/* Render all fields using Sanity's default rendering */}
             {props.renderDefault(props)}
