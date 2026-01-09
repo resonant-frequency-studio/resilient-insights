@@ -115,43 +115,46 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Render visible fields using Sanity's default rendering */}
-        {props.renderDefault(props)}
-
-        {/* Display generatedAt as small muted text - bottom right */}
-        {generatedAt && (
-          <Flex justify="flex-end">
-            <Text size={0} muted>
-              Generated: {formatDate(generatedAt)}
-            </Text>
-          </Flex>
-        )}
-
-        {/* Copy button for content */}
+        {/* Only show fields if content has been generated */}
         {mediumContent && mediumContent.length > 0 && (
-          <Stack space={2}>
-            <Flex gap={2}>
-              <Button
-                type="button"
-                text="Copy Content (Markdown)"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={copyContentAsMarkdown}
-              />
-            </Flex>
-            <Text size={0} muted>
-              After copying, go to{' '}
-              <a
-                href="https://medium.com/new-story"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Medium&apos;s new story page
-              </a>{' '}
-              and paste the content.
-            </Text>
-          </Stack>
+          <>
+            {/* Render visible fields using Sanity's default rendering */}
+            {props.renderDefault(props)}
+
+            {/* Display generatedAt as small muted text - bottom right */}
+            {generatedAt && (
+              <Flex justify="flex-end">
+                <Text size={0} muted>
+                  Generated: {formatDate(generatedAt)}
+                </Text>
+              </Flex>
+            )}
+
+            {/* Copy button for content */}
+            <Stack space={2}>
+              <Flex gap={2}>
+                <Button
+                  type="button"
+                  text="Copy Content (Markdown)"
+                  mode="ghost"
+                  fontSize={0}
+                  padding={1}
+                  onClick={copyContentAsMarkdown}
+                />
+              </Flex>
+              <Text size={0} muted>
+                After copying, go to{' '}
+                <a
+                  href="https://medium.com/new-story"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Medium&apos;s new story page
+                </a>{' '}
+                and paste the content.
+              </Text>
+            </Stack>
+          </>
         )}
       </Stack>
     </Card>
