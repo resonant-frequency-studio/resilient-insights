@@ -118,11 +118,13 @@ export function MediumInput(props: ObjectInputProps) {
         {/* Render visible fields using Sanity's default rendering */}
         {props.renderDefault(props)}
 
-        {/* Display generatedAt as small muted text */}
+        {/* Display generatedAt as small muted text - bottom right */}
         {generatedAt && (
-          <Text size={0} muted>
-            Generated: {formatDate(generatedAt)}
-          </Text>
+          <Flex justify="flex-end">
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          </Flex>
         )}
 
         {/* Copy button for content */}
