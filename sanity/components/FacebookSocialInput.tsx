@@ -1,21 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import {
-  ObjectInputProps,
-  ObjectMember,
-  FieldMember,
-  MemberField,
-  useFormValue,
-  PatchEvent,
-  set,
-} from 'sanity'
+import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import { generateFacebookDraft } from '../plugins/distribution/actions'
-
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
 
 interface GenerateResponse {
   success: boolean
@@ -32,7 +20,7 @@ interface GenerateResponse {
 }
 
 export function FacebookSocialInput(props: ObjectInputProps) {
-  const { members, onChange } = props
+  const { onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
   const facebookText = useFormValue([
     'distribution',
@@ -45,22 +33,6 @@ export function FacebookSocialInput(props: ObjectInputProps) {
 
   // Determine status based on content (now Portable Text array)
   const status = facebookText && facebookText.length > 0 ? 'ready' : 'idle'
-
-  // Find the field members that Sanity already prepared for you
-  const textMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'text'
-      ),
-    [members]
-  )
-  const imageMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'image'
-      ),
-    [members]
-  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -120,33 +92,8 @@ export function FacebookSocialInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Render the default "text" input */}
-        {textMember ? (
-          <MemberField
-            member={textMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ) : null}
-
-        {/* Render the native Sanity image field input */}
-        {imageMember ? (
-          <MemberField
-            member={imageMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ) : null}
+        {/* Render all fields using Sanity's default rendering */}
+        {props.renderDefault(props)}
       </Stack>
     </Card>
   )

@@ -1,30 +1,18 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   Stack,
   Text,
   Button,
   Flex,
   Card,
+  Badge,
   Label,
   TextArea,
-  Badge,
 } from '@sanity/ui'
-import {
-  ObjectInputProps,
-  ObjectMember,
-  FieldMember,
-  MemberField,
-  useFormValue,
-  PatchEvent,
-  set,
-} from 'sanity'
+import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import { generateInstagramDraft } from '../plugins/distribution/actions'
-
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
 
 interface GenerateResponse {
   success: boolean
@@ -43,7 +31,7 @@ interface GenerateResponse {
 }
 
 export function InstagramSocialInput(props: ObjectInputProps) {
-  const { members, onChange } = props
+  const { onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
   const instagramCaption = useFormValue([
     'distribution',
@@ -64,29 +52,6 @@ export function InstagramSocialInput(props: ObjectInputProps) {
   // Determine status based on content (now Portable Text array)
   const status =
     instagramCaption && instagramCaption.length > 0 ? 'ready' : 'idle'
-
-  // Find the field members that Sanity already prepared for you
-  const captionMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'caption'
-      ),
-    [members]
-  )
-  const imageMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'image'
-      ),
-    [members]
-  )
-  const hashtagsMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'hashtags'
-      ),
-    [members]
-  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -110,7 +75,6 @@ export function InstagramSocialInput(props: ObjectInputProps) {
       if (instagram?.hashtags) {
         onChange(PatchEvent.from(set(instagram.hashtags, ['hashtags'])))
       }
-      // Note: suggestedFirstComment is at social level, will be updated via useFormValue
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -150,47 +114,8 @@ export function InstagramSocialInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Render the default "caption" input */}
-        {captionMember ? (
-          <MemberField
-            member={captionMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ) : null}
-
-        {/* Render the native Sanity image field input */}
-        {imageMember ? (
-          <MemberField
-            member={imageMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ) : null}
-
-        {/* Render hashtags if present */}
-        {hashtagsMember ? (
-          <MemberField
-            member={hashtagsMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ) : null}
+        {/* Render all fields using Sanity's default rendering */}
+        {props.renderDefault(props)}
 
         {/* Render suggested first comment - reads from parent social object */}
         <Stack space={2}>
