@@ -107,10 +107,22 @@ export function NewsletterSection({
           </Stack>
         )}
 
-        {newsletter.body && (
+        {newsletter.body !== undefined && (
           <Stack space={2}>
             <Label>Body</Label>
-            <TextArea value={newsletter.body} readOnly rows={6} />
+            <TextArea
+              value={newsletter.body || ''}
+              onChange={e => {
+                if (onChange) {
+                  onChange(
+                    PatchEvent.from(
+                      set(e.currentTarget.value, ['newsletter', 'body'])
+                    )
+                  )
+                }
+              }}
+              rows={6}
+            />
             <Flex gap={2}>
               <Button
                 text="Copy Body"
@@ -123,10 +135,22 @@ export function NewsletterSection({
           </Stack>
         )}
 
-        {newsletter.ctaText && (
+        {newsletter.ctaText !== undefined && (
           <Stack space={2}>
             <Label>CTA Text</Label>
-            <TextArea value={newsletter.ctaText} readOnly rows={1} />
+            <TextArea
+              value={newsletter.ctaText || ''}
+              onChange={e => {
+                if (onChange) {
+                  onChange(
+                    PatchEvent.from(
+                      set(e.currentTarget.value, ['newsletter', 'ctaText'])
+                    )
+                  )
+                }
+              }}
+              rows={1}
+            />
             <Flex gap={2}>
               <Button
                 text="Copy"
@@ -139,10 +163,22 @@ export function NewsletterSection({
           </Stack>
         )}
 
-        {newsletter.ctaUrl && (
+        {newsletter.ctaUrl !== undefined && (
           <Stack space={2}>
             <Label>CTA URL</Label>
-            <TextArea value={newsletter.ctaUrl} readOnly rows={1} />
+            <TextArea
+              value={newsletter.ctaUrl || ''}
+              onChange={e => {
+                if (onChange) {
+                  onChange(
+                    PatchEvent.from(
+                      set(e.currentTarget.value, ['newsletter', 'ctaUrl'])
+                    )
+                  )
+                }
+              }}
+              rows={1}
+            />
             <Flex gap={2}>
               <Button
                 text="Copy"
