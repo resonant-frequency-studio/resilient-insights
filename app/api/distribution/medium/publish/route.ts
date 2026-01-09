@@ -103,16 +103,21 @@ export async function POST(request: NextRequest) {
 
     // Save to Sanity (use actual document ID from query result)
     // Convert content to Portable Text blocks
+    const generatedContentBlocks = plainTextToPortableText(
+      mediumContent.content
+    )
+    const generatedAt = new Date().toISOString()
+
     await patchPostDistribution(post._id, {
       distribution: {
         medium: {
           status: 'ready',
           canonicalUrl,
-          generatedContent: plainTextToPortableText(mediumContent.content),
+          generatedContent: generatedContentBlocks,
           title: mediumContent.title,
           subtitle: mediumContent.subtitle || '',
           tags: mediumContent.tags,
-          generatedAt: new Date().toISOString(),
+          generatedAt,
         },
       },
     })
@@ -124,9 +129,10 @@ export async function POST(request: NextRequest) {
         'Medium-ready content generated. Copy and paste into Medium editor.',
       data: {
         title: mediumContent.title,
-        subtitle: mediumContent.subtitle,
-        content: mediumContent.content,
+        subtitle: mediumContent.subtitle || '',
+        generatedContent: generatedContentBlocks,
         tags: mediumContent.tags,
+        generatedAt,
       },
     })
   } catch (error) {

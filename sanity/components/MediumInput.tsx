@@ -14,15 +14,15 @@ import {
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
-import { plainTextToPortableText } from '@/lib/sanity/portableTextConverter'
 
 interface GenerateResponse {
   success: boolean
   data?: {
     title?: string
     subtitle?: string
-    content?: string
+    generatedContent?: PortableTextBlock[]
     tags?: string[]
+    generatedAt?: string
   }
   error?: string
 }
@@ -90,19 +90,20 @@ export function MediumInput(props: ObjectInputProps) {
         if (data.subtitle) {
           onChange(PatchEvent.from(set(data.subtitle, ['subtitle'])))
         }
-        if (data.content) {
-          // Convert plain text to Portable Text for local state
-          const portableText = plainTextToPortableText(data.content)
-          onChange(PatchEvent.from(set(portableText, ['generatedContent'])))
+        if (data.generatedContent) {
+          // Use Portable Text directly from API response
+          onChange(
+            PatchEvent.from(set(data.generatedContent, ['generatedContent']))
+          )
         }
         if (data.tags) {
           onChange(PatchEvent.from(set(data.tags, ['tags'])))
         }
-        // Set status and generatedAt
+        if (data.generatedAt) {
+          onChange(PatchEvent.from(set(data.generatedAt, ['generatedAt'])))
+        }
+        // Set status
         onChange(PatchEvent.from(set('ready', ['status'])))
-        onChange(
-          PatchEvent.from(set(new Date().toISOString(), ['generatedAt']))
-        )
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
