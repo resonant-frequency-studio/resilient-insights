@@ -170,13 +170,7 @@ export function MediumStatusSection({
 
         {/* Content */}
         <Stack space={2}>
-          <Label>
-            Medium-Ready Content (Copy &amp; Paste into Medium Editor)
-          </Label>
-          <Text size={0} muted>
-            Copy the content below and paste it into Medium&apos;s post editor.
-            The content is formatted and ready to use.
-          </Text>
+          <Label>Body</Label>
           <TextArea
             value={medium?.generatedContent || ''}
             onChange={e => {

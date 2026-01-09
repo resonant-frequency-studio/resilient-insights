@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Stack, Button, Text, Flex, Label, TextArea } from '@sanity/ui'
+import { Card, Stack, Button, Text, Flex, Label, TextArea, Badge } from '@sanity/ui'
 import { set, PatchEvent } from 'sanity'
 
 interface NewsletterData {
@@ -28,6 +28,9 @@ export function NewsletterSection({
   onGenerate,
   isGenerating,
 }: NewsletterSectionProps) {
+  // Determine status based on content
+  const status = newsletter.body ? 'ready' : 'idle'
+
   return (
     <Card padding={3} radius={2} tone="transparent" border>
       <Stack space={4}>
@@ -35,20 +38,25 @@ export function NewsletterSection({
           <Text size={1} weight="bold">
             Newsletter
           </Text>
-          {onGenerate && (
-            <Button
-              type="button"
-              text={
-                isGenerating ? 'Generating...' : 'Generate Newsletter Draft'
-              }
-              mode="ghost"
-              tone="primary"
-              fontSize={0}
-              padding={2}
-              onClick={onGenerate}
-              disabled={isGenerating}
-            />
-          )}
+          <Flex align="center" gap={2}>
+            <Badge tone={status === 'ready' ? 'caution' : 'primary'}>
+              {status}
+            </Badge>
+            {onGenerate && (
+              <Button
+                type="button"
+                text={
+                  isGenerating ? 'Generating...' : 'Generate Newsletter Draft'
+                }
+                mode="ghost"
+                tone="primary"
+                fontSize={0}
+                padding={2}
+                onClick={onGenerate}
+                disabled={isGenerating}
+              />
+            )}
+          </Flex>
         </Flex>
 
         {newsletter.subject !== undefined && (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Stack, Text, Button, Flex, Card } from '@sanity/ui'
+import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
   ObjectMember,
@@ -34,8 +34,17 @@ interface GenerateResponse {
 export function FacebookSocialInput(props: ObjectInputProps) {
   const { members, onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
+  const facebookText = useFormValue([
+    'distribution',
+    'social',
+    'facebook',
+    'text',
+  ]) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Determine status based on content
+  const status = facebookText ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const textMember = useMemo(
@@ -86,16 +95,21 @@ export function FacebookSocialInput(props: ObjectInputProps) {
           <Text size={1} weight="semibold">
             Facebook
           </Text>
-          <Button
-            type="button"
-            text={isGenerating ? 'Generating...' : 'Generate Facebook Draft'}
-            mode="ghost"
-            tone="primary"
-            fontSize={0}
-            padding={2}
-            onClick={handleGenerate}
-            disabled={isGenerating || !postId}
-          />
+          <Flex align="center" gap={2}>
+            <Badge tone={status === 'ready' ? 'caution' : 'primary'}>
+              {status}
+            </Badge>
+            <Button
+              type="button"
+              text={isGenerating ? 'Generating...' : 'Generate Facebook Draft'}
+              mode="ghost"
+              tone="primary"
+              fontSize={0}
+              padding={2}
+              onClick={handleGenerate}
+              disabled={isGenerating || !postId}
+            />
+          </Flex>
         </Flex>
 
         {error && (

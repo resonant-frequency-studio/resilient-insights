@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Stack, Text, Button, Flex, Card, Label, TextArea } from '@sanity/ui'
+import { Stack, Text, Button, Flex, Card, Label, TextArea, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
   ObjectMember,
@@ -36,6 +36,12 @@ interface GenerateResponse {
 export function InstagramSocialInput(props: ObjectInputProps) {
   const { members, onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
+  const instagramCaption = useFormValue([
+    'distribution',
+    'social',
+    'instagram',
+    'caption',
+  ]) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -45,6 +51,9 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     'social',
     'suggestedFirstComment',
   ]) as string | undefined
+
+  // Determine status based on content
+  const status = instagramCaption ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const captionMember = useMemo(
@@ -106,16 +115,21 @@ export function InstagramSocialInput(props: ObjectInputProps) {
           <Text size={1} weight="semibold">
             Instagram
           </Text>
-          <Button
-            type="button"
-            text={isGenerating ? 'Generating...' : 'Generate Instagram Draft'}
-            mode="ghost"
-            tone="primary"
-            fontSize={0}
-            padding={2}
-            onClick={handleGenerate}
-            disabled={isGenerating || !postId}
-          />
+          <Flex align="center" gap={2}>
+            <Badge tone={status === 'ready' ? 'caution' : 'primary'}>
+              {status}
+            </Badge>
+            <Button
+              type="button"
+              text={isGenerating ? 'Generating...' : 'Generate Instagram Draft'}
+              mode="ghost"
+              tone="primary"
+              fontSize={0}
+              padding={2}
+              onClick={handleGenerate}
+              disabled={isGenerating || !postId}
+            />
+          </Flex>
         </Flex>
 
         {error && (
