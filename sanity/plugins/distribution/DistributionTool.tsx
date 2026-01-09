@@ -17,7 +17,6 @@ import { ScheduledPostsList } from './ScheduledPostsList'
 import { NewsletterSection } from './components/NewsletterSection'
 import { SocialAccountsMenu } from './components/SocialAccountsMenu'
 import { MediumStatusSection } from './components/MediumStatusSection'
-import { StatusMessages } from './components/StatusMessages'
 import imageUrlBuilder from '@sanity/image-url'
 
 /**
@@ -291,9 +290,6 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
             onSetError={setError}
           />
         </Flex>
-
-        {/* Status Messages */}
-        <StatusMessages loading={loading} error={error} success={success} />
 
         {/* Newsletter Section */}
         <NewsletterSection
