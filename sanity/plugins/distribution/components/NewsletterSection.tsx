@@ -37,7 +37,9 @@ export function NewsletterSection({
           </Text>
           {onGenerate && (
             <Button
-              text={isGenerating ? 'Generating...' : 'Generate Newsletter Draft'}
+              text={
+                isGenerating ? 'Generating...' : 'Generate Newsletter Draft'
+              }
               mode="ghost"
               tone="primary"
               fontSize={0}

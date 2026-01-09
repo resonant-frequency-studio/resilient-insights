@@ -79,3 +79,43 @@ export async function patchPostDistribution(
     throw error
   }
 }
+
+/**
+ * Patch only a specific social platform's distribution fields
+ * This preserves other platform data when generating individual platforms
+ */
+export async function patchSocialPlatform(
+  postId: string,
+  platform: 'linkedin' | 'facebook' | 'instagram',
+  data: Record<string, unknown>,
+  metadata?: { generatedAt?: string; model?: string; suggestedFirstComment?: string }
+): Promise<void> {
+  if (!writeToken) {
+    throw new Error('SANITY_WRITE_TOKEN is required for distribution updates')
+  }
+
+  try {
+    const patch = writeClient.patch(postId)
+
+    // Set only the specific platform field
+    patch.set({ [`distribution.social.${platform}`]: data })
+
+    // Update metadata if provided
+    if (metadata?.generatedAt) {
+      patch.set({ 'distribution.social.generatedAt': metadata.generatedAt })
+    }
+    if (metadata?.model) {
+      patch.set({ 'distribution.social.model': metadata.model })
+    }
+    if (metadata?.suggestedFirstComment !== undefined) {
+      patch.set({
+        'distribution.social.suggestedFirstComment': metadata.suggestedFirstComment,
+      })
+    }
+
+    await patch.commit()
+  } catch (error) {
+    console.error(`Error patching ${platform} distribution:`, error)
+    throw error
+  }
+}

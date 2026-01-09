@@ -7,7 +7,10 @@ import {
   generateFacebook,
   generateInstagram,
 } from '@/lib/distribution/generate'
-import { patchPostDistribution } from '@/lib/sanity/writeClient'
+import {
+  patchPostDistribution,
+  patchSocialPlatform,
+} from '@/lib/sanity/writeClient'
 import { z } from 'zod'
 
 export const runtime = 'nodejs'
@@ -146,6 +149,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate LinkedIn only if requested (and not already generated via 'social')
+    // Uses granular patching to preserve other platform data
     if (targets.includes('linkedin') && !targets.includes('social')) {
       try {
         const linkedin = await generateLinkedIn({
@@ -156,12 +160,13 @@ export async function POST(request: NextRequest) {
           postId,
         })
 
-        generated.social = {
-          ...generated.social,
-          linkedin,
+        // Patch only LinkedIn data (preserves Facebook, Instagram, etc.)
+        await patchSocialPlatform(post._id, 'linkedin', linkedin, {
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
-        }
+        })
+
+        generated.social = { linkedin }
       } catch (error) {
         console.error('LinkedIn generation error:', error)
         return NextResponse.json(
@@ -175,6 +180,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate Facebook only if requested (and not already generated via 'social')
+    // Uses granular patching to preserve other platform data
     if (targets.includes('facebook') && !targets.includes('social')) {
       try {
         const facebook = await generateFacebook({
@@ -185,12 +191,13 @@ export async function POST(request: NextRequest) {
           postId,
         })
 
-        generated.social = {
-          ...generated.social,
-          facebook,
+        // Patch only Facebook data (preserves LinkedIn, Instagram, etc.)
+        await patchSocialPlatform(post._id, 'facebook', facebook, {
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
-        }
+        })
+
+        generated.social = { ...generated.social, facebook }
       } catch (error) {
         console.error('Facebook generation error:', error)
         return NextResponse.json(
@@ -204,6 +211,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate Instagram only if requested (and not already generated via 'social')
+    // Uses granular patching to preserve other platform data
     if (targets.includes('instagram') && !targets.includes('social')) {
       try {
         const instagram = await generateInstagram({
@@ -214,15 +222,22 @@ export async function POST(request: NextRequest) {
           postId,
         })
 
-        generated.social = {
-          ...generated.social,
-          instagram: {
-            caption: instagram.caption,
-            hashtags: instagram.hashtags,
-          },
-          suggestedFirstComment: instagram.suggestedFirstComment,
+        const instagramData = {
+          caption: instagram.caption,
+          hashtags: instagram.hashtags,
+        }
+
+        // Patch only Instagram data (preserves LinkedIn, Facebook, etc.)
+        await patchSocialPlatform(post._id, 'instagram', instagramData, {
           generatedAt: new Date().toISOString(),
           model: 'gemini-2.5-flash',
+          suggestedFirstComment: instagram.suggestedFirstComment,
+        })
+
+        generated.social = {
+          ...generated.social,
+          instagram: instagramData,
+          suggestedFirstComment: instagram.suggestedFirstComment,
         }
       } catch (error) {
         console.error('Instagram generation error:', error)
@@ -236,20 +251,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Save to Sanity (use the actual document ID from the query result)
+    // Save newsletter and bulk social to Sanity (for 'newsletter' and 'social' targets)
+    // Individual platform targets are already saved above via patchSocialPlatform
     try {
       const distribution: Record<string, unknown> = {}
       if (generated.newsletter) {
         distribution.newsletter = generated.newsletter
       }
-      if (generated.social) {
+      // Only save bulk social if 'social' target was requested (all platforms at once)
+      if (targets.includes('social') && generated.social) {
         distribution.social = generated.social
       }
 
-      await patchPostDistribution(post._id, {
-        publishedUrl: canonicalUrl,
-        distribution,
-      })
+      // Only call patchPostDistribution if there's something to save
+      if (Object.keys(distribution).length > 0) {
+        await patchPostDistribution(post._id, {
+          publishedUrl: canonicalUrl,
+          distribution,
+        })
+      }
     } catch (error) {
       console.error('Error saving to Sanity:', error)
       return NextResponse.json(
