@@ -5,8 +5,6 @@ import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
   useFormValue,
-  PatchEvent,
-  set,
   MemberField,
   FieldMember,
   ObjectMember,
@@ -32,7 +30,7 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
 }
 
 export function MediumInput(props: ObjectInputProps) {
-  const { onChange, members } = props
+  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const mediumContent = useFormValue([
     'distribution',
@@ -80,31 +78,8 @@ export function MediumInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-
-      // Update local form state with generated content
-      const data = result.data
-      if (data) {
-        if (data.title) {
-          onChange(PatchEvent.from(set(data.title, ['title'])))
-        }
-        if (data.subtitle) {
-          onChange(PatchEvent.from(set(data.subtitle, ['subtitle'])))
-        }
-        if (data.generatedContent) {
-          // Use Portable Text directly from API response
-          onChange(
-            PatchEvent.from(set(data.generatedContent, ['generatedContent']))
-          )
-        }
-        if (data.tags) {
-          onChange(PatchEvent.from(set(data.tags, ['tags'])))
-        }
-        if (data.generatedAt) {
-          onChange(PatchEvent.from(set(data.generatedAt, ['generatedAt'])))
-        }
-        // Set status
-        onChange(PatchEvent.from(set('ready', ['status'])))
-      }
+      // Content is saved to Sanity by the API
+      // The form will update via Sanity's real-time sync
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {

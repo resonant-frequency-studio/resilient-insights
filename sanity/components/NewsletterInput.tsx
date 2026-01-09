@@ -5,8 +5,6 @@ import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
   useFormValue,
-  PatchEvent,
-  set,
   MemberField,
   FieldMember,
   ObjectMember,
@@ -36,7 +34,7 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
 }
 
 export function NewsletterInput(props: ObjectInputProps) {
-  const { onChange, members } = props
+  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const newsletterBody = useFormValue([
     'distribution',
@@ -88,34 +86,8 @@ export function NewsletterInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-
-      // Update local form state with generated content
-      const newsletter = result.generated?.newsletter
-      if (newsletter) {
-        if (newsletter.subject) {
-          onChange(PatchEvent.from(set(newsletter.subject, ['subject'])))
-        }
-        if (newsletter.preheader) {
-          onChange(PatchEvent.from(set(newsletter.preheader, ['preheader'])))
-        }
-        if (newsletter.body) {
-          onChange(PatchEvent.from(set(newsletter.body, ['body'])))
-        }
-        if (newsletter.ctaText) {
-          onChange(PatchEvent.from(set(newsletter.ctaText, ['ctaText'])))
-        }
-        if (newsletter.ctaUrl) {
-          onChange(PatchEvent.from(set(newsletter.ctaUrl, ['ctaUrl'])))
-        }
-        if (newsletter.generatedAt) {
-          onChange(
-            PatchEvent.from(set(newsletter.generatedAt, ['generatedAt']))
-          )
-        }
-        if (newsletter.model) {
-          onChange(PatchEvent.from(set(newsletter.model, ['model'])))
-        }
-      }
+      // Content is saved to Sanity by the API
+      // The form will update via Sanity's real-time sync
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
