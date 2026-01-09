@@ -8,6 +8,8 @@ import {
   MemberField,
   FieldMember,
   ObjectMember,
+  PatchEvent,
+  set,
 } from 'sanity'
 import { generateContent, publishToMedium, schedulePost } from './actions'
 import { SchedulePicker } from './SchedulePicker'
@@ -215,22 +217,52 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
     }
   }
 
-  const handlePublishToMedium = async () => {
+  const handleGenerateMediumDraft = async () => {
     if (!postId) {
       setError('Post ID not found')
       return
     }
 
-    setLoading('Publishing to Medium...')
+    setLoading('Generating Medium draft...')
     setError(null)
 
     try {
-      const result = await publishToMedium(postId)
+      const result = (await publishToMedium(postId)) as {
+        success: boolean
+        data?: {
+          data?: {
+            title?: string
+            subtitle?: string
+            content?: string
+            tags?: string[]
+          }
+        }
+        error?: string
+      }
       if (result.success) {
-        setSuccess('Published to Medium successfully!')
-        // Distribution value will update automatically via useFormValue
+        setSuccess('Medium draft generated! See below to copy content.')
+
+        // Update local form state with generated content
+        const mediumData = result.data?.data
+        if (mediumData) {
+          props.onChange(
+            PatchEvent.from(
+              set(
+                {
+                  status: 'ready',
+                  title: mediumData.title,
+                  subtitle: mediumData.subtitle,
+                  generatedContent: mediumData.content,
+                  tags: mediumData.tags,
+                  generatedAt: new Date().toISOString(),
+                },
+                ['medium']
+              )
+            )
+          )
+        }
       } else {
-        setError(result.error || 'Medium publish failed')
+        setError(result.error || 'Medium draft generation failed')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -264,7 +296,7 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
         {/* Action Buttons */}
         <ActionButtons
           loading={loading}
-          onPublishToMedium={handlePublishToMedium}
+          onPublishToMedium={handleGenerateMediumDraft}
         />
 
         {/* Status Messages */}
