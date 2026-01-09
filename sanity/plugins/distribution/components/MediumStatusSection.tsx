@@ -31,7 +31,10 @@ interface MediumStatusSectionProps {
   isGenerating?: boolean
 }
 
-function getStatusBadge(status?: string) {
+function getStatusBadge(status?: string, isGenerating?: boolean) {
+  if (isGenerating) {
+    return <Badge tone="default">generating</Badge>
+  }
   const colors: Record<
     string,
     'positive' | 'caution' | 'critical' | 'primary'
@@ -62,7 +65,7 @@ export function MediumStatusSection({
             Medium Draft
           </Text>
           <Flex align="center" gap={2}>
-            {medium?.status && getStatusBadge(medium.status)}
+            {getStatusBadge(medium?.status, isGenerating)}
             {onGenerate && (
               <Button
                 type="button"

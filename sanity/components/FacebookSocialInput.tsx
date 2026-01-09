@@ -43,8 +43,8 @@ export function FacebookSocialInput(props: ObjectInputProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Determine status based on content
-  const status = facebookText ? 'ready' : 'idle'
+  // Determine status based on content and generation state
+  const status = isGenerating ? 'generating' : facebookText ? 'ready' : 'idle'
 
   // Find the field members that Sanity already prepared for you
   const textMember = useMemo(
@@ -96,7 +96,15 @@ export function FacebookSocialInput(props: ObjectInputProps) {
             Facebook
           </Text>
           <Flex align="center" gap={2}>
-            <Badge tone={status === 'ready' ? 'caution' : 'primary'}>
+            <Badge
+              tone={
+                status === 'generating'
+                  ? 'default'
+                  : status === 'ready'
+                    ? 'caution'
+                    : 'primary'
+              }
+            >
               {status}
             </Badge>
             <Button
