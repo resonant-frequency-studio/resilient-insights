@@ -4,7 +4,9 @@ import { PortableTextBlock } from '@sanity/types'
  * Converts PortableText to plain text suitable for TTS.
  * Filters out images, alt text, captions, and code blocks.
  */
-export function portableTextToSpeechText(body: PortableTextBlock[] | undefined): string {
+export function portableTextToSpeechText(
+  body: PortableTextBlock[] | undefined
+): string {
   if (!body || !Array.isArray(body)) {
     return ''
   }

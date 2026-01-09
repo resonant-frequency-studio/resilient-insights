@@ -47,7 +47,9 @@ export async function findCachedUrl(
     // Check if we found a blob with the exact path
     const matchingBlob = blobs.find(blob => blob.pathname === path)
     if (matchingBlob) {
-      console.log(`[TTS Cache] Found cached audio using new format (hash-based)`)
+      console.log(
+        `[TTS Cache] Found cached audio using new format (hash-based)`
+      )
       return matchingBlob.url
     }
 
@@ -63,12 +65,17 @@ export async function findCachedUrl(
 
         const oldMatchingBlob = oldBlobs.find(blob => blob.pathname === oldPath)
         if (oldMatchingBlob) {
-          console.log(`[TTS Cache] Found cached audio using old format (timestamp-based)`)
+          console.log(
+            `[TTS Cache] Found cached audio using old format (timestamp-based)`
+          )
           return oldMatchingBlob.url
         }
       } catch (oldError) {
         // If old format lookup fails, continue (don't log as error since it's optional)
-        console.log(`[TTS Cache] Old format lookup failed, continuing with cache miss`, oldError)
+        console.log(
+          `[TTS Cache] Old format lookup failed, continuing with cache miss`,
+          oldError
+        )
       }
     }
   } catch (error) {
@@ -84,7 +91,10 @@ export async function findCachedUrl(
  * Saves an MP3 buffer to Vercel Blob storage
  * Returns the public URL of the saved blob
  */
-export async function saveMp3(cacheKey: string, buffer: Buffer): Promise<string> {
+export async function saveMp3(
+  cacheKey: string,
+  buffer: Buffer
+): Promise<string> {
   const path = getBlobPath(cacheKey)
 
   const blob = await put(path, buffer, {

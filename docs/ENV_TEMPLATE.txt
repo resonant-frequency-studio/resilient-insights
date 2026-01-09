@@ -1,0 +1,47 @@
+# Copy this content to .env.local.example in your project root
+# Replace all placeholder values with your actual values in .env.local
+
+# Sanity Configuration (you should already have these)
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2024-01-01
+
+# Sanity Write Token (REQUIRED)
+# Generate at: https://sanity.io/manage → Your Project → API → Tokens
+# Create a new token with "Editor" permissions
+SANITY_WRITE_TOKEN=your_write_token_here
+
+# Site URLs
+SITE_BASE_URL=https://articles.resilientleadership.us
+MAIN_SITE_URL=https://resilientleadership.us
+
+# Google Gemini API (REQUIRED for content generation)
+# Get your API key at: https://makersuite.google.com/app/apikey
+GOOGLE_GEMINI_API_KEY=your_gemini_api_key_here
+
+# LinkedIn OAuth (REQUIRED for LinkedIn scheduling)
+# Register your app at: https://www.linkedin.com/developers/
+LINKEDIN_CLIENT_ID=your_linkedin_client_id
+LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret
+LINKEDIN_REDIRECT_URI=https://articles.resilientleadership.us/api/auth/linkedin/callback
+
+# Inngest (REQUIRED for job scheduling)
+# Get these from your Inngest dashboard: https://app.inngest.com
+INNGEST_EVENT_KEY=your_inngest_event_key
+INNGEST_SIGNING_KEY=your_inngest_signing_key
+
+# Optional: Encryption key for storing OAuth tokens securely
+# Generate using: openssl rand -hex 32
+TOKEN_ENCRYPTION_KEY=your_encryption_key_here
+
+# Distribution API Security (REQUIRED)
+# Generate a secure random string (e.g., using: openssl rand -hex 32)
+DISTRIBUTION_SECRET=your_secure_random_string_here
+
+# For Studio client-side (if needed)
+NEXT_PUBLIC_DISTRIBUTION_SECRET=your_secure_random_string_here
+
+# Make.com Webhook (DEPRECATED - no longer used for social media scheduling)
+# Kept for backward compatibility only
+# MAKE_WEBHOOK_URL=https://hook.eu1.make.com/your_webhook_path_here
+# MAKE_WEBHOOK_SECRET=your_secure_webhook_secret_here

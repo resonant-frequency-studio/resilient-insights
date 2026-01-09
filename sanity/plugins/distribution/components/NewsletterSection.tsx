@@ -1,0 +1,142 @@
+'use client'
+
+import { Card, Stack, Button, Text, Flex, Label, TextArea } from '@sanity/ui'
+import { set, PatchEvent } from 'sanity'
+
+interface NewsletterData {
+  subject?: string
+  preheader?: string
+  body?: string
+  ctaText?: string
+  ctaUrl?: string
+  generatedAt?: string
+  model?: string
+}
+
+interface NewsletterSectionProps {
+  newsletter: NewsletterData
+  onChange?: (event: PatchEvent) => void
+  onCopy: (text: string) => void
+}
+
+export function NewsletterSection({
+  newsletter,
+  onChange,
+  onCopy,
+}: NewsletterSectionProps) {
+  return (
+    <Card padding={3} radius={2} tone="transparent" border>
+      <Stack space={4}>
+        <Flex align="center" justify="space-between">
+          <Text size={1} weight="bold">
+            Newsletter
+          </Text>
+        </Flex>
+
+        {newsletter.subject !== undefined && (
+          <Stack space={2}>
+            <Label>Subject</Label>
+            <TextArea
+              value={newsletter.subject || ''}
+              onChange={e => {
+                if (onChange) {
+                  onChange(
+                    PatchEvent.from(
+                      set(e.currentTarget.value, ['newsletter', 'subject'])
+                    )
+                  )
+                }
+              }}
+              rows={2}
+            />
+            <Flex gap={2}>
+              <Button
+                text="Copy"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => onCopy(newsletter.subject || '')}
+              />
+            </Flex>
+          </Stack>
+        )}
+
+        {newsletter.preheader !== undefined && (
+          <Stack space={2}>
+            <Label>Preheader</Label>
+            <TextArea
+              value={newsletter.preheader || ''}
+              onChange={e => {
+                if (onChange) {
+                  onChange(
+                    PatchEvent.from(
+                      set(e.currentTarget.value, ['newsletter', 'preheader'])
+                    )
+                  )
+                }
+              }}
+              rows={2}
+            />
+            <Flex gap={2}>
+              <Button
+                text="Copy"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => onCopy(newsletter.preheader || '')}
+              />
+            </Flex>
+          </Stack>
+        )}
+
+        {newsletter.body && (
+          <Stack space={2}>
+            <Label>Body</Label>
+            <TextArea value={newsletter.body} readOnly rows={6} />
+            <Flex gap={2}>
+              <Button
+                text="Copy Body"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => onCopy(newsletter.body || '')}
+              />
+            </Flex>
+          </Stack>
+        )}
+
+        {newsletter.ctaText && (
+          <Stack space={2}>
+            <Label>CTA Text</Label>
+            <TextArea value={newsletter.ctaText} readOnly rows={1} />
+            <Flex gap={2}>
+              <Button
+                text="Copy"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => onCopy(newsletter.ctaText || '')}
+              />
+            </Flex>
+          </Stack>
+        )}
+
+        {newsletter.ctaUrl && (
+          <Stack space={2}>
+            <Label>CTA URL</Label>
+            <TextArea value={newsletter.ctaUrl} readOnly rows={1} />
+            <Flex gap={2}>
+              <Button
+                text="Copy"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => onCopy(newsletter.ctaUrl || '')}
+              />
+            </Flex>
+          </Stack>
+        )}
+      </Stack>
+    </Card>
+  )
+}

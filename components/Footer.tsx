@@ -11,12 +11,20 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Company Information - Left */}
           <div className="lg:col-span-1">
-            <Typography variant="heading-3" as="h2" className="mb-4 text-foreground-light">
+            <Typography
+              variant="heading-3"
+              as="h2"
+              className="mb-4 text-foreground-light"
+            >
               Resilient Leadership
             </Typography>
-            <Typography variant="body-small" as="p" className="text-foreground-light/80">
-              Resilient Leadership helps leaders and teams grow through change with greater
-              self-awareness, resilience, and effectiveness.
+            <Typography
+              variant="body-small"
+              as="p"
+              className="text-foreground-light/80"
+            >
+              Resilient Leadership helps leaders and teams grow through change
+              with greater self-awareness, resilience, and effectiveness.
             </Typography>
           </div>
 
@@ -177,8 +185,13 @@ const Footer = () => {
             />
 
             {/* Copyright */}
-            <Typography variant="body-small" as="p" className="text-foreground-light/60">
-              © {new Date().getFullYear()} Resilient Leadership. All rights reserved.
+            <Typography
+              variant="body-small"
+              as="p"
+              className="text-foreground-light/60"
+            >
+              © {new Date().getFullYear()} Resilient Leadership. All rights
+              reserved.
             </Typography>
           </div>
         </div>

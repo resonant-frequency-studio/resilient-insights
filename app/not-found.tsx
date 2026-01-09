@@ -21,9 +21,13 @@ export default function NotFound() {
             Page Not Found
           </Typography>
 
-          <Typography variant="body-large" as="p" className="text-foreground-dark/80 mb-12">
-            We couldn&apos;t find the page you&apos;re looking for. It may have been moved, deleted,
-            or the URL might be incorrect.
+          <Typography
+            variant="body-large"
+            as="p"
+            className="text-foreground-dark/80 mb-12"
+          >
+            We couldn&apos;t find the page you&apos;re looking for. It may have
+            been moved, deleted, or the URL might be incorrect.
           </Typography>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">

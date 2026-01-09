@@ -57,11 +57,18 @@ describe('NotFound Page', () => {
     expect(whatWeDoLink).toBeInTheDocument()
     expect(whatWeDoLink).toHaveAttribute('href', '/services')
 
-    const executiveCoachingLink = screen.getByRole('link', { name: /executive coaching/i })
+    const executiveCoachingLink = screen.getByRole('link', {
+      name: /executive coaching/i,
+    })
     expect(executiveCoachingLink).toBeInTheDocument()
-    expect(executiveCoachingLink).toHaveAttribute('href', '/services/executive-coaching')
+    expect(executiveCoachingLink).toHaveAttribute(
+      'href',
+      '/services/executive-coaching'
+    )
 
-    const teamCoachingLink = screen.getByRole('link', { name: /team coaching/i })
+    const teamCoachingLink = screen.getByRole('link', {
+      name: /team coaching/i,
+    })
     expect(teamCoachingLink).toBeInTheDocument()
     expect(teamCoachingLink).toHaveAttribute('href', '/services/team-coaching')
 
@@ -77,6 +84,8 @@ describe('NotFound Page', () => {
   it('verifies metadata export structure', () => {
     expect(metadata).toBeDefined()
     expect(metadata.title).toBe('Page Not Found | Resilient Leadership')
-    expect(metadata.description).toContain('The page you are looking for could not be found')
+    expect(metadata.description).toContain(
+      'The page you are looking for could not be found'
+    )
   })
 })

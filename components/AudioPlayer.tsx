@@ -251,7 +251,8 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         const audioUrl = `/api/tts/article?slug=${encodeURIComponent(slug)}`
         const currentSrc = audio.src || ''
         const needsNewSource =
-          !currentSrc || !currentSrc.includes(`slug=${encodeURIComponent(slug)}`)
+          !currentSrc ||
+          !currentSrc.includes(`slug=${encodeURIComponent(slug)}`)
 
         if (needsNewSource) {
           // New source - set loading state first
@@ -378,7 +379,10 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
                   const audio = audioRef.current
                   if (!audio) return
                   const step = e.key === 'ArrowLeft' ? -5 : 5
-                  audio.currentTime = Math.max(0, Math.min(duration, audio.currentTime + step))
+                  audio.currentTime = Math.max(
+                    0,
+                    Math.min(duration, audio.currentTime + step)
+                  )
                 }
               }}
             >
@@ -386,7 +390,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
               {isLoading && (
                 <div
                   className="absolute inset-0 bg-button-primary/20 rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${Math.min(Math.max(loadingProgress, 0), 100)}%` }}
+                  style={{
+                    width: `${Math.min(Math.max(loadingProgress, 0), 100)}%`,
+                  }}
                 />
               )}
 
@@ -430,7 +436,11 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         {/* Loading message - shows after 2 seconds if still loading */}
         {isLoading && showLoadingMessage && (
           <div role="status" aria-live="polite" className="mt-3">
-            <Typography variant="body-small" as="span" className="text-foreground-dark italic">
+            <Typography
+              variant="body-small"
+              as="span"
+              className="text-foreground-dark italic"
+            >
               Generating audio... This may take a minute on first play.
             </Typography>
           </div>

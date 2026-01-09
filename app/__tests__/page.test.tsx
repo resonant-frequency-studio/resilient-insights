@@ -26,7 +26,9 @@ jest.mock('next/image', () => ({
         src={src}
         alt={alt}
         className={className}
-        {...(fill ? { style: { position: 'absolute', inset: 0 } } : { width, height })}
+        {...(fill
+          ? { style: { position: 'absolute', inset: 0 } }
+          : { width, height })}
       />
     )
   },
@@ -171,7 +173,9 @@ describe('Home Page', () => {
     const component = await Home()
     render(component)
 
-    expect(screen.getByText('Resilient Insights for Thoughtful Leaders')).toBeInTheDocument()
+    expect(
+      screen.getByText('Resilient Insights for Thoughtful Leaders')
+    ).toBeInTheDocument()
     expect(
       screen.getByText(
         'Practical reflections on leadership, resilience, and growth—for navigating complexity with clarity and confidence.'
@@ -202,7 +206,9 @@ describe('Home Page', () => {
     render(component)
 
     expect(screen.getByText('No blog posts yet.')).toBeInTheDocument()
-    expect(screen.getByText('Create your first post in Sanity Studio →')).toBeInTheDocument()
+    expect(
+      screen.getByText('Create your first post in Sanity Studio →')
+    ).toBeInTheDocument()
   })
 
   it('renders post links with correct hrefs', async () => {
@@ -229,7 +235,9 @@ describe('Home Page', () => {
     expect(screen.getByText('Test Post 2')).toBeInTheDocument()
 
     // Check preview text (body text is used when excerpt exists but body is preferred for preview)
-    expect(screen.getByText(/this is the body text for test post 1/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/this is the body text for test post 1/i)
+    ).toBeInTheDocument()
 
     // Check dates (timezone may affect the exact date, multiple dates exist)
     const dates = screen.getAllByText(/january/i)
@@ -247,7 +255,9 @@ describe('Home Page', () => {
     expect(metadata.openGraph).toBeDefined()
     expect(metadata.openGraph?.title).toBe('Articles | Resilient Leadership')
     expect(metadata.twitter).toBeDefined()
-    expect((metadata.twitter as { card?: string })?.card).toBe('summary_large_image')
+    expect((metadata.twitter as { card?: string })?.card).toBe(
+      'summary_large_image'
+    )
   })
 
   it('handles posts without optional fields', async () => {

@@ -58,21 +58,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [lastScrollY])
 
-  // Determine Articles link based on environment
-  const getArticlesLink = () => {
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname
-      if (hostname === 'staging.resilientleadership.us') {
-        return 'https://staging.resilientleadership.us'
-      } else if (hostname === 'articles.resilientleadership.us') {
-        return 'https://articles.resilientleadership.us'
-      }
-    }
-    // Local development
-    return '/'
-  }
-
-  const articlesLink = getArticlesLink()
   const mainSiteUrl = getMainSiteUrl()
 
   const handleMobileMenuToggle = () => {
@@ -121,19 +106,14 @@ const Header = () => {
                 What We Do
               </Typography>
             </a>
-            {articlesLink.startsWith('http') ? (
-              <a href={articlesLink} className="hover:text-button-primary transition-colors">
-                <Typography variant="nav" as="span">
-                  Articles
-                </Typography>
-              </a>
-            ) : (
-              <Link href={articlesLink} className="hover:text-button-primary transition-colors">
-                <Typography variant="nav" as="span">
-                  Articles
-                </Typography>
-              </Link>
-            )}
+            <Link
+              href="/"
+              className="hover:text-button-primary transition-colors"
+            >
+              <Typography variant="nav" as="span">
+                Articles
+              </Typography>
+            </Link>
             <a
               href={`${mainSiteUrl}/about`}
               className="hover:text-button-primary transition-colors"
@@ -165,8 +145,15 @@ const Header = () => {
         <div className="mx-auto h-full px-4 flex items-center justify-between">
           {/* Left: MenuButton and Logo */}
           <div className="flex items-center gap-3">
-            <MenuButton isOpen={isMobileMenuOpen} onToggle={handleMobileMenuToggle} />
-            <a href={mainSiteUrl} className="flex items-center" onClick={handleNavLinkClick}>
+            <MenuButton
+              isOpen={isMobileMenuOpen}
+              onToggle={handleMobileMenuToggle}
+            />
+            <a
+              href={mainSiteUrl}
+              className="flex items-center"
+              onClick={handleNavLinkClick}
+            >
               <Image
                 src="/resilient-leadership-dark.png"
                 alt="Resilient Leadership"
@@ -200,7 +187,11 @@ const Header = () => {
                 onClick={handleNavLinkClick}
                 className="hover:text-button-primary transition-colors py-2"
               >
-                <Typography variant="body-large" as="span" className="font-medium">
+                <Typography
+                  variant="body-large"
+                  as="span"
+                  className="font-medium"
+                >
                   What We Do
                 </Typography>
               </a>
@@ -261,33 +252,29 @@ const Header = () => {
                 </a>
               </div>
             </div>
-            {articlesLink.startsWith('http') ? (
-              <a
-                href={articlesLink}
-                onClick={handleNavLinkClick}
-                className="hover:text-button-primary transition-colors py-2"
+            <Link
+              href="/"
+              onClick={handleNavLinkClick}
+              className="hover:text-button-primary transition-colors py-2"
+            >
+              <Typography
+                variant="body-large"
+                as="span"
+                className="font-medium"
               >
-                <Typography variant="body-large" as="span" className="font-medium">
-                  Articles
-                </Typography>
-              </a>
-            ) : (
-              <Link
-                href={articlesLink}
-                onClick={handleNavLinkClick}
-                className="hover:text-button-primary transition-colors py-2"
-              >
-                <Typography variant="body-large" as="span" className="font-medium">
-                  Articles
-                </Typography>
-              </Link>
-            )}
+                Articles
+              </Typography>
+            </Link>
             <a
               href={`${mainSiteUrl}/about`}
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
-              <Typography variant="body-large" as="span" className="font-medium">
+              <Typography
+                variant="body-large"
+                as="span"
+                className="font-medium"
+              >
                 About
               </Typography>
             </a>
@@ -296,7 +283,11 @@ const Header = () => {
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
-              <Typography variant="body-large" as="span" className="font-medium">
+              <Typography
+                variant="body-large"
+                as="span"
+                className="font-medium"
+              >
                 Contact
               </Typography>
             </a>

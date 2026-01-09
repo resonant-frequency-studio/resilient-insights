@@ -43,7 +43,9 @@ describe('portableTextToSpeechText', () => {
     ]
 
     const result = portableTextToSpeechText(body)
-    expect(result).toBe('This is the first paragraph.\n\nThis is the second paragraph.')
+    expect(result).toBe(
+      'This is the first paragraph.\n\nThis is the second paragraph.'
+    )
   })
 
   it('excludes image blocks', () => {
@@ -181,7 +183,9 @@ describe('portableTextToSpeechText', () => {
     ] as PortableTextBlock[]
 
     const result = portableTextToSpeechText(body)
-    expect(result).toBe('Here is some code:\n\nCode example omitted.\n\nEnd of code block.')
+    expect(result).toBe(
+      'Here is some code:\n\nCode example omitted.\n\nEnd of code block.'
+    )
     expect(result).not.toContain('const x = 1')
     expect(result).toContain('Code example omitted.')
   })

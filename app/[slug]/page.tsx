@@ -54,7 +54,9 @@ export async function generateMetadata({
     : `${post.title} | Resilient Leadership`
 
   // Get image URL if available
-  const imageUrl = post.mainImage ? urlFor(post.mainImage).width(1200).height(630).url() : undefined
+  const imageUrl = post.mainImage
+    ? urlFor(post.mainImage).width(1200).height(630).url()
+    : undefined
 
   // Generate categories text for keywords
   const categories = post.categories?.map(cat => cat.title).join(', ') || ''
@@ -71,7 +73,13 @@ export async function generateMetadata({
           'executive coaching',
           'leadership development',
         ]
-      : ['leadership', 'resilience', 'coaching', 'executive coaching', 'leadership development'],
+      : [
+          'leadership',
+          'resilience',
+          'coaching',
+          'executive coaching',
+          'leadership development',
+        ],
     authors: post.author ? [{ name: post.author.name }] : undefined,
     openGraph: {
       title: post.title,
@@ -100,7 +108,11 @@ export async function generateMetadata({
   }
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
   const { slug } = await params
   const post = await getPost(slug)
 
@@ -108,12 +120,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     notFound()
   }
 
-  const categoriesText = post.categories?.map(cat => cat.title.toUpperCase()).join(' | ') || ''
+  const categoriesText =
+    post.categories?.map(cat => cat.title.toUpperCase()).join(' | ') || ''
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6">
       {/* Back Link */}
-      <Link href="/" className="hover:text-button-primary transition-colors mb-6 inline-block">
+      <Link
+        href="/"
+        className="hover:text-button-primary transition-colors mb-6 inline-block"
+      >
         <Typography variant="body-small" as="span">
           ← Back to Articles
         </Typography>
@@ -131,7 +147,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="mb-6 space-y-1">
             {post.author && (
               <div>
-                <Typography variant="body-small" as="span" className="font-medium">
+                <Typography
+                  variant="body-small"
+                  as="span"
+                  className="font-medium"
+                >
                   written by {post.author.name.toUpperCase()}
                 </Typography>
               </div>
@@ -160,7 +180,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 value={post.body}
                 components={{
                   types: {
-                    image: ({ value }: { value?: { asset?: { _ref?: string }; alt?: string } }) => {
+                    image: ({
+                      value,
+                    }: {
+                      value?: { asset?: { _ref?: string }; alt?: string }
+                    }) => {
                       if (!value?.asset) return null
                       return (
                         <div className="my-8">

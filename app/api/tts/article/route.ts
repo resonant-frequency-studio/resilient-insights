@@ -2,7 +2,12 @@ import { NextRequest } from 'next/server'
 import { client } from '@/sanity/lib/client'
 import { postBySlugQuery } from '@/lib/sanity/queries'
 import { portableTextToSpeechText } from '@/lib/tts/portableTextToSpeechText'
-import { getCacheKey, getBodyTextHash, findCachedUrl, saveMp3 } from '@/lib/tts/audioCache'
+import {
+  getCacheKey,
+  getBodyTextHash,
+  findCachedUrl,
+  saveMp3,
+} from '@/lib/tts/audioCache'
 import { fetchSpeechStream } from '@/lib/tts/elevenlabs.server'
 
 export const runtime = 'nodejs'
@@ -39,18 +44,24 @@ export async function GET(request: NextRequest) {
     const text = portableTextToSpeechText(post.body)
 
     if (!text || text.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Article has no text content' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: 'Article has no text content' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Hard guard: enforce character limit
     if (text.length > MAX_CHARS) {
-      return new Response(JSON.stringify({ error: 'Article too long for audio playback.' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: 'Article too long for audio playback.' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Build cache key from slug and body text hash
@@ -89,19 +100,25 @@ export async function GET(request: NextRequest) {
     const elevenLabsResponse = await fetchSpeechStream(text)
 
     if (!elevenLabsResponse.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to generate audio' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate audio' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Create a readable stream for the client
     const reader = elevenLabsResponse.body?.getReader()
     if (!reader) {
-      return new Response(JSON.stringify({ error: 'No response body from ElevenLabs' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: 'No response body from ElevenLabs' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Create a transform stream that tees the data
@@ -126,13 +143,18 @@ export async function GET(request: NextRequest) {
 
           // Cache the complete audio in the background
           // (don't await to avoid blocking the response)
-          const mp3Buffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)))
+          const mp3Buffer = Buffer.concat(
+            chunks.map(chunk => Buffer.from(chunk))
+          )
           saveMp3(cacheKey, mp3Buffer)
             .then(url => {
               console.log(`[TTS] Cached audio for slug: ${slug} at ${url}`)
             })
             .catch(error => {
-              console.error(`[TTS] Failed to cache audio for slug: ${slug}`, error)
+              console.error(
+                `[TTS] Failed to cache audio for slug: ${slug}`,
+                error
+              )
             })
         } catch (error) {
           console.error('[TTS] Error streaming audio:', error)
