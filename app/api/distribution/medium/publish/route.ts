@@ -48,9 +48,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { postId } = RequestSchema.parse(body)
 
-    // Fetch post with categories for tags
+    // Handle draft IDs - strip 'drafts.' prefix if present for querying
+    const basePostId = postId.replace(/^drafts\./, '')
+
+    // Fetch post with categories for tags (check both draft and published versions)
     const post = await client.fetch(
-      `*[_type == "post" && _id == $postId][0]{
+      `*[_type == "post" && (_id == $postId || _id == $basePostId || _id == "drafts." + $basePostId)][0]{
         _id,
         title,
         slug,
@@ -61,6 +64,7 @@ export async function POST(request: NextRequest) {
       }`,
       {
         postId,
+        basePostId,
         baseUrl:
           process.env.SITE_BASE_URL ||
           'https://articles.resilientleadership.us',
@@ -96,8 +100,8 @@ export async function POST(request: NextRequest) {
       tags,
     })
 
-    // Save to Sanity
-    await patchPostDistribution(postId, {
+    // Save to Sanity (use actual document ID from query result)
+    await patchPostDistribution(post._id, {
       distribution: {
         medium: {
           status: 'ready',

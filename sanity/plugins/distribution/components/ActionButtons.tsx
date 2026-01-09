@@ -15,7 +15,8 @@ export function ActionButtons({
     <Stack space={2}>
       <Flex gap={2} wrap="wrap">
         <Button
-          text="Publish to Medium"
+          type="button"
+          text="Generate Medium Draft"
           tone="default"
           disabled={!!loading}
           onClick={onPublishToMedium}
