@@ -17,8 +17,24 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
   return member.kind === 'field'
 }
 
+interface GenerateResponse {
+  success: boolean
+  data?: {
+    generated?: {
+      social?: {
+        instagram?: {
+          caption?: string
+          hashtags?: string[]
+        }
+        suggestedFirstComment?: string
+      }
+    }
+  }
+  error?: string
+}
+
 export function InstagramSocialInput(props: ObjectInputProps) {
-  const { members } = props
+  const { members, onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -61,11 +77,21 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     setIsGenerating(true)
     setError(null)
     try {
-      const result = await generateInstagramDraft(postId)
+      const result = (await generateInstagramDraft(postId)) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
+        return
       }
-      // Success - form will update automatically via useFormValue
+
+      // Update local form state with generated content
+      const instagram = result.data?.generated?.social?.instagram
+      if (instagram?.caption) {
+        onChange(PatchEvent.from(set(instagram.caption, ['caption'])))
+      }
+      if (instagram?.hashtags) {
+        onChange(PatchEvent.from(set(instagram.hashtags, ['hashtags'])))
+      }
+      // Note: suggestedFirstComment is at social level, will be updated via useFormValue
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {

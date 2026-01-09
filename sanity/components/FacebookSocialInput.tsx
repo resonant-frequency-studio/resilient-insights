@@ -8,6 +8,8 @@ import {
   FieldMember,
   MemberField,
   useFormValue,
+  PatchEvent,
+  set,
 } from 'sanity'
 import { generateFacebookDraft } from '../plugins/distribution/actions'
 
@@ -15,8 +17,22 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
   return member.kind === 'field'
 }
 
+interface GenerateResponse {
+  success: boolean
+  data?: {
+    generated?: {
+      social?: {
+        facebook?: {
+          text?: string
+        }
+      }
+    }
+  }
+  error?: string
+}
+
 export function FacebookSocialInput(props: ObjectInputProps) {
-  const { members } = props
+  const { members, onChange } = props
   const postId = useFormValue(['_id']) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,11 +61,17 @@ export function FacebookSocialInput(props: ObjectInputProps) {
     setIsGenerating(true)
     setError(null)
     try {
-      const result = await generateFacebookDraft(postId)
+      const result = (await generateFacebookDraft(postId)) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
+        return
       }
-      // Success - form will update automatically via useFormValue
+
+      // Update local form state with generated text
+      const generatedText = result.data?.generated?.social?.facebook?.text
+      if (generatedText) {
+        onChange(PatchEvent.from(set(generatedText, ['text'])))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
