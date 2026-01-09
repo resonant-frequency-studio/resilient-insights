@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { client } from '@/sanity/lib/client'
-import { generateNewsletter, generateSocial } from '@/lib/distribution/generate'
+import {
+  generateNewsletter,
+  generateSocial,
+  generateLinkedIn,
+  generateFacebook,
+  generateInstagram,
+} from '@/lib/distribution/generate'
 import { patchPostDistribution } from '@/lib/sanity/writeClient'
 import { z } from 'zod'
 
@@ -8,7 +14,9 @@ export const runtime = 'nodejs'
 
 const RequestSchema = z.object({
   postId: z.string(),
-  targets: z.array(z.enum(['newsletter', 'social'])),
+  targets: z.array(
+    z.enum(['newsletter', 'social', 'linkedin', 'facebook', 'instagram'])
+  ),
   force: z.boolean().optional().default(false),
 })
 
@@ -68,7 +76,14 @@ export async function POST(request: NextRequest) {
 
     const generated: {
       newsletter?: unknown
-      social?: unknown
+      social?: {
+        linkedin?: { text: string }
+        facebook?: { text: string }
+        instagram?: { caption: string; hashtags: string[] }
+        suggestedFirstComment?: string
+        generatedAt?: string
+        model?: string
+      }
     } = {}
 
     // Generate newsletter if requested
@@ -99,7 +114,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate social if requested
+    // Generate all social platforms if 'social' target is requested
     if (targets.includes('social')) {
       try {
         const social = await generateSocial({
@@ -120,6 +135,97 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'Social generation failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
+          },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Generate LinkedIn only if requested (and not already generated via 'social')
+    if (targets.includes('linkedin') && !targets.includes('social')) {
+      try {
+        const linkedin = await generateLinkedIn({
+          title: post.title,
+          excerpt: post.excerpt || '',
+          body: post.body,
+          canonicalUrl,
+          postId,
+        })
+
+        generated.social = {
+          ...generated.social,
+          linkedin,
+          generatedAt: new Date().toISOString(),
+          model: 'gemini-2.5-flash',
+        }
+      } catch (error) {
+        console.error('LinkedIn generation error:', error)
+        return NextResponse.json(
+          {
+            error: 'LinkedIn generation failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
+          },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Generate Facebook only if requested (and not already generated via 'social')
+    if (targets.includes('facebook') && !targets.includes('social')) {
+      try {
+        const facebook = await generateFacebook({
+          title: post.title,
+          excerpt: post.excerpt || '',
+          body: post.body,
+          canonicalUrl,
+          postId,
+        })
+
+        generated.social = {
+          ...generated.social,
+          facebook,
+          generatedAt: new Date().toISOString(),
+          model: 'gemini-2.5-flash',
+        }
+      } catch (error) {
+        console.error('Facebook generation error:', error)
+        return NextResponse.json(
+          {
+            error: 'Facebook generation failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
+          },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Generate Instagram only if requested (and not already generated via 'social')
+    if (targets.includes('instagram') && !targets.includes('social')) {
+      try {
+        const instagram = await generateInstagram({
+          title: post.title,
+          excerpt: post.excerpt || '',
+          body: post.body,
+          canonicalUrl,
+          postId,
+        })
+
+        generated.social = {
+          ...generated.social,
+          instagram: {
+            caption: instagram.caption,
+            hashtags: instagram.hashtags,
+          },
+          suggestedFirstComment: instagram.suggestedFirstComment,
+          generatedAt: new Date().toISOString(),
+          model: 'gemini-2.5-flash',
+        }
+      } catch (error) {
+        console.error('Instagram generation error:', error)
+        return NextResponse.json(
+          {
+            error: 'Instagram generation failed',
             details: error instanceof Error ? error.message : 'Unknown error',
           },
           { status: 500 }

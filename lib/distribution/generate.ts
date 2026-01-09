@@ -65,6 +65,20 @@ export interface GeneratedSocial {
   suggestedFirstComment?: string
 }
 
+export interface GeneratedLinkedIn {
+  text: string
+}
+
+export interface GeneratedFacebook {
+  text: string
+}
+
+export interface GeneratedInstagram {
+  caption: string
+  hashtags: string[]
+  suggestedFirstComment?: string
+}
+
 /**
  * Parse JSON from Gemini response, handling markdown code blocks
  */
@@ -135,7 +149,163 @@ export async function generateNewsletter(
 }
 
 /**
- * Generate social media content (LinkedIn, Facebook, Instagram)
+ * Generate LinkedIn post content only
+ */
+export async function generateLinkedIn(
+  options: GenerateOptions
+): Promise<GeneratedLinkedIn> {
+  const rateLimitKey = `linkedin:${options.postId}`
+  if (!checkRateLimit(rateLimitKey)) {
+    throw new Error(
+      'Rate limit exceeded. Please wait a minute before regenerating.'
+    )
+  }
+
+  const bodyText = portableTextToPlainText(options.body as never)
+  const prompt = createLinkedInPrompt(
+    options.title,
+    options.excerpt || '',
+    bodyText,
+    options.canonicalUrl
+  )
+  const response = await generateWithGemini(prompt)
+  const parsed = parseGeminiJson(response)
+
+  // Safety net: Truncate at sentence boundary if AI exceeds limits
+  if (typeof parsed === 'object' && parsed !== null) {
+    const parsedObj = parsed as Record<string, unknown>
+    if (typeof parsedObj.post === 'string' && parsedObj.post.length > 500) {
+      let truncated = parsedObj.post.substring(0, 500).trim()
+      const lastPeriod = truncated.lastIndexOf('.')
+      const lastExclamation = truncated.lastIndexOf('!')
+      const lastQuestion = truncated.lastIndexOf('?')
+      const lastSentenceEnd = Math.max(
+        lastPeriod,
+        lastExclamation,
+        lastQuestion
+      )
+      if (lastSentenceEnd > 400) {
+        truncated = truncated.substring(0, lastSentenceEnd + 1).trim()
+      }
+      parsedObj.post = truncated
+    }
+  }
+
+  const validated = LinkedInSchema.parse(parsed)
+
+  // Format LinkedIn post with URL
+  return {
+    text: `${validated.post}\n\n${options.canonicalUrl}`,
+  }
+}
+
+/**
+ * Generate Facebook post content only
+ */
+export async function generateFacebook(
+  options: GenerateOptions
+): Promise<GeneratedFacebook> {
+  const rateLimitKey = `facebook:${options.postId}`
+  if (!checkRateLimit(rateLimitKey)) {
+    throw new Error(
+      'Rate limit exceeded. Please wait a minute before regenerating.'
+    )
+  }
+
+  const bodyText = portableTextToPlainText(options.body as never)
+  const prompt = createFacebookPrompt(
+    options.title,
+    options.excerpt || '',
+    bodyText,
+    options.canonicalUrl
+  )
+  const response = await generateWithGemini(prompt)
+  const parsed = parseGeminiJson(response)
+
+  // Safety net: Truncate at sentence boundary if AI exceeds limits
+  if (typeof parsed === 'object' && parsed !== null) {
+    const parsedObj = parsed as Record<string, unknown>
+    if (typeof parsedObj.post === 'string' && parsedObj.post.length > 300) {
+      let truncated = parsedObj.post.substring(0, 300).trim()
+      const lastPeriod = truncated.lastIndexOf('.')
+      const lastExclamation = truncated.lastIndexOf('!')
+      const lastQuestion = truncated.lastIndexOf('?')
+      const lastSentenceEnd = Math.max(
+        lastPeriod,
+        lastExclamation,
+        lastQuestion
+      )
+      if (lastSentenceEnd > 250) {
+        truncated = truncated.substring(0, lastSentenceEnd + 1).trim()
+      }
+      parsedObj.post = truncated
+    }
+  }
+
+  const validated = FacebookSchema.parse(parsed)
+
+  return {
+    text: validated.post,
+  }
+}
+
+/**
+ * Generate Instagram post content only
+ */
+export async function generateInstagram(
+  options: GenerateOptions
+): Promise<GeneratedInstagram> {
+  const rateLimitKey = `instagram:${options.postId}`
+  if (!checkRateLimit(rateLimitKey)) {
+    throw new Error(
+      'Rate limit exceeded. Please wait a minute before regenerating.'
+    )
+  }
+
+  const bodyText = portableTextToPlainText(options.body as never)
+  const prompt = createInstagramPrompt(
+    options.title,
+    options.excerpt || '',
+    bodyText,
+    options.canonicalUrl
+  )
+  const response = await generateWithGemini(prompt)
+  const parsed = parseGeminiJson(response)
+
+  // Safety net: Truncate at sentence boundary if AI exceeds limits
+  if (typeof parsed === 'object' && parsed !== null) {
+    const parsedObj = parsed as Record<string, unknown>
+    if (
+      typeof parsedObj.caption === 'string' &&
+      parsedObj.caption.length > 300
+    ) {
+      let truncated = parsedObj.caption.substring(0, 300).trim()
+      const lastPeriod = truncated.lastIndexOf('.')
+      const lastExclamation = truncated.lastIndexOf('!')
+      const lastQuestion = truncated.lastIndexOf('?')
+      const lastSentenceEnd = Math.max(
+        lastPeriod,
+        lastExclamation,
+        lastQuestion
+      )
+      if (lastSentenceEnd > 250) {
+        truncated = truncated.substring(0, lastSentenceEnd + 1).trim()
+      }
+      parsedObj.caption = truncated
+    }
+  }
+
+  const validated = InstagramSchema.parse(parsed)
+
+  return {
+    caption: validated.caption,
+    hashtags: validated.hashtags,
+    suggestedFirstComment: validated.suggestedFirstComment,
+  }
+}
+
+/**
+ * Generate social media content (LinkedIn, Facebook, Instagram) - all platforms
  */
 export async function generateSocial(
   options: GenerateOptions

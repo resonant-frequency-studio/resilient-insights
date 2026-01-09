@@ -1,25 +1,25 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Stack, Text, Button, Flex, Card } from '@sanity/ui'
 import {
   ObjectInputProps,
   ObjectMember,
   FieldMember,
   MemberField,
+  useFormValue,
 } from 'sanity'
+import { generateLinkedInDraft } from '../plugins/distribution/actions'
 
 function isFieldMember(member: ObjectMember): member is FieldMember {
   return member.kind === 'field'
 }
 
-interface LinkedInSocialInputProps extends ObjectInputProps {
-  onGenerate?: () => void
-  isGenerating?: boolean
-}
-
-export function LinkedInSocialInput(props: LinkedInSocialInputProps) {
-  const { members, onGenerate, isGenerating } = props
+export function LinkedInSocialInput(props: ObjectInputProps) {
+  const { members } = props
+  const postId = useFormValue(['_id']) as string | undefined
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Find the field members that Sanity already prepared for you
   const textMember = useMemo(
@@ -37,6 +37,26 @@ export function LinkedInSocialInput(props: LinkedInSocialInputProps) {
     [members]
   )
 
+  const handleGenerate = async () => {
+    if (!postId) {
+      setError('Post ID not found')
+      return
+    }
+    setIsGenerating(true)
+    setError(null)
+    try {
+      const result = await generateLinkedInDraft(postId)
+      if (!result.success) {
+        setError(result.error || 'Generation failed')
+      }
+      // Success - form will update automatically via useFormValue
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <Card padding={3} radius={2} tone="transparent" border>
       <Stack space={4}>
@@ -44,18 +64,22 @@ export function LinkedInSocialInput(props: LinkedInSocialInputProps) {
           <Text size={1} weight="semibold">
             LinkedIn
           </Text>
-          {onGenerate && (
-            <Button
-              text="Generate Draft"
-              mode="ghost"
-              tone="primary"
-              fontSize={0}
-              padding={2}
-              onClick={onGenerate}
-              disabled={isGenerating}
-            />
-          )}
+          <Button
+            text={isGenerating ? 'Generating...' : 'Generate LinkedIn Draft'}
+            mode="ghost"
+            tone="primary"
+            fontSize={0}
+            padding={2}
+            onClick={handleGenerate}
+            disabled={isGenerating || !postId}
+          />
         </Flex>
+
+        {error && (
+          <Text size={0} style={{ color: 'red' }}>
+            {error}
+          </Text>
+        )}
 
         {/* Render the default "text" input */}
         {textMember ? (

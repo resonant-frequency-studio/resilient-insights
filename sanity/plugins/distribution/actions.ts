@@ -74,6 +74,48 @@ export async function generateContent(
 }
 
 /**
+ * Generate LinkedIn draft only
+ */
+export async function generateLinkedInDraft(
+  postId: string,
+  force = false
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  return callAPI('/api/distribution/generate', {
+    postId,
+    targets: ['linkedin'],
+    force,
+  })
+}
+
+/**
+ * Generate Facebook draft only
+ */
+export async function generateFacebookDraft(
+  postId: string,
+  force = false
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  return callAPI('/api/distribution/generate', {
+    postId,
+    targets: ['facebook'],
+    force,
+  })
+}
+
+/**
+ * Generate Instagram draft only
+ */
+export async function generateInstagramDraft(
+  postId: string,
+  force = false
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  return callAPI('/api/distribution/generate', {
+    postId,
+    targets: ['instagram'],
+    force,
+  })
+}
+
+/**
  * Generate and schedule distribution content via Make.com
  */
 export async function generateAndSchedule(
