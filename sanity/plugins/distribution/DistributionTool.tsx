@@ -265,6 +265,20 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
           />
         )}
 
+        {/* Medium Section - Using MemberField for native Sanity rendering */}
+        {mediumMember && (
+          <MemberField
+            member={mediumMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        )}
+
         {/* Social Media Section - Using MemberField for native Sanity rendering */}
         {socialMember && (
           <Card padding={3} radius={2} tone="transparent" border>
@@ -361,20 +375,6 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
               </Stack>
             </Card>
           )}
-
-        {/* Medium Section - Using MemberField for native Sanity rendering */}
-        {mediumMember && (
-          <MemberField
-            member={mediumMember}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        )}
       </Stack>
     </Card>
   )
