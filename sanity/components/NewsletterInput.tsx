@@ -25,11 +25,31 @@ interface GenerateResponse {
 
 export function NewsletterInput(props: ObjectInputProps) {
   const postId = useFormValue(['_id']) as string | undefined
+  const newsletterTitle = useFormValue([
+    'distribution',
+    'newsletter',
+    'title',
+  ]) as string | undefined
+  const newsletterSubtitle = useFormValue([
+    'distribution',
+    'newsletter',
+    'subtitle',
+  ]) as string | undefined
   const newsletterBody = useFormValue([
     'distribution',
     'newsletter',
     'body',
   ]) as PortableTextBlock[] | undefined
+  const newsletterCtaText = useFormValue([
+    'distribution',
+    'newsletter',
+    'ctaText',
+  ]) as string | undefined
+  const newsletterCtaUrl = useFormValue([
+    'distribution',
+    'newsletter',
+    'ctaUrl',
+  ]) as string | undefined
   const generatedAt = useFormValue([
     'distribution',
     'newsletter',
@@ -87,6 +107,10 @@ export function NewsletterInput(props: ObjectInputProps) {
     }
   }
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
   const copyBodyAsMarkdown = () => {
     if (newsletterBody) {
       const markdown = portableTextToMarkdown(newsletterBody)
@@ -131,10 +155,28 @@ export function NewsletterInput(props: ObjectInputProps) {
         {/* Use Sanity's default rendering - handles all field updates properly */}
         {props.renderDefault(props)}
 
-        {/* Footer with copy button and generated date */}
+        {/* Copy buttons for each field */}
         {generatedAt && (
-          <Flex align="center" justify="space-between">
-            <Flex justify="flex-start">
+          <Stack space={3}>
+            <Flex gap={2} wrap="wrap">
+              <Button
+                type="button"
+                text="Copy Title"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterTitle || '')}
+                disabled={!newsletterTitle}
+              />
+              <Button
+                type="button"
+                text="Copy Subtitle"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterSubtitle || '')}
+                disabled={!newsletterSubtitle}
+              />
               <Button
                 type="button"
                 text="Copy Body (Markdown)"
@@ -144,11 +186,31 @@ export function NewsletterInput(props: ObjectInputProps) {
                 onClick={copyBodyAsMarkdown}
                 disabled={!newsletterBody || newsletterBody.length === 0}
               />
+              <Button
+                type="button"
+                text="Copy CTA Text"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterCtaText || '')}
+                disabled={!newsletterCtaText}
+              />
+              <Button
+                type="button"
+                text="Copy CTA URL"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterCtaUrl || '')}
+                disabled={!newsletterCtaUrl}
+              />
             </Flex>
-            <Text size={0} muted>
-              Generated: {formatDate(generatedAt)}
-            </Text>
-          </Flex>
+            <Flex justify="flex-end">
+              <Text size={0} muted>
+                Generated: {formatDate(generatedAt)}
+              </Text>
+            </Flex>
+          </Stack>
         )}
       </Stack>
     </Card>

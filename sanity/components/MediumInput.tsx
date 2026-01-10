@@ -21,8 +21,19 @@ interface GenerateResponse {
 
 export function MediumInput(props: ObjectInputProps) {
   const postId = useFormValue(['_id']) as string | undefined
+  const mediumTitle = useFormValue(['distribution', 'medium', 'title']) as
+    | string
+    | undefined
+  const mediumSubtitle = useFormValue([
+    'distribution',
+    'medium',
+    'subtitle',
+  ]) as string | undefined
   const mediumContent = useFormValue(['distribution', 'medium', 'body']) as
     | PortableTextBlock[]
+    | undefined
+  const mediumTags = useFormValue(['distribution', 'medium', 'tags']) as
+    | string[]
     | undefined
   const mediumStatus = useFormValue(['distribution', 'medium', 'status']) as
     | string
@@ -71,10 +82,20 @@ export function MediumInput(props: ObjectInputProps) {
     }
   }
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
   const copyContentAsMarkdown = () => {
     if (mediumContent) {
       const markdown = portableTextToMarkdown(mediumContent)
       navigator.clipboard.writeText(markdown)
+    }
+  }
+
+  const copyTagsAsCommaSeparated = () => {
+    if (mediumTags && mediumTags.length > 0) {
+      navigator.clipboard.writeText(mediumTags.join(', '))
     }
   }
 
@@ -137,21 +158,48 @@ export function MediumInput(props: ObjectInputProps) {
         {/* Use Sanity's default rendering - handles all field updates properly */}
         {props.renderDefault(props)}
 
-        {/* Footer with copy button and generated date */}
+        {/* Copy buttons for each field */}
         {generatedAt && (
-          <Flex align="center" justify="space-between">
-            <Stack space={2}>
-              <Flex justify="flex-start">
-                <Button
-                  type="button"
-                  text="Copy Body (Markdown)"
-                  mode="ghost"
-                  fontSize={0}
-                  padding={1}
-                  onClick={copyContentAsMarkdown}
-                  disabled={!mediumContent || mediumContent.length === 0}
-                />
-              </Flex>
+          <Stack space={3}>
+            <Flex gap={2} wrap="wrap">
+              <Button
+                type="button"
+                text="Copy Title"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(mediumTitle || '')}
+                disabled={!mediumTitle}
+              />
+              <Button
+                type="button"
+                text="Copy Subtitle"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(mediumSubtitle || '')}
+                disabled={!mediumSubtitle}
+              />
+              <Button
+                type="button"
+                text="Copy Body (Markdown)"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyContentAsMarkdown}
+                disabled={!mediumContent || mediumContent.length === 0}
+              />
+              <Button
+                type="button"
+                text="Copy Tags"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyTagsAsCommaSeparated}
+                disabled={!mediumTags || mediumTags.length === 0}
+              />
+            </Flex>
+            <Flex align="center" justify="space-between">
               <Text size={0} muted>
                 After copying, go to{' '}
                 <a
@@ -163,11 +211,11 @@ export function MediumInput(props: ObjectInputProps) {
                 </a>{' '}
                 and paste the content.
               </Text>
-            </Stack>
-            <Text size={0} muted>
-              Generated: {formatDate(generatedAt)}
-            </Text>
-          </Flex>
+              <Text size={0} muted>
+                Generated: {formatDate(generatedAt)}
+              </Text>
+            </Flex>
+          </Stack>
         )}
       </Stack>
     </Card>
