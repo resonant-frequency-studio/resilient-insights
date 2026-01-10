@@ -199,15 +199,17 @@ export function MediumInput(props: ObjectInputProps) {
         {titleMember && (
           <Stack space={2}>
             <MemberField member={titleMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Title"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={() => copyToClipboard(mediumTitle || '')}
-              disabled={!mediumTitle}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Title"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(mediumTitle || '')}
+                disabled={!mediumTitle}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -215,15 +217,17 @@ export function MediumInput(props: ObjectInputProps) {
         {subtitleMember && (
           <Stack space={2}>
             <MemberField member={subtitleMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Subtitle"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={() => copyToClipboard(mediumSubtitle || '')}
-              disabled={!mediumSubtitle}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Subtitle"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(mediumSubtitle || '')}
+                disabled={!mediumSubtitle}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -231,15 +235,17 @@ export function MediumInput(props: ObjectInputProps) {
         {bodyMember && (
           <Stack space={2}>
             <MemberField member={bodyMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Body (Markdown)"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={copyContentAsMarkdown}
-              disabled={!mediumContent || mediumContent.length === 0}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Body (Markdown)"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyContentAsMarkdown}
+                disabled={!mediumContent || mediumContent.length === 0}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -247,15 +253,17 @@ export function MediumInput(props: ObjectInputProps) {
         {tagsMember && (
           <Stack space={2}>
             <MemberField member={tagsMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Tags"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={copyTagsAsCommaSeparated}
-              disabled={!mediumTags || mediumTags.length === 0}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Tags"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyTagsAsCommaSeparated}
+                disabled={!mediumTags || mediumTags.length === 0}
+              />
+            </Flex>
           </Stack>
         )}
 

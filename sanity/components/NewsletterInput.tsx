@@ -201,15 +201,17 @@ export function NewsletterInput(props: ObjectInputProps) {
         {titleMember && (
           <Stack space={2}>
             <MemberField member={titleMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Title"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={() => copyToClipboard(newsletterTitle || '')}
-              disabled={!newsletterTitle}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Title"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterTitle || '')}
+                disabled={!newsletterTitle}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -217,15 +219,17 @@ export function NewsletterInput(props: ObjectInputProps) {
         {subtitleMember && (
           <Stack space={2}>
             <MemberField member={subtitleMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Subtitle"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={() => copyToClipboard(newsletterSubtitle || '')}
-              disabled={!newsletterSubtitle}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Subtitle"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterSubtitle || '')}
+                disabled={!newsletterSubtitle}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -233,15 +237,17 @@ export function NewsletterInput(props: ObjectInputProps) {
         {bodyMember && (
           <Stack space={2}>
             <MemberField member={bodyMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy Body (Markdown)"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={copyBodyAsMarkdown}
-              disabled={!newsletterBody || newsletterBody.length === 0}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Body (Markdown)"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyBodyAsMarkdown}
+                disabled={!newsletterBody || newsletterBody.length === 0}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -249,15 +255,17 @@ export function NewsletterInput(props: ObjectInputProps) {
         {ctaTextMember && (
           <Stack space={2}>
             <MemberField member={ctaTextMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy CTA Text"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={() => copyToClipboard(newsletterCtaText || '')}
-              disabled={!newsletterCtaText}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy CTA Text"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterCtaText || '')}
+                disabled={!newsletterCtaText}
+              />
+            </Flex>
           </Stack>
         )}
 
@@ -265,15 +273,17 @@ export function NewsletterInput(props: ObjectInputProps) {
         {ctaUrlMember && (
           <Stack space={2}>
             <MemberField member={ctaUrlMember} {...renderMemberProps} />
-            <Button
-              type="button"
-              text="Copy CTA URL"
-              mode="ghost"
-              fontSize={0}
-              padding={1}
-              onClick={() => copyToClipboard(newsletterCtaUrl || '')}
-              disabled={!newsletterCtaUrl}
-            />
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy CTA URL"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterCtaUrl || '')}
+                disabled={!newsletterCtaUrl}
+              />
+            </Flex>
           </Stack>
         )}
 
