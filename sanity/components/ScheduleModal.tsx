@@ -11,16 +11,23 @@ import {
   Label,
   Card,
   Flex,
+  Badge,
 } from '@sanity/ui'
+import {
+  getPreviewImageUrl,
+  getPlatformDimensionInfo,
+  SanityImageReference,
+  SocialPlatform,
+} from '@/lib/social/imageOptimizer'
 
 interface ScheduleModalProps {
   isOpen: boolean
   onClose: () => void
   onSchedule: (scheduledAt: string) => Promise<void>
-  channel: 'linkedin' | 'facebook' | 'instagram'
+  channel: SocialPlatform
   recommendations?: string[] // ISO 8601 datetime strings
   loading?: boolean
-  imageUrl?: string // Optional preview of image from draft
+  image?: SanityImageReference // Sanity image reference for auto-cropping
 }
 
 export function ScheduleModal({
@@ -30,7 +37,7 @@ export function ScheduleModal({
   channel,
   recommendations = [],
   loading = false,
-  imageUrl,
+  image,
 }: ScheduleModalProps) {
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
@@ -58,11 +65,16 @@ export function ScheduleModal({
     setSelectedDate('')
     setSelectedTime('')
     setUseRecommendation(null)
+    setImageLoadError(false)
     onClose()
   }
 
   const today = new Date().toISOString().split('T')[0]
   const channelLabel = channel.charAt(0).toUpperCase() + channel.slice(1)
+
+  // Generate the platform-optimized preview URL
+  const croppedPreviewUrl = getPreviewImageUrl(image, channel, 400)
+  const dimensionInfo = getPlatformDimensionInfo(channel)
 
   if (!isOpen) return null
 
@@ -135,12 +147,20 @@ export function ScheduleModal({
             </Flex>
           </Box>
 
-          {/* Image Preview */}
-          {imageUrl && (
+          {/* Auto-Cropped Image Preview */}
+          {croppedPreviewUrl && (
             <Box>
-              <Label size={1} muted>
-                Image (from draft)
-              </Label>
+              <Flex align="center" gap={2}>
+                <Label size={1} muted>
+                  Image Preview
+                </Label>
+                <Badge tone="primary" fontSize={0}>
+                  {dimensionInfo}
+                </Badge>
+              </Flex>
+              <Text size={0} muted style={{ marginTop: '4px' }}>
+                Auto-cropped for {channelLabel}
+              </Text>
               <Card
                 padding={3}
                 radius={2}
@@ -151,29 +171,28 @@ export function ScheduleModal({
                 <Box
                   style={{
                     width: '100%',
-                    maxHeight: '150px',
                     borderRadius: '4px',
                     overflow: 'hidden',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: 'var(--card-bg-color)',
-                    minHeight: '80px',
                   }}
                 >
                   {imageLoadError ? (
-                    <Text size={0} muted>
-                      Image failed to load
-                    </Text>
+                    <Stack space={2} padding={3}>
+                      <Text size={0} muted align="center">
+                        Image failed to load
+                      </Text>
+                    </Stack>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={imageUrl}
-                      alt="Preview"
+                      src={croppedPreviewUrl}
+                      alt={`${channelLabel} preview`}
                       style={{
                         width: '100%',
-                        maxHeight: '150px',
-                        objectFit: 'contain',
+                        display: 'block',
                       }}
                       onError={() => setImageLoadError(true)}
                       onLoad={() => setImageLoadError(false)}

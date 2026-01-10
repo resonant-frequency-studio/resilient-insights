@@ -11,6 +11,7 @@ import { ScheduleModal } from './ScheduleModal'
 import { portableTextToPlainText } from '@/lib/sanity/portableText'
 import { PortableTextBlock } from '@sanity/types'
 import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
+import { SanityImageReference } from '@/lib/social/imageOptimizer'
 
 interface GenerateResponse {
   success: boolean
@@ -38,6 +39,12 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     'social',
     'generatedAt',
   ]) as string | undefined
+  const linkedInImage = useFormValue([
+    'distribution',
+    'social',
+    'linkedin',
+    'image',
+  ]) as SanityImageReference | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [isScheduling, setIsScheduling] = useState(false)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
@@ -202,6 +209,7 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
           channel="linkedin"
           recommendations={recommendations}
           loading={isScheduling}
+          image={linkedInImage}
         />
       </Stack>
     </Card>
