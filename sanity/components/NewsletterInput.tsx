@@ -10,7 +10,7 @@ import {
   FieldProps,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
-import { generateContent } from '../plugins/distribution/actions'
+import { generateNewsletterDraft } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
 
 interface GenerateResponse {
@@ -84,9 +84,7 @@ export function NewsletterInput(props: ObjectInputProps) {
     setIsGenerating(true)
     setError(null)
     try {
-      const result = (await generateContent(postId, [
-        'newsletter',
-      ])) as GenerateResponse
+      const result = (await generateNewsletterDraft(postId)) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
         return

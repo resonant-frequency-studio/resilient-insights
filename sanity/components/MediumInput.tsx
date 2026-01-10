@@ -10,7 +10,7 @@ import {
   FieldProps,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
-import { publishToMedium } from '../plugins/distribution/actions'
+import { generateMediumDraft } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
 
 interface GenerateResponse {
@@ -63,7 +63,7 @@ export function MediumInput(props: ObjectInputProps) {
     setIsGenerating(true)
     setError(null)
     try {
-      const result = (await publishToMedium(postId)) as GenerateResponse
+      const result = (await generateMediumDraft(postId)) as GenerateResponse
       if (!result.success) {
         setError(result.error || 'Generation failed')
         return

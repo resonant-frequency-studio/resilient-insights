@@ -58,58 +58,66 @@ async function callAPI<T = unknown>(
 }
 
 /**
- * Generate newsletter and/or social content
+ * Generate newsletter draft
  */
-export async function generateContent(
+export async function generateNewsletterDraft(
   postId: string,
-  targets: ('newsletter' | 'social')[],
   force = false
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  return callAPI('/api/distribution/generate', {
+  return callAPI('/api/distribution/generate/newsletter', {
     postId,
-    targets,
     force,
   })
 }
 
 /**
- * Generate LinkedIn draft only
+ * Generate Medium draft
+ */
+export async function generateMediumDraft(
+  postId: string,
+  force = false
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  return callAPI('/api/distribution/generate/medium', {
+    postId,
+    force,
+  })
+}
+
+/**
+ * Generate LinkedIn draft
  */
 export async function generateLinkedInDraft(
   postId: string,
   force = false
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  return callAPI('/api/distribution/generate', {
+  return callAPI('/api/distribution/generate/linkedin', {
     postId,
-    targets: ['linkedin'],
     force,
   })
 }
 
 /**
- * Generate Facebook draft only
+ * Generate Facebook draft
  */
 export async function generateFacebookDraft(
   postId: string,
   force = false
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  return callAPI('/api/distribution/generate', {
+  return callAPI('/api/distribution/generate/facebook', {
     postId,
-    targets: ['facebook'],
     force,
   })
 }
 
 /**
- * Generate Instagram draft only
+ * Generate Instagram draft
  */
 export async function generateInstagramDraft(
   postId: string,
   force = false
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  return callAPI('/api/distribution/generate', {
+  return callAPI('/api/distribution/generate/instagram', {
     postId,
-    targets: ['instagram'],
     force,
   })
 }
@@ -126,17 +134,6 @@ export async function generateAndSchedule(
     articleId,
     channels,
     publishAt,
-  })
-}
-
-/**
- * Publish to Medium
- */
-export async function publishToMedium(
-  postId: string
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  return callAPI('/api/distribution/medium/publish', {
-    postId,
   })
 }
 
