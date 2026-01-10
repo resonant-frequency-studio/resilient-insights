@@ -16,15 +16,13 @@ import { generateInstagramDraft } from '../plugins/distribution/actions'
 
 interface GenerateResponse {
   success: boolean
-  data?: {
-    generated?: {
-      social?: {
-        instagram?: {
-          caption?: unknown[] // Portable Text blocks
-          hashtags?: string[]
-        }
-        suggestedFirstComment?: string
+  generated?: {
+    social?: {
+      instagram?: {
+        caption?: unknown[] // Portable Text blocks
+        hashtags?: string[]
       }
+      suggestedFirstComment?: string
     }
   }
   error?: string
@@ -82,7 +80,7 @@ export function InstagramSocialInput(props: ObjectInputProps) {
       }
 
       // Update local form state with generated content
-      const instagram = result.data?.generated?.social?.instagram
+      const instagram = result.generated?.social?.instagram
       if (instagram?.caption) {
         onChange(PatchEvent.from(set(instagram.caption, ['caption'])))
       }

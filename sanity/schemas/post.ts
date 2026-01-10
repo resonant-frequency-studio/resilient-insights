@@ -133,6 +133,7 @@ export default defineType({
               name: 'ctaUrl',
               title: 'CTA URL',
               type: 'url',
+              readOnly: true,
             },
             {
               name: 'generatedAt',

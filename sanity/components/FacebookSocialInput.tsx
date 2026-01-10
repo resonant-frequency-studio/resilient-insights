@@ -7,12 +7,10 @@ import { generateFacebookDraft } from '../plugins/distribution/actions'
 
 interface GenerateResponse {
   success: boolean
-  data?: {
-    generated?: {
-      social?: {
-        facebook?: {
-          text?: unknown[] // Portable Text blocks
-        }
+  generated?: {
+    social?: {
+      facebook?: {
+        text?: unknown[] // Portable Text blocks
       }
     }
   }
@@ -63,7 +61,7 @@ export function FacebookSocialInput(props: ObjectInputProps) {
       }
 
       // Update local form state with generated text
-      const generatedText = result.data?.generated?.social?.facebook?.text
+      const generatedText = result.generated?.social?.facebook?.text
       if (generatedText) {
         onChange(PatchEvent.from(set(generatedText, ['text'])))
       }

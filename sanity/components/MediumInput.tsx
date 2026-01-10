@@ -1,15 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
   useFormValue,
-  MemberField,
-  FieldMember,
-  ObjectMember,
   PatchEvent,
   set,
+  FieldProps,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
@@ -27,12 +25,7 @@ interface GenerateResponse {
   error?: string
 }
 
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
-
 export function MediumInput(props: ObjectInputProps) {
-  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const mediumTitle = useFormValue(['distribution', 'medium', 'title']) as
     | string
@@ -61,36 +54,6 @@ export function MediumInput(props: ObjectInputProps) {
     | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Find specific field members
-  const titleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
-      ),
-    [members]
-  )
-  const subtitleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
-      ),
-    [members]
-  )
-  const bodyMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
-      ),
-    [members]
-  )
-  const tagsMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'tags'
-      ),
-    [members]
-  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -129,18 +92,18 @@ export function MediumInput(props: ObjectInputProps) {
     navigator.clipboard.writeText(text)
   }
 
-  const copyContentAsMarkdown = () => {
+  const copyContentAsMarkdown = useCallback(() => {
     if (mediumContent) {
       const markdown = portableTextToMarkdown(mediumContent)
       navigator.clipboard.writeText(markdown)
     }
-  }
+  }, [mediumContent])
 
-  const copyTagsAsCommaSeparated = () => {
+  const copyTagsAsCommaSeparated = useCallback(() => {
     if (mediumTags && mediumTags.length > 0) {
       navigator.clipboard.writeText(mediumTags.join(', '))
     }
-  }
+  }, [mediumTags])
 
   // Get status badge color
   const getStatusTone = () => {
@@ -167,15 +130,102 @@ export function MediumInput(props: ObjectInputProps) {
   // Combine local error state with stored error
   const displayError = error || storedError
 
-  const renderMemberProps = {
-    renderAnnotation: props.renderAnnotation,
-    renderBlock: props.renderBlock,
-    renderField: props.renderField,
-    renderInlineBlock: props.renderInlineBlock,
-    renderInput: props.renderInput,
-    renderItem: props.renderItem,
-    renderPreview: props.renderPreview,
-  }
+  // Destructure renderField for useCallback dependency
+  const { renderField } = props
+
+  // Custom renderField that adds copy buttons after each field
+  const customRenderField = useCallback(
+    (fieldProps: Omit<FieldProps, 'renderDefault'>) => {
+      const fieldName = fieldProps.name
+      const renderedField = renderField(fieldProps)
+
+      // Get copy button config for this field
+      let copyButton = null
+
+      switch (fieldName) {
+        case 'title':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Title"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(mediumTitle || '')}
+                disabled={!mediumTitle}
+              />
+            </Flex>
+          )
+          break
+        case 'subtitle':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Subtitle"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(mediumSubtitle || '')}
+                disabled={!mediumSubtitle}
+              />
+            </Flex>
+          )
+          break
+        case 'body':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Body (Markdown)"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyContentAsMarkdown}
+                disabled={!mediumContent || mediumContent.length === 0}
+              />
+            </Flex>
+          )
+          break
+        case 'tags':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Tags"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyTagsAsCommaSeparated}
+                disabled={!mediumTags || mediumTags.length === 0}
+              />
+            </Flex>
+          )
+          break
+      }
+
+      if (copyButton) {
+        return (
+          <Stack space={2}>
+            {renderedField}
+            {copyButton}
+          </Stack>
+        )
+      }
+
+      return renderedField
+    },
+    [
+      renderField,
+      mediumTitle,
+      mediumSubtitle,
+      mediumContent,
+      mediumTags,
+      copyContentAsMarkdown,
+      copyTagsAsCommaSeparated,
+    ]
+  )
 
   return (
     <Card padding={3} radius={2} tone="transparent" border>
@@ -208,77 +258,11 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Title field with copy button */}
-        {titleMember && (
-          <Stack space={2}>
-            <MemberField member={titleMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Title"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(mediumTitle || '')}
-                disabled={!mediumTitle}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Subtitle field with copy button */}
-        {subtitleMember && (
-          <Stack space={2}>
-            <MemberField member={subtitleMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Subtitle"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(mediumSubtitle || '')}
-                disabled={!mediumSubtitle}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Body field with copy button */}
-        {bodyMember && (
-          <Stack space={2}>
-            <MemberField member={bodyMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Body (Markdown)"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={copyContentAsMarkdown}
-                disabled={!mediumContent || mediumContent.length === 0}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Tags field with copy button */}
-        {tagsMember && (
-          <Stack space={2}>
-            <MemberField member={tagsMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Tags"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={copyTagsAsCommaSeparated}
-                disabled={!mediumTags || mediumTags.length === 0}
-              />
-            </Flex>
-          </Stack>
-        )}
+        {/* Use Sanity's renderDefault with custom renderField for copy buttons */}
+        {props.renderDefault({
+          ...props,
+          renderField: customRenderField,
+        })}
 
         {/* Footer with Medium link and generated date */}
         {generatedAt && (

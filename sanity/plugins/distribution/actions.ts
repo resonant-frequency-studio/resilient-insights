@@ -22,11 +22,12 @@ function getDistributionSecret(): string {
 
 /**
  * Call API with authentication
+ * Returns the raw API response directly (no extra wrapping)
  */
-async function callAPI(
+async function callAPI<T = unknown>(
   endpoint: string,
   body: unknown
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
+): Promise<T & { success: boolean; error?: string }> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
@@ -43,18 +44,16 @@ async function callAPI(
       return {
         success: false,
         error: data.error || `HTTP ${response.status}`,
-      }
+      } as T & { success: boolean; error?: string }
     }
 
-    return {
-      success: true,
-      data,
-    }
+    // Return the raw API response directly
+    return data as T & { success: boolean; error?: string }
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Network error',
-    }
+    } as T & { success: boolean; error?: string }
   }
 }
 

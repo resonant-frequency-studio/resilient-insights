@@ -7,12 +7,10 @@ import { generateLinkedInDraft } from '../plugins/distribution/actions'
 
 interface GenerateResponse {
   success: boolean
-  data?: {
-    generated?: {
-      social?: {
-        linkedin?: {
-          text?: unknown[] // Portable Text blocks
-        }
+  generated?: {
+    social?: {
+      linkedin?: {
+        text?: unknown[] // Portable Text blocks
       }
     }
   }
@@ -63,7 +61,7 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
       }
 
       // Update local form state with generated text
-      const generatedText = result.data?.generated?.social?.linkedin?.text
+      const generatedText = result.generated?.social?.linkedin?.text
       if (generatedText) {
         onChange(PatchEvent.from(set(generatedText, ['text'])))
       }

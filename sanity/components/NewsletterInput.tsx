@@ -1,15 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
   useFormValue,
-  MemberField,
-  FieldMember,
-  ObjectMember,
   PatchEvent,
   set,
+  FieldProps,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { generateContent } from '../plugins/distribution/actions'
@@ -31,12 +29,7 @@ interface GenerateResponse {
   error?: string
 }
 
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
-
 export function NewsletterInput(props: ObjectInputProps) {
-  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const newsletterTitle = useFormValue([
     'distribution',
@@ -73,43 +66,6 @@ export function NewsletterInput(props: ObjectInputProps) {
 
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
-
-  // Find specific field members
-  const titleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
-      ),
-    [members]
-  )
-  const subtitleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
-      ),
-    [members]
-  )
-  const bodyMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
-      ),
-    [members]
-  )
-  const ctaTextMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaText'
-      ),
-    [members]
-  )
-  const ctaUrlMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaUrl'
-      ),
-    [members]
-  )
 
   // Format generatedAt date
   const formatDate = (dateString: string) => {
@@ -161,22 +117,126 @@ export function NewsletterInput(props: ObjectInputProps) {
     navigator.clipboard.writeText(text)
   }
 
-  const copyBodyAsMarkdown = () => {
+  const copyBodyAsMarkdown = useCallback(() => {
     if (newsletterBody) {
       const markdown = portableTextToMarkdown(newsletterBody)
       navigator.clipboard.writeText(markdown)
     }
-  }
+  }, [newsletterBody])
 
-  const renderMemberProps = {
-    renderAnnotation: props.renderAnnotation,
-    renderBlock: props.renderBlock,
-    renderField: props.renderField,
-    renderInlineBlock: props.renderInlineBlock,
-    renderInput: props.renderInput,
-    renderItem: props.renderItem,
-    renderPreview: props.renderPreview,
-  }
+  // Destructure renderField for useCallback dependency
+  const { renderField } = props
+
+  // Custom renderField that adds copy buttons after each field
+  const customRenderField = useCallback(
+    (fieldProps: Omit<FieldProps, 'renderDefault'>) => {
+      const fieldName = fieldProps.name
+      const renderedField = renderField(fieldProps)
+
+      // Get copy button config for this field
+      let copyButton = null
+      let wrapperStyle = {}
+
+      switch (fieldName) {
+        case 'title':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Title"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterTitle || '')}
+                disabled={!newsletterTitle}
+              />
+            </Flex>
+          )
+          break
+        case 'subtitle':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Subtitle"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterSubtitle || '')}
+                disabled={!newsletterSubtitle}
+              />
+            </Flex>
+          )
+          break
+        case 'body':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy Body (Markdown)"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={copyBodyAsMarkdown}
+                disabled={!newsletterBody || newsletterBody.length === 0}
+              />
+            </Flex>
+          )
+          break
+        case 'ctaText':
+          copyButton = (
+            <Flex justify="flex-start">
+              <Button
+                type="button"
+                text="Copy CTA Text"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterCtaText || '')}
+                disabled={!newsletterCtaText}
+              />
+            </Flex>
+          )
+          break
+        case 'ctaUrl':
+          wrapperStyle = { opacity: 0.6 }
+          copyButton = (
+            <Flex justify="flex-start" style={{ opacity: 1 }}>
+              <Button
+                type="button"
+                text="Copy CTA URL"
+                mode="ghost"
+                fontSize={0}
+                padding={1}
+                onClick={() => copyToClipboard(newsletterCtaUrl || '')}
+                disabled={!newsletterCtaUrl}
+              />
+            </Flex>
+          )
+          break
+      }
+
+      if (copyButton) {
+        return (
+          <Stack space={2} style={wrapperStyle}>
+            {renderedField}
+            {copyButton}
+          </Stack>
+        )
+      }
+
+      return renderedField
+    },
+    [
+      renderField,
+      newsletterTitle,
+      newsletterSubtitle,
+      newsletterBody,
+      newsletterCtaText,
+      newsletterCtaUrl,
+      copyBodyAsMarkdown,
+    ]
+  )
 
   return (
     <Card padding={3} radius={2} tone="transparent" border>
@@ -212,95 +272,11 @@ export function NewsletterInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Title field with copy button */}
-        {titleMember && (
-          <Stack space={2}>
-            <MemberField member={titleMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Title"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterTitle || '')}
-                disabled={!newsletterTitle}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Subtitle field with copy button */}
-        {subtitleMember && (
-          <Stack space={2}>
-            <MemberField member={subtitleMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Subtitle"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterSubtitle || '')}
-                disabled={!newsletterSubtitle}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Body field with copy button */}
-        {bodyMember && (
-          <Stack space={2}>
-            <MemberField member={bodyMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Body (Markdown)"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={copyBodyAsMarkdown}
-                disabled={!newsletterBody || newsletterBody.length === 0}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* CTA Text field with copy button */}
-        {ctaTextMember && (
-          <Stack space={2}>
-            <MemberField member={ctaTextMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy CTA Text"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterCtaText || '')}
-                disabled={!newsletterCtaText}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* CTA URL field with copy button */}
-        {ctaUrlMember && (
-          <Stack space={2}>
-            <MemberField member={ctaUrlMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy CTA URL"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterCtaUrl || '')}
-                disabled={!newsletterCtaUrl}
-              />
-            </Flex>
-          </Stack>
-        )}
+        {/* Use Sanity's renderDefault with custom renderField for copy buttons */}
+        {props.renderDefault({
+          ...props,
+          renderField: customRenderField,
+        })}
 
         {/* Generated date - bottom right */}
         {generatedAt && (
