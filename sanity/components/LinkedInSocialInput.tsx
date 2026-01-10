@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
-import { generateLinkedInDraft } from '../plugins/distribution/actions'
+import {
+  generateLinkedInDraft,
+  schedulePost,
+} from '../plugins/distribution/actions'
+import { ScheduleModal } from './ScheduleModal'
+import { portableTextToMarkdown } from '@/lib/sanity/portableText'
+import { PortableTextBlock } from '@sanity/types'
 
 interface GenerateResponse {
   success: boolean
@@ -32,7 +38,10 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     'generatedAt',
   ]) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isScheduling, setIsScheduling] = useState(false)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   // Determine status based on content (now Portable Text array)
   const status = linkedInText && linkedInText.length > 0 ? 'ready' : 'idle'
@@ -53,6 +62,7 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     }
     setIsGenerating(true)
     setError(null)
+    setSuccess(null)
     try {
       const result = (await generateLinkedInDraft(postId)) as GenerateResponse
       if (!result.success) {
@@ -69,6 +79,45 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleSchedule = async (scheduledAt: string) => {
+    if (!postId || !linkedInText) {
+      setError('Post ID or content not found')
+      return
+    }
+
+    setIsScheduling(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      // Convert Portable Text to plain text for scheduling
+      const content = portableTextToMarkdown(
+        linkedInText as PortableTextBlock[]
+      )
+
+      const result = await schedulePost(
+        postId,
+        'linkedin',
+        content,
+        scheduledAt
+      )
+
+      if (!result.success) {
+        setError(result.error || 'Scheduling failed')
+        return
+      }
+
+      setSuccess(
+        `LinkedIn post scheduled for ${new Date(scheduledAt).toLocaleString()}`
+      )
+      setShowScheduleModal(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setIsScheduling(false)
     }
   }
 
@@ -98,9 +147,31 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
           </Flex>
         </Flex>
 
+        {/* Schedule Button - Only show when content exists */}
+        {status === 'ready' && (
+          <Flex justify="flex-end">
+            <Button
+              type="button"
+              text="Schedule LinkedIn Post"
+              tone="positive"
+              mode="ghost"
+              fontSize={0}
+              padding={2}
+              onClick={() => setShowScheduleModal(true)}
+              disabled={isScheduling}
+            />
+          </Flex>
+        )}
+
         {error && (
           <Text size={0} style={{ color: 'red' }}>
             {error}
+          </Text>
+        )}
+
+        {success && (
+          <Text size={0} style={{ color: 'green' }}>
+            {success}
           </Text>
         )}
 
@@ -115,6 +186,15 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
             </Text>
           </Flex>
         )}
+
+        {/* Schedule Modal */}
+        <ScheduleModal
+          isOpen={showScheduleModal}
+          onClose={() => setShowScheduleModal(false)}
+          onSchedule={handleSchedule}
+          channel="linkedin"
+          loading={isScheduling}
+        />
       </Stack>
     </Card>
   )
