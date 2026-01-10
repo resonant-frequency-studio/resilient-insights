@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import {
@@ -10,6 +10,7 @@ import {
 import { ScheduleModal } from './ScheduleModal'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
 import { PortableTextBlock } from '@sanity/types'
+import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
 
 interface GenerateResponse {
   success: boolean
@@ -45,6 +46,12 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
 
   // Determine status based on content (now Portable Text array)
   const status = linkedInText && linkedInText.length > 0 ? 'ready' : 'idle'
+
+  // Get recommended posting times for LinkedIn
+  const recommendations = useMemo(() => {
+    const times = getNextOptimalTimes('linkedin', new Date(), 5)
+    return times.map(date => date.toISOString())
+  }, [])
 
   // Format generatedAt date
   const formatDate = (dateString: string) => {
@@ -193,6 +200,7 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
           onClose={() => setShowScheduleModal(false)}
           onSchedule={handleSchedule}
           channel="linkedin"
+          recommendations={recommendations}
           loading={isScheduling}
         />
       </Stack>
