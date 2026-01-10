@@ -14,8 +14,8 @@ import { portableTextToPlainText } from '@/lib/sanity/portableText'
 // Zod schemas for validation
 // These limits are enforced - the prompt must instruct AI to stay within them
 const NewsletterSchema = z.object({
-  subject: z.string().max(60), // Email subject line best practice
-  preheader: z.string().max(90), // Email preheader best practice (most clients show ~90 chars)
+  title: z.string().max(100), // Newsletter title
+  subtitle: z.string().max(150), // Newsletter subtitle
   body: z.string().min(150).max(2000), // Newsletter body (reasonable length for email)
   ctaText: z.string(),
   ctaUrl: z.string().url(),
@@ -44,8 +44,8 @@ export interface GenerateOptions {
 }
 
 export interface GeneratedNewsletter {
-  subject: string
-  preheader: string
+  title: string
+  subtitle: string
   body: string
   ctaText: string
   ctaUrl: string
@@ -126,17 +126,14 @@ export async function generateNewsletter(
   // Safety net: Truncate fields if AI exceeds limits (shouldn't happen with proper prompting)
   if (typeof parsed === 'object' && parsed !== null) {
     const parsedObj = parsed as Record<string, unknown>
-    if (
-      typeof parsedObj.subject === 'string' &&
-      parsedObj.subject.length > 60
-    ) {
-      parsedObj.subject = parsedObj.subject.substring(0, 60).trim()
+    if (typeof parsedObj.title === 'string' && parsedObj.title.length > 100) {
+      parsedObj.title = parsedObj.title.substring(0, 100).trim()
     }
     if (
-      typeof parsedObj.preheader === 'string' &&
-      parsedObj.preheader.length > 90
+      typeof parsedObj.subtitle === 'string' &&
+      parsedObj.subtitle.length > 150
     ) {
-      parsedObj.preheader = parsedObj.preheader.substring(0, 90).trim()
+      parsedObj.subtitle = parsedObj.subtitle.substring(0, 150).trim()
     }
     if (typeof parsedObj.body === 'string' && parsedObj.body.length > 2000) {
       parsedObj.body = parsedObj.body.substring(0, 2000).trim()

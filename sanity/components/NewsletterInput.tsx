@@ -17,8 +17,8 @@ interface GenerateResponse {
   success: boolean
   generated?: {
     newsletter?: {
-      subject?: string
-      preheader?: string
+      title?: string
+      subtitle?: string
       body?: PortableTextBlock[]
       ctaText?: string
       ctaUrl?: string

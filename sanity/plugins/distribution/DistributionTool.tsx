@@ -28,8 +28,8 @@ import imageUrlBuilder from '@sanity/image-url'
 
 interface DistributionData {
   newsletter?: {
-    subject?: string
-    preheader?: string
+    title?: string
+    subtitle?: string
     body?: string
     ctaText?: string
     ctaUrl?: string

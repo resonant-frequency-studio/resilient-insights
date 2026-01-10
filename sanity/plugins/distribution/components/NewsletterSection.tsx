@@ -13,8 +13,8 @@ import {
 import { set, PatchEvent } from 'sanity'
 
 interface NewsletterData {
-  subject?: string
-  preheader?: string
+  title?: string
+  subtitle?: string
   body?: string
   ctaText?: string
   ctaUrl?: string
@@ -70,16 +70,16 @@ export function NewsletterSection({
           </Flex>
         </Flex>
 
-        {newsletter.subject !== undefined && (
+        {newsletter.title !== undefined && (
           <Stack space={2}>
-            <Label>Subject</Label>
+            <Label>Title</Label>
             <TextArea
-              value={newsletter.subject || ''}
+              value={newsletter.title || ''}
               onChange={e => {
                 if (onChange) {
                   onChange(
                     PatchEvent.from(
-                      set(e.currentTarget.value, ['newsletter', 'subject'])
+                      set(e.currentTarget.value, ['newsletter', 'title'])
                     )
                   )
                 }
@@ -92,22 +92,22 @@ export function NewsletterSection({
                 mode="ghost"
                 fontSize={0}
                 padding={1}
-                onClick={() => onCopy(newsletter.subject || '')}
+                onClick={() => onCopy(newsletter.title || '')}
               />
             </Flex>
           </Stack>
         )}
 
-        {newsletter.preheader !== undefined && (
+        {newsletter.subtitle !== undefined && (
           <Stack space={2}>
-            <Label>Preheader</Label>
+            <Label>Subtitle</Label>
             <TextArea
-              value={newsletter.preheader || ''}
+              value={newsletter.subtitle || ''}
               onChange={e => {
                 if (onChange) {
                   onChange(
                     PatchEvent.from(
-                      set(e.currentTarget.value, ['newsletter', 'preheader'])
+                      set(e.currentTarget.value, ['newsletter', 'subtitle'])
                     )
                   )
                 }
@@ -120,7 +120,7 @@ export function NewsletterSection({
                 mode="ghost"
                 fontSize={0}
                 padding={1}
-                onClick={() => onCopy(newsletter.preheader || '')}
+                onClick={() => onCopy(newsletter.subtitle || '')}
               />
             </Flex>
           </Stack>

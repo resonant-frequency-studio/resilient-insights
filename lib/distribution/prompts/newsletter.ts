@@ -22,15 +22,16 @@ ${bodyText.substring(0, 3000)}${bodyText.length > 3000 ? '...' : ''}
 Generate a newsletter email with the following structure. Return ONLY valid JSON:
 
 {
-  "subject": "Newsletter subject line (EXACTLY 60 characters or less - count carefully, compelling but not clickbait)",
-  "preheader": "Preheader text (EXACTLY 90 characters or less - count carefully, appears after subject in email clients. Keep it concise and compelling)",
+  "title": "Newsletter title (EXACTLY 100 characters or less - compelling headline for the newsletter)",
+  "subtitle": "Newsletter subtitle (EXACTLY 150 characters or less - supporting text that expands on the title)",
   "body": "Email body text (150-250 words, approximately 750-1250 characters, MAXIMUM 2000 characters). Use short paragraphs (2-3 sentences max). Include 1-3 bullet points if helpful. Write in a warm, professional tone. CRITICAL: You MUST end the body with a clear call-to-action that includes the exact text 'Read the full article' followed by the article URL (${canonicalUrl}). Format it as: 'Read the full article: [URL]' or similar. The CTA should be the final sentence or paragraph of the body. IMPORTANT: Count characters and ensure body does not exceed 2000 characters.",
   "ctaText": "Read the full article",
   "ctaUrl": "${canonicalUrl}"
 }
 
 Important guidelines:
-- Subject should be clear and benefit-focused, not clickbait
+- Title should be clear and benefit-focused, not clickbait
+- Subtitle should complement the title and provide additional context
 - Body should be concise and scannable
 - Body MUST end with a call-to-action that includes "Read the full article" and the article URL (${canonicalUrl})
 - The CTA should be integrated naturally into the body text, not as a separate field
