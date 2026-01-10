@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Stack } from '@sanity/ui'
+import { Card, Stack } from '@sanity/ui'
 import {
   ObjectInputProps,
   ObjectMember,
@@ -44,48 +44,50 @@ export function SocialInput(props: ObjectInputProps) {
   )
 
   return (
-    <Stack space={4}>
-      {/* LinkedIn */}
-      {linkedinMember && (
-        <MemberField
-          member={linkedinMember}
-          renderAnnotation={props.renderAnnotation}
-          renderBlock={props.renderBlock}
-          renderField={props.renderField}
-          renderInlineBlock={props.renderInlineBlock}
-          renderInput={props.renderInput}
-          renderItem={props.renderItem}
-          renderPreview={props.renderPreview}
-        />
-      )}
+    <Card padding={3} radius={2} tone="transparent" border>
+      <Stack space={4}>
+        {/* LinkedIn */}
+        {linkedinMember && (
+          <MemberField
+            member={linkedinMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        )}
 
-      {/* Facebook */}
-      {facebookMember && (
-        <MemberField
-          member={facebookMember}
-          renderAnnotation={props.renderAnnotation}
-          renderBlock={props.renderBlock}
-          renderField={props.renderField}
-          renderInlineBlock={props.renderInlineBlock}
-          renderInput={props.renderInput}
-          renderItem={props.renderItem}
-          renderPreview={props.renderPreview}
-        />
-      )}
+        {/* Facebook */}
+        {facebookMember && (
+          <MemberField
+            member={facebookMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        )}
 
-      {/* Instagram */}
-      {instagramMember && (
-        <MemberField
-          member={instagramMember}
-          renderAnnotation={props.renderAnnotation}
-          renderBlock={props.renderBlock}
-          renderField={props.renderField}
-          renderInlineBlock={props.renderInlineBlock}
-          renderInput={props.renderInput}
-          renderItem={props.renderItem}
-          renderPreview={props.renderPreview}
-        />
-      )}
-    </Stack>
+        {/* Instagram */}
+        {instagramMember && (
+          <MemberField
+            member={instagramMember}
+            renderAnnotation={props.renderAnnotation}
+            renderBlock={props.renderBlock}
+            renderField={props.renderField}
+            renderInlineBlock={props.renderInlineBlock}
+            renderInput={props.renderInput}
+            renderItem={props.renderItem}
+            renderPreview={props.renderPreview}
+          />
+        )}
+      </Stack>
+    </Card>
   )
 }

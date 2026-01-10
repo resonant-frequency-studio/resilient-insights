@@ -12,7 +12,7 @@ jest.mock('../../plugins/distribution/actions', () => ({
 
 // Mock the portableText module
 jest.mock('@/lib/sanity/portableText', () => ({
-  portableTextToPlainText: jest.fn(blocks => 'Plain text content'),
+  portableTextToPlainText: jest.fn(() => 'Plain text content'),
 }))
 
 // Mock the scheduler recommendations
@@ -54,40 +54,61 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
   <ThemeProvider theme={studioTheme}>{children}</ThemeProvider>
 )
 
-// Create mock props
-const createMockProps = (overrides = {}) => ({
-  value: {},
-  path: ['distribution', 'social', 'linkedin'],
-  schemaType: {
-    name: 'object',
-    fields: [],
-    jsonType: 'object',
-  },
-  onChange: jest.fn(),
-  onFocus: jest.fn(),
-  onBlur: jest.fn(),
-  focused: false,
-  readOnly: false,
-  presence: [],
-  validation: [],
-  members: [],
-  groups: [],
-  id: 'linkedin-input',
-  level: 0,
-  renderDefault: jest.fn(() => (
-    <div data-testid="default-render">Default Render</div>
-  )),
-  renderField: jest.fn(),
-  renderInput: jest.fn(),
-  renderItem: jest.fn(),
-  renderPreview: jest.fn(),
-  elementProps: {
-    id: 'linkedin-input',
+// Create mock props that match ObjectInputProps structure
+const createMockProps = (overrides = {}) =>
+  ({
+    value: {},
+    path: ['distribution', 'social', 'linkedin'],
+    schemaType: {
+      name: 'object',
+      fields: [],
+      jsonType: 'object',
+    },
+    onChange: jest.fn(),
     onFocus: jest.fn(),
     onBlur: jest.fn(),
-  },
-  ...overrides,
-})
+    onPathFocus: jest.fn(),
+    onPathBlur: jest.fn(),
+    onFieldOpen: jest.fn(),
+    onFieldClose: jest.fn(),
+    onFieldCollapse: jest.fn(),
+    onFieldExpand: jest.fn(),
+    onFieldSetCollapse: jest.fn(),
+    onFieldSetExpand: jest.fn(),
+    onFieldGroupSelect: jest.fn(),
+    focused: false,
+    focusPath: [],
+    readOnly: false,
+    presence: [],
+    validation: [],
+    members: [],
+    groups: [],
+    collapsedFieldSets: { value: new Set<string>() },
+    collapsedFields: { value: new Set<string>() },
+    id: 'linkedin-input',
+    level: 0,
+    changed: false,
+    displayInlineChanges: false,
+    hasUpstreamVersion: false,
+    __unstable_computeDiff: jest.fn(),
+    renderDefault: jest.fn(() => (
+      <div data-testid="default-render">Default Render</div>
+    )),
+    renderAnnotation: jest.fn(),
+    renderBlock: jest.fn(),
+    renderField: jest.fn(),
+    renderInlineBlock: jest.fn(),
+    renderInput: jest.fn(),
+    renderItem: jest.fn(),
+    renderPreview: jest.fn(),
+    elementProps: {
+      id: 'linkedin-input',
+      onFocus: jest.fn(),
+      onBlur: jest.fn(),
+      ref: { current: null },
+    },
+    ...overrides,
+  }) as unknown as React.ComponentProps<typeof LinkedInSocialInput>
 
 describe('LinkedInSocialInput', () => {
   beforeEach(() => {

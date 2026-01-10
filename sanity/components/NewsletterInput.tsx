@@ -241,7 +241,7 @@ export function NewsletterInput(props: ObjectInputProps) {
       <Stack space={4}>
         <Flex align="center" justify="space-between">
           <Text size={1} weight="bold">
-            Newsletter
+            Newsletter Draft
           </Text>
           <Flex align="center" gap={2}>
             {!isGenerating && (

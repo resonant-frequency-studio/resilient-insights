@@ -123,21 +123,6 @@ export async function generateInstagramDraft(
 }
 
 /**
- * Generate and schedule distribution content via Make.com
- */
-export async function generateAndSchedule(
-  articleId: string,
-  channels: ('linkedin' | 'facebook' | 'instagram')[],
-  publishAt?: string
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  return callAPI('/api/distribution/generate-and-schedule', {
-    articleId,
-    channels,
-    publishAt,
-  })
-}
-
-/**
  * Schedule a post to be published at a specific time
  */
 export async function schedulePost(

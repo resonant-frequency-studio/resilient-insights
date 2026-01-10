@@ -1,7 +1,17 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { Card, Stack, Text } from '@sanity/ui'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import {
+  Card,
+  Stack,
+  Text,
+  Flex,
+  MenuButton,
+  Menu,
+  MenuItem,
+  Button,
+} from '@sanity/ui'
+import { EllipsisVerticalIcon } from '@sanity/icons'
 import {
   useFormValue,
   ObjectInputProps,
@@ -9,7 +19,7 @@ import {
   FieldMember,
   ObjectMember,
 } from 'sanity'
-import { schedulePost } from './actions'
+import { schedulePost, connectLinkedIn, disconnectLinkedIn } from './actions'
 import { SchedulePicker } from './SchedulePicker'
 import { ScheduledPostsList } from './ScheduledPostsList'
 import imageUrlBuilder from '@sanity/image-url'
@@ -122,6 +132,48 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
   >(null)
   const [recommendations] = useState<string[]>([])
 
+  // Check if social accounts are connected
+  const isLinkedInConnected = Boolean(
+    distribution?.socialAccounts?.linkedin?.accessToken
+  )
+  // Facebook and Instagram connection not yet implemented
+  const _isFacebookConnected = Boolean(
+    distribution?.socialAccounts?.facebook?.accessToken
+  )
+  const _isInstagramConnected = Boolean(
+    distribution?.socialAccounts?.instagram?.accessToken
+  )
+  void _isFacebookConnected
+  void _isInstagramConnected
+
+  // Handle LinkedIn connection
+  const handleConnectLinkedIn = useCallback(async () => {
+    if (!postId) return
+    setLoading('Connecting LinkedIn...')
+    const result = await connectLinkedIn(postId)
+    if (result.success && result.authUrl) {
+      window.location.href = result.authUrl
+    } else {
+      setError(result.error || 'Failed to connect LinkedIn')
+    }
+    setLoading(null)
+  }, [postId])
+
+  // Handle LinkedIn disconnection
+  const handleDisconnectLinkedIn = useCallback(async () => {
+    if (!postId) return
+    setLoading('Disconnecting LinkedIn...')
+    const result = await disconnectLinkedIn(postId)
+    if (result.success) {
+      queueMicrotask(() => {
+        setSuccess('LinkedIn disconnected successfully')
+      })
+    } else {
+      setError(result.error || 'Failed to disconnect LinkedIn')
+    }
+    setLoading(null)
+  }, [postId])
+
   // Find the newsletter member for MemberField rendering
   const newsletterMember = useMemo(
     () =>
@@ -209,6 +261,18 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
   return (
     <Card padding={4} radius={2} shadow={1}>
       <Stack space={4}>
+        {/* Status Messages */}
+        {error && (
+          <Card padding={3} radius={2} tone="critical">
+            <Text size={1}>{error}</Text>
+          </Card>
+        )}
+        {success && (
+          <Card padding={3} radius={2} tone="positive">
+            <Text size={1}>{success}</Text>
+          </Card>
+        )}
+
         {/* Newsletter Section - Using MemberField for native Sanity rendering */}
         {newsletterMember && (
           <MemberField
@@ -239,20 +303,54 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
 
         {/* Social Media Section - Using MemberField for native Sanity rendering */}
         {socialMember && (
-          <Card padding={3} radius={2} tone="transparent" border>
-            <Stack space={4}>
-              <MemberField
-                member={socialMember}
-                renderAnnotation={props.renderAnnotation}
-                renderBlock={props.renderBlock}
-                renderField={props.renderField}
-                renderInlineBlock={props.renderInlineBlock}
-                renderInput={props.renderInput}
-                renderItem={props.renderItem}
-                renderPreview={props.renderPreview}
+          <>
+            {/* Header with three-dot menu */}
+            <Flex align="center" justify="flex-end">
+              <MenuButton
+                button={
+                  <Button
+                    icon={EllipsisVerticalIcon}
+                    mode="bleed"
+                    padding={2}
+                    disabled={loading !== null}
+                  />
+                }
+                id="social-accounts-menu"
+                menu={
+                  <Menu>
+                    {isLinkedInConnected ? (
+                      <MenuItem
+                        text="Disconnect LinkedIn"
+                        onClick={handleDisconnectLinkedIn}
+                      />
+                    ) : (
+                      <MenuItem
+                        text="Connect LinkedIn"
+                        onClick={handleConnectLinkedIn}
+                      />
+                    )}
+                    <MenuItem text="Connect Facebook" disabled tone="default" />
+                    <MenuItem
+                      text="Connect Instagram"
+                      disabled
+                      tone="default"
+                    />
+                  </Menu>
+                }
+                popover={{ portal: true }}
               />
-            </Stack>
-          </Card>
+            </Flex>
+            <MemberField
+              member={socialMember}
+              renderAnnotation={props.renderAnnotation}
+              renderBlock={props.renderBlock}
+              renderField={props.renderField}
+              renderInlineBlock={props.renderInlineBlock}
+              renderInput={props.renderInput}
+              renderItem={props.renderItem}
+              renderPreview={props.renderPreview}
+            />
+          </>
         )}
 
         {/* Schedule Picker */}

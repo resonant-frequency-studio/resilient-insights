@@ -4,7 +4,6 @@ import {
   generateLinkedInDraft,
   generateFacebookDraft,
   generateInstagramDraft,
-  generateAndSchedule,
   schedulePost,
   getRecommendations,
   connectLinkedIn,
@@ -162,53 +161,6 @@ describe('distribution actions', () => {
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ postId: 'post-def', force: false }),
-        })
-      )
-    })
-  })
-
-  describe('generateAndSchedule', () => {
-    it('calls correct endpoint with all parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true }),
-      })
-
-      await generateAndSchedule(
-        'article-123',
-        ['linkedin', 'facebook'],
-        '2026-01-20T09:00:00Z'
-      )
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/distribution/generate-and-schedule'),
-        expect.objectContaining({
-          method: 'POST',
-          body: JSON.stringify({
-            articleId: 'article-123',
-            channels: ['linkedin', 'facebook'],
-            publishAt: '2026-01-20T09:00:00Z',
-          }),
-        })
-      )
-    })
-
-    it('works without publishAt', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true }),
-      })
-
-      await generateAndSchedule('article-123', ['instagram'])
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          body: JSON.stringify({
-            articleId: 'article-123',
-            channels: ['instagram'],
-            publishAt: undefined,
-          }),
         })
       )
     })
