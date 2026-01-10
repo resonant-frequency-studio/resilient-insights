@@ -32,8 +32,19 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
 export function MediumInput(props: ObjectInputProps) {
   const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
+  const mediumTitle = useFormValue(['distribution', 'medium', 'title']) as
+    | string
+    | undefined
+  const mediumSubtitle = useFormValue([
+    'distribution',
+    'medium',
+    'subtitle',
+  ]) as string | undefined
   const mediumContent = useFormValue(['distribution', 'medium', 'body']) as
     | PortableTextBlock[]
+    | undefined
+  const mediumTags = useFormValue(['distribution', 'medium', 'tags']) as
+    | string[]
     | undefined
   const mediumStatus = useFormValue(['distribution', 'medium', 'status']) as
     | string
@@ -49,19 +60,35 @@ export function MediumInput(props: ObjectInputProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Find visible field members (exclude hidden fields)
-  const visibleMembers = useMemo(() => {
-    return (
-      members?.filter(
-        (m): m is FieldMember =>
-          isFieldMember(m) &&
-          m.name !== 'status' &&
-          m.name !== 'canonicalUrl' &&
-          m.name !== 'generatedAt' &&
-          m.name !== 'error'
-      ) || []
-    )
-  }, [members])
+  // Find specific field members
+  const titleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
+      ),
+    [members]
+  )
+  const subtitleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
+      ),
+    [members]
+  )
+  const bodyMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
+      ),
+    [members]
+  )
+  const tagsMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'tags'
+      ),
+    [members]
+  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -85,10 +112,20 @@ export function MediumInput(props: ObjectInputProps) {
     }
   }
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
   const copyContentAsMarkdown = () => {
     if (mediumContent) {
       const markdown = portableTextToMarkdown(mediumContent)
       navigator.clipboard.writeText(markdown)
+    }
+  }
+
+  const copyTagsAsCommaSeparated = () => {
+    if (mediumTags && mediumTags.length > 0) {
+      navigator.clipboard.writeText(mediumTags.join(', '))
     }
   }
 
@@ -116,6 +153,16 @@ export function MediumInput(props: ObjectInputProps) {
 
   // Combine local error state with stored error
   const displayError = error || storedError
+
+  const renderMemberProps = {
+    renderAnnotation: props.renderAnnotation,
+    renderBlock: props.renderBlock,
+    renderField: props.renderField,
+    renderInlineBlock: props.renderInlineBlock,
+    renderInput: props.renderInput,
+    renderItem: props.renderItem,
+    renderPreview: props.renderPreview,
+  }
 
   return (
     <Card padding={3} radius={2} tone="transparent" border>
@@ -148,56 +195,88 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Render each field using MemberField */}
-        {visibleMembers.map(member => (
-          <MemberField
-            key={member.key}
-            member={member}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ))}
+        {/* Title field with copy button */}
+        {titleMember && (
+          <Stack space={2}>
+            <MemberField member={titleMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy Title"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => copyToClipboard(mediumTitle || '')}
+              disabled={!mediumTitle}
+            />
+          </Stack>
+        )}
 
-        {/* Footer with generated date and copy button - only show when content exists */}
+        {/* Subtitle field with copy button */}
+        {subtitleMember && (
+          <Stack space={2}>
+            <MemberField member={subtitleMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy Subtitle"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => copyToClipboard(mediumSubtitle || '')}
+              disabled={!mediumSubtitle}
+            />
+          </Stack>
+        )}
+
+        {/* Body field with copy button */}
+        {bodyMember && (
+          <Stack space={2}>
+            <MemberField member={bodyMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy Body (Markdown)"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={copyContentAsMarkdown}
+              disabled={!mediumContent || mediumContent.length === 0}
+            />
+          </Stack>
+        )}
+
+        {/* Tags field with copy button */}
+        {tagsMember && (
+          <Stack space={2}>
+            <MemberField member={tagsMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy Tags"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={copyTagsAsCommaSeparated}
+              disabled={!mediumTags || mediumTags.length === 0}
+            />
+          </Stack>
+        )}
+
+        {/* Footer with generated date and Medium link - only show when content exists */}
         {generatedAt && (
-          <>
-            {/* Display generatedAt as small muted text - bottom right */}
-            <Flex justify="flex-end">
-              <Text size={0} muted>
-                Generated: {formatDate(generatedAt)}
-              </Text>
-            </Flex>
-
-            {/* Copy button for content */}
-            <Stack space={2}>
-              <Flex gap={2}>
-                <Button
-                  type="button"
-                  text="Copy Content (Markdown)"
-                  mode="ghost"
-                  fontSize={0}
-                  padding={1}
-                  onClick={copyContentAsMarkdown}
-                />
-              </Flex>
-              <Text size={0} muted>
-                After copying, go to{' '}
-                <a
-                  href="https://medium.com/new-story"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Medium&apos;s new story page
-                </a>{' '}
-                and paste the content.
-              </Text>
-            </Stack>
-          </>
+          <Flex align="center" justify="space-between">
+            <Text size={0} muted>
+              After copying, go to{' '}
+              <a
+                href="https://medium.com/new-story"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Medium&apos;s new story page
+              </a>{' '}
+              and paste the content.
+            </Text>
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          </Flex>
         )}
       </Stack>
     </Card>

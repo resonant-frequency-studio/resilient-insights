@@ -36,11 +36,31 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
 export function NewsletterInput(props: ObjectInputProps) {
   const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
+  const newsletterTitle = useFormValue([
+    'distribution',
+    'newsletter',
+    'title',
+  ]) as string | undefined
+  const newsletterSubtitle = useFormValue([
+    'distribution',
+    'newsletter',
+    'subtitle',
+  ]) as string | undefined
   const newsletterBody = useFormValue([
     'distribution',
     'newsletter',
     'body',
   ]) as PortableTextBlock[] | undefined
+  const newsletterCtaText = useFormValue([
+    'distribution',
+    'newsletter',
+    'ctaText',
+  ]) as string | undefined
+  const newsletterCtaUrl = useFormValue([
+    'distribution',
+    'newsletter',
+    'ctaUrl',
+  ]) as string | undefined
   const generatedAt = useFormValue([
     'distribution',
     'newsletter',
@@ -52,15 +72,42 @@ export function NewsletterInput(props: ObjectInputProps) {
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
 
-  // Find visible field members (exclude hidden fields)
-  const visibleMembers = useMemo(() => {
-    return (
-      members?.filter(
-        (m): m is FieldMember =>
-          isFieldMember(m) && m.name !== 'generatedAt' && m.name !== 'model'
-      ) || []
-    )
-  }, [members])
+  // Find specific field members
+  const titleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
+      ),
+    [members]
+  )
+  const subtitleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
+      ),
+    [members]
+  )
+  const bodyMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
+      ),
+    [members]
+  )
+  const ctaTextMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaText'
+      ),
+    [members]
+  )
+  const ctaUrlMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaUrl'
+      ),
+    [members]
+  )
 
   // Format generatedAt date
   const formatDate = (dateString: string) => {
@@ -95,11 +142,25 @@ export function NewsletterInput(props: ObjectInputProps) {
     }
   }
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
   const copyBodyAsMarkdown = () => {
     if (newsletterBody) {
       const markdown = portableTextToMarkdown(newsletterBody)
       navigator.clipboard.writeText(markdown)
     }
+  }
+
+  const renderMemberProps = {
+    renderAnnotation: props.renderAnnotation,
+    renderBlock: props.renderBlock,
+    renderField: props.renderField,
+    renderInlineBlock: props.renderInlineBlock,
+    renderInput: props.renderInput,
+    renderItem: props.renderItem,
+    renderPreview: props.renderPreview,
   }
 
   return (
@@ -136,24 +197,42 @@ export function NewsletterInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Render each field using MemberField */}
-        {visibleMembers.map(member => (
-          <MemberField
-            key={member.key}
-            member={member}
-            renderAnnotation={props.renderAnnotation}
-            renderBlock={props.renderBlock}
-            renderField={props.renderField}
-            renderInlineBlock={props.renderInlineBlock}
-            renderInput={props.renderInput}
-            renderItem={props.renderItem}
-            renderPreview={props.renderPreview}
-          />
-        ))}
+        {/* Title field with copy button */}
+        {titleMember && (
+          <Stack space={2}>
+            <MemberField member={titleMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy Title"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => copyToClipboard(newsletterTitle || '')}
+              disabled={!newsletterTitle}
+            />
+          </Stack>
+        )}
 
-        {/* Copy button and generated date - only show when content exists */}
-        {generatedAt && (
-          <Flex align="center" justify="space-between">
+        {/* Subtitle field with copy button */}
+        {subtitleMember && (
+          <Stack space={2}>
+            <MemberField member={subtitleMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy Subtitle"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => copyToClipboard(newsletterSubtitle || '')}
+              disabled={!newsletterSubtitle}
+            />
+          </Stack>
+        )}
+
+        {/* Body field with copy button */}
+        {bodyMember && (
+          <Stack space={2}>
+            <MemberField member={bodyMember} {...renderMemberProps} />
             <Button
               type="button"
               text="Copy Body (Markdown)"
@@ -161,7 +240,46 @@ export function NewsletterInput(props: ObjectInputProps) {
               fontSize={0}
               padding={1}
               onClick={copyBodyAsMarkdown}
+              disabled={!newsletterBody || newsletterBody.length === 0}
             />
+          </Stack>
+        )}
+
+        {/* CTA Text field with copy button */}
+        {ctaTextMember && (
+          <Stack space={2}>
+            <MemberField member={ctaTextMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy CTA Text"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => copyToClipboard(newsletterCtaText || '')}
+              disabled={!newsletterCtaText}
+            />
+          </Stack>
+        )}
+
+        {/* CTA URL field with copy button */}
+        {ctaUrlMember && (
+          <Stack space={2}>
+            <MemberField member={ctaUrlMember} {...renderMemberProps} />
+            <Button
+              type="button"
+              text="Copy CTA URL"
+              mode="ghost"
+              fontSize={0}
+              padding={1}
+              onClick={() => copyToClipboard(newsletterCtaUrl || '')}
+              disabled={!newsletterCtaUrl}
+            />
+          </Stack>
+        )}
+
+        {/* Generated date - bottom right */}
+        {generatedAt && (
+          <Flex justify="flex-end">
             <Text size={0} muted>
               Generated: {formatDate(generatedAt)}
             </Text>
