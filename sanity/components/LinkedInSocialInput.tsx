@@ -8,7 +8,7 @@ import {
   schedulePost,
 } from '../plugins/distribution/actions'
 import { ScheduleModal } from './ScheduleModal'
-import { portableTextToMarkdown } from '@/lib/sanity/portableText'
+import { portableTextToPlainText } from '@/lib/sanity/portableText'
 import { PortableTextBlock } from '@sanity/types'
 import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
 
@@ -100,8 +100,8 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     setSuccess(null)
 
     try {
-      // Convert Portable Text to plain text for scheduling
-      const content = portableTextToMarkdown(
+      // Convert Portable Text to plain text for scheduling (LinkedIn doesn't support Markdown)
+      const content = portableTextToPlainText(
         linkedInText as PortableTextBlock[]
       )
 
