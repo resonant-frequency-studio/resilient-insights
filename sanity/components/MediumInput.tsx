@@ -8,6 +8,8 @@ import {
   MemberField,
   FieldMember,
   ObjectMember,
+  PatchEvent,
+  set,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
@@ -103,8 +105,22 @@ export function MediumInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-      // Content is saved to Sanity by the API
-      // The form will update via Sanity's real-time sync
+      // Update local form state with generated content
+      const medium = result.data
+      if (medium) {
+        props.onChange(
+          PatchEvent.from(
+            set({
+              status: 'ready',
+              title: medium.title,
+              subtitle: medium.subtitle,
+              body: medium.body,
+              tags: medium.tags,
+              generatedAt: medium.generatedAt,
+            })
+          )
+        )
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {

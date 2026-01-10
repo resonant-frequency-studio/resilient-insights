@@ -8,6 +8,8 @@ import {
   MemberField,
   FieldMember,
   ObjectMember,
+  PatchEvent,
+  set,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { generateContent } from '../plugins/distribution/actions'
@@ -133,8 +135,23 @@ export function NewsletterInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-      // Content is saved to Sanity by the API
-      // The form will update via Sanity's real-time sync
+      // Update local form state with generated content
+      const newsletter = result.generated?.newsletter
+      if (newsletter) {
+        props.onChange(
+          PatchEvent.from(
+            set({
+              title: newsletter.title,
+              subtitle: newsletter.subtitle,
+              body: newsletter.body,
+              ctaText: newsletter.ctaText,
+              ctaUrl: newsletter.ctaUrl,
+              generatedAt: newsletter.generatedAt,
+              model: newsletter.model,
+            })
+          )
+        )
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
