@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { Card, Stack, Text, Flex } from '@sanity/ui'
+import { Card, Stack, Text } from '@sanity/ui'
 import {
   useFormValue,
   ObjectInputProps,
@@ -9,10 +9,9 @@ import {
   FieldMember,
   ObjectMember,
 } from 'sanity'
-import { generateContent, schedulePost } from './actions'
+import { schedulePost } from './actions'
 import { SchedulePicker } from './SchedulePicker'
 import { ScheduledPostsList } from './ScheduledPostsList'
-import { SocialAccountsMenu } from './components/SocialAccountsMenu'
 import imageUrlBuilder from '@sanity/image-url'
 
 /**
@@ -181,12 +180,14 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       if (params.get('linkedin_connected') === 'true') {
-        setSuccess('LinkedIn account connected successfully!')
-        // Remove the parameter from URL
+        // Remove the parameter from URL first
         params.delete('linkedin_connected')
         const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`
         window.history.replaceState({}, '', newUrl)
-        // Distribution value will update automatically via useFormValue
+        // Defer setState to avoid synchronous state update in effect
+        queueMicrotask(() => {
+          setSuccess('LinkedIn account connected successfully!')
+        })
       }
     }
   }, [])
@@ -205,52 +206,9 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
     }
   }, [error])
 
-  const handleGenerate = async (targets: ('newsletter' | 'social')[]) => {
-    if (!postId) {
-      setError('Post ID not found')
-      return
-    }
-
-    setLoading(`Generating ${targets.join(' and ')}...`)
-    setError(null)
-
-    try {
-      const result = await generateContent(postId, targets, false)
-      if (result.success) {
-        setSuccess(`${targets.join(' and ')} generated successfully!`)
-        // Distribution value will update automatically via useFormValue
-      } else {
-        setError(result.error || 'Generation failed')
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setLoading(null)
-    }
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    setSuccess('Copied to clipboard!')
-  }
-
   return (
     <Card padding={4} radius={2} shadow={1}>
       <Stack space={4}>
-        <Flex align="center" justify="space-between">
-          {/* <Text size={2} weight="bold">
-            Distribution
-          </Text> */}
-          {/* <SocialAccountsMenu
-            socialAccounts={distribution?.socialAccounts}
-            postId={postId}
-            loading={loading}
-            onSetLoading={setLoading}
-            onSetSuccess={setSuccess}
-            onSetError={setError}
-          /> */}
-        </Flex>
-
         {/* Newsletter Section - Using MemberField for native Sanity rendering */}
         {newsletterMember && (
           <MemberField
