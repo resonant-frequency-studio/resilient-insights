@@ -1,8 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
+import {
+  ObjectInputProps,
+  useFormValue,
+  MemberField,
+  FieldMember,
+  ObjectMember,
+  PatchEvent,
+  set,
+} from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { publishToMedium } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
@@ -19,7 +27,12 @@ interface GenerateResponse {
   error?: string
 }
 
+function isFieldMember(member: ObjectMember): member is FieldMember {
+  return member.kind === 'field'
+}
+
 export function MediumInput(props: ObjectInputProps) {
+  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const mediumTitle = useFormValue(['distribution', 'medium', 'title']) as
     | string
@@ -48,6 +61,36 @@ export function MediumInput(props: ObjectInputProps) {
     | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Find specific field members
+  const titleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
+      ),
+    [members]
+  )
+  const subtitleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
+      ),
+    [members]
+  )
+  const bodyMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
+      ),
+    [members]
+  )
+  const tagsMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'tags'
+      ),
+    [members]
+  )
 
   const handleGenerate = async () => {
     if (!postId) {
@@ -124,6 +167,16 @@ export function MediumInput(props: ObjectInputProps) {
   // Combine local error state with stored error
   const displayError = error || storedError
 
+  const renderMemberProps = {
+    renderAnnotation: props.renderAnnotation,
+    renderBlock: props.renderBlock,
+    renderField: props.renderField,
+    renderInlineBlock: props.renderInlineBlock,
+    renderInput: props.renderInput,
+    renderItem: props.renderItem,
+    renderPreview: props.renderPreview,
+  }
+
   return (
     <Card padding={3} radius={2} tone="transparent" border>
       <Stack space={4}>
@@ -155,13 +208,11 @@ export function MediumInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Use Sanity's default rendering - handles all field updates properly */}
-        {props.renderDefault(props)}
-
-        {/* Copy buttons for each field */}
-        {generatedAt && (
-          <Stack space={3}>
-            <Flex gap={2} wrap="wrap">
+        {/* Title field with copy button */}
+        {titleMember && (
+          <Stack space={2}>
+            <MemberField member={titleMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Title"
@@ -171,6 +222,15 @@ export function MediumInput(props: ObjectInputProps) {
                 onClick={() => copyToClipboard(mediumTitle || '')}
                 disabled={!mediumTitle}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* Subtitle field with copy button */}
+        {subtitleMember && (
+          <Stack space={2}>
+            <MemberField member={subtitleMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Subtitle"
@@ -180,6 +240,15 @@ export function MediumInput(props: ObjectInputProps) {
                 onClick={() => copyToClipboard(mediumSubtitle || '')}
                 disabled={!mediumSubtitle}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* Body field with copy button */}
+        {bodyMember && (
+          <Stack space={2}>
+            <MemberField member={bodyMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Body (Markdown)"
@@ -189,6 +258,15 @@ export function MediumInput(props: ObjectInputProps) {
                 onClick={copyContentAsMarkdown}
                 disabled={!mediumContent || mediumContent.length === 0}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* Tags field with copy button */}
+        {tagsMember && (
+          <Stack space={2}>
+            <MemberField member={tagsMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Tags"
@@ -199,23 +277,27 @@ export function MediumInput(props: ObjectInputProps) {
                 disabled={!mediumTags || mediumTags.length === 0}
               />
             </Flex>
-            <Flex align="center" justify="space-between">
-              <Text size={0} muted>
-                After copying, go to{' '}
-                <a
-                  href="https://medium.com/new-story"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Medium&apos;s new story page
-                </a>{' '}
-                and paste the content.
-              </Text>
-              <Text size={0} muted>
-                Generated: {formatDate(generatedAt)}
-              </Text>
-            </Flex>
           </Stack>
+        )}
+
+        {/* Footer with Medium link and generated date */}
+        {generatedAt && (
+          <Flex align="center" justify="space-between">
+            <Text size={0} muted>
+              After copying, go to{' '}
+              <a
+                href="https://medium.com/new-story"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Medium&apos;s new story page
+              </a>{' '}
+              and paste the content.
+            </Text>
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          </Flex>
         )}
       </Stack>
     </Card>

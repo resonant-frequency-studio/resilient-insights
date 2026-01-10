@@ -1,8 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
+import {
+  ObjectInputProps,
+  useFormValue,
+  MemberField,
+  FieldMember,
+  ObjectMember,
+  PatchEvent,
+  set,
+} from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { generateContent } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
@@ -23,7 +31,12 @@ interface GenerateResponse {
   error?: string
 }
 
+function isFieldMember(member: ObjectMember): member is FieldMember {
+  return member.kind === 'field'
+}
+
 export function NewsletterInput(props: ObjectInputProps) {
+  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
   const newsletterTitle = useFormValue([
     'distribution',
@@ -60,6 +73,43 @@ export function NewsletterInput(props: ObjectInputProps) {
 
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
+
+  // Find specific field members
+  const titleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
+      ),
+    [members]
+  )
+  const subtitleMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
+      ),
+    [members]
+  )
+  const bodyMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
+      ),
+    [members]
+  )
+  const ctaTextMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaText'
+      ),
+    [members]
+  )
+  const ctaUrlMember = useMemo(
+    () =>
+      members?.find(
+        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaUrl'
+      ),
+    [members]
+  )
 
   // Format generatedAt date
   const formatDate = (dateString: string) => {
@@ -118,6 +168,16 @@ export function NewsletterInput(props: ObjectInputProps) {
     }
   }
 
+  const renderMemberProps = {
+    renderAnnotation: props.renderAnnotation,
+    renderBlock: props.renderBlock,
+    renderField: props.renderField,
+    renderInlineBlock: props.renderInlineBlock,
+    renderInput: props.renderInput,
+    renderItem: props.renderItem,
+    renderPreview: props.renderPreview,
+  }
+
   return (
     <Card padding={3} radius={2} tone="transparent" border>
       <Stack space={4}>
@@ -152,13 +212,11 @@ export function NewsletterInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Use Sanity's default rendering - handles all field updates properly */}
-        {props.renderDefault(props)}
-
-        {/* Copy buttons for each field */}
-        {generatedAt && (
-          <Stack space={3}>
-            <Flex gap={2} wrap="wrap">
+        {/* Title field with copy button */}
+        {titleMember && (
+          <Stack space={2}>
+            <MemberField member={titleMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Title"
@@ -168,6 +226,15 @@ export function NewsletterInput(props: ObjectInputProps) {
                 onClick={() => copyToClipboard(newsletterTitle || '')}
                 disabled={!newsletterTitle}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* Subtitle field with copy button */}
+        {subtitleMember && (
+          <Stack space={2}>
+            <MemberField member={subtitleMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Subtitle"
@@ -177,6 +244,15 @@ export function NewsletterInput(props: ObjectInputProps) {
                 onClick={() => copyToClipboard(newsletterSubtitle || '')}
                 disabled={!newsletterSubtitle}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* Body field with copy button */}
+        {bodyMember && (
+          <Stack space={2}>
+            <MemberField member={bodyMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy Body (Markdown)"
@@ -186,6 +262,15 @@ export function NewsletterInput(props: ObjectInputProps) {
                 onClick={copyBodyAsMarkdown}
                 disabled={!newsletterBody || newsletterBody.length === 0}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* CTA Text field with copy button */}
+        {ctaTextMember && (
+          <Stack space={2}>
+            <MemberField member={ctaTextMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy CTA Text"
@@ -195,6 +280,15 @@ export function NewsletterInput(props: ObjectInputProps) {
                 onClick={() => copyToClipboard(newsletterCtaText || '')}
                 disabled={!newsletterCtaText}
               />
+            </Flex>
+          </Stack>
+        )}
+
+        {/* CTA URL field with copy button */}
+        {ctaUrlMember && (
+          <Stack space={2}>
+            <MemberField member={ctaUrlMember} {...renderMemberProps} />
+            <Flex justify="flex-start">
               <Button
                 type="button"
                 text="Copy CTA URL"
@@ -205,12 +299,16 @@ export function NewsletterInput(props: ObjectInputProps) {
                 disabled={!newsletterCtaUrl}
               />
             </Flex>
-            <Flex justify="flex-end">
-              <Text size={0} muted>
-                Generated: {formatDate(generatedAt)}
-              </Text>
-            </Flex>
           </Stack>
+        )}
+
+        {/* Generated date - bottom right */}
+        {generatedAt && (
+          <Flex justify="flex-end">
+            <Text size={0} muted>
+              Generated: {formatDate(generatedAt)}
+            </Text>
+          </Flex>
         )}
       </Stack>
     </Card>
