@@ -28,6 +28,7 @@ interface ScheduleModalProps {
   recommendations?: string[] // ISO 8601 datetime strings
   loading?: boolean
   image?: SanityImageReference // Sanity image reference for auto-cropping
+  textContent?: string // Plain text content to preview
 }
 
 export function ScheduleModal({
@@ -38,6 +39,7 @@ export function ScheduleModal({
   recommendations = [],
   loading = false,
   image,
+  textContent,
 }: ScheduleModalProps) {
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
@@ -76,6 +78,9 @@ export function ScheduleModal({
   const croppedPreviewUrl = getPreviewImageUrl(image, channel, 400)
   const dimensionInfo = getPlatformDimensionInfo(channel)
 
+  // Check if we have any preview content
+  const hasPreview = croppedPreviewUrl || textContent
+
   if (!isOpen) return null
 
   return (
@@ -88,6 +93,98 @@ export function ScheduleModal({
     >
       <Box padding={4}>
         <Stack space={4}>
+          {/* Post Preview Section */}
+          {hasPreview && (
+            <Box>
+              <Flex align="center" gap={2} marginBottom={2}>
+                <Label size={1} muted>
+                  Preview
+                </Label>
+                {croppedPreviewUrl && (
+                  <Badge tone="primary" fontSize={0}>
+                    {dimensionInfo}
+                  </Badge>
+                )}
+              </Flex>
+
+              <Card
+                padding={3}
+                radius={2}
+                tone="transparent"
+                border
+                style={{
+                  backgroundColor: 'var(--card-bg-color)',
+                }}
+              >
+                <Stack space={3}>
+                  {/* Image Preview */}
+                  {croppedPreviewUrl && (
+                    <Box
+                      style={{
+                        width: '100%',
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {imageLoadError ? (
+                        <Flex
+                          align="center"
+                          justify="center"
+                          padding={4}
+                          style={{
+                            backgroundColor: 'var(--card-muted-bg-color)',
+                          }}
+                        >
+                          <Text size={0} muted>
+                            Image failed to load
+                          </Text>
+                        </Flex>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={croppedPreviewUrl}
+                          alt={`${channelLabel} preview`}
+                          style={{
+                            width: '100%',
+                            display: 'block',
+                          }}
+                          onError={() => setImageLoadError(true)}
+                          onLoad={() => setImageLoadError(false)}
+                        />
+                      )}
+                    </Box>
+                  )}
+
+                  {/* Text Preview */}
+                  {textContent && (
+                    <Box
+                      style={{
+                        maxHeight: '200px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      <Text
+                        size={1}
+                        style={{
+                          whiteSpace: 'pre-wrap',
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {textContent}
+                      </Text>
+                    </Box>
+                  )}
+                </Stack>
+              </Card>
+
+              {croppedPreviewUrl && (
+                <Text size={0} muted style={{ marginTop: '4px' }}>
+                  Image auto-cropped for {channelLabel}
+                </Text>
+              )}
+            </Box>
+          )}
+
           {/* Recommended Times */}
           {recommendations.length > 0 && (
             <Box>
@@ -146,62 +243,6 @@ export function ScheduleModal({
               </Box>
             </Flex>
           </Box>
-
-          {/* Auto-Cropped Image Preview */}
-          {croppedPreviewUrl && (
-            <Box>
-              <Flex align="center" gap={2}>
-                <Label size={1} muted>
-                  Image Preview
-                </Label>
-                <Badge tone="primary" fontSize={0}>
-                  {dimensionInfo}
-                </Badge>
-              </Flex>
-              <Text size={0} muted style={{ marginTop: '4px' }}>
-                Auto-cropped for {channelLabel}
-              </Text>
-              <Card
-                padding={3}
-                radius={2}
-                tone="transparent"
-                border
-                marginTop={2}
-              >
-                <Box
-                  style={{
-                    width: '100%',
-                    borderRadius: '4px',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'var(--card-bg-color)',
-                  }}
-                >
-                  {imageLoadError ? (
-                    <Stack space={2} padding={3}>
-                      <Text size={0} muted align="center">
-                        Image failed to load
-                      </Text>
-                    </Stack>
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={croppedPreviewUrl}
-                      alt={`${channelLabel} preview`}
-                      style={{
-                        width: '100%',
-                        display: 'block',
-                      }}
-                      onError={() => setImageLoadError(true)}
-                      onLoad={() => setImageLoadError(false)}
-                    />
-                  )}
-                </Box>
-              </Card>
-            </Box>
-          )}
 
           {/* Action Buttons */}
           <Flex gap={2} justify="flex-end" marginTop={2}>

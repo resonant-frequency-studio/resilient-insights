@@ -54,6 +54,12 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
   // Determine status based on content (now Portable Text array)
   const status = linkedInText && linkedInText.length > 0 ? 'ready' : 'idle'
 
+  // Convert Portable Text to plain text for preview
+  const previewText = useMemo(() => {
+    if (!linkedInText || linkedInText.length === 0) return ''
+    return portableTextToPlainText(linkedInText as PortableTextBlock[])
+  }, [linkedInText])
+
   // Get recommended posting times for LinkedIn
   const recommendations = useMemo(() => {
     const times = getNextOptimalTimes('linkedin', new Date(), 5)
@@ -210,6 +216,7 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
           recommendations={recommendations}
           loading={isScheduling}
           image={linkedInImage}
+          textContent={previewText}
         />
       </Stack>
     </Card>
