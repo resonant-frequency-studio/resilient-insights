@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PortableTextBlock } from '@sanity/types'
 import { client } from '@/sanity/lib/client'
 import {
   generateNewsletter,
@@ -84,9 +85,9 @@ export async function POST(request: NextRequest) {
     const generated: {
       newsletter?: unknown
       social?: {
-        linkedin?: { text: string }
-        facebook?: { text: string }
-        instagram?: { caption: string; hashtags: string[] }
+        linkedin?: { text: PortableTextBlock[] }
+        facebook?: { text: PortableTextBlock[] }
+        instagram?: { caption: PortableTextBlock[]; hashtags: string[] }
         suggestedFirstComment?: string
         generatedAt?: string
         model?: string

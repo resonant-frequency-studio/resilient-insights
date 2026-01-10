@@ -109,13 +109,13 @@ export default defineType({
           },
           fields: [
             {
-              name: 'subject',
-              title: 'Subject',
+              name: 'title',
+              title: 'Title',
               type: 'string',
             },
             {
-              name: 'preheader',
-              title: 'Preheader',
+              name: 'subtitle',
+              title: 'Subtitle',
               type: 'string',
             },
             {
@@ -219,27 +219,23 @@ export default defineType({
             },
             {
               name: 'title',
-              title: 'Medium Title',
+              title: 'Title',
               type: 'string',
-              description: 'Title optimized for Medium',
             },
             {
               name: 'subtitle',
-              title: 'Medium Subtitle',
+              title: 'Subtitle',
               type: 'string',
-              description: 'Optional subtitle for Medium',
             },
             {
-              name: 'generatedContent',
-              title: 'Generated Content',
+              name: 'body',
+              title: 'Body',
               type: 'array',
               of: [{ type: 'block' }],
-              description:
-                'Medium-ready content - copy and paste into Medium editor',
             },
             {
               name: 'tags',
-              title: 'Medium Tags',
+              title: 'Tags',
               type: 'array',
               of: [{ type: 'string' }],
               description: 'Tags for Medium (comma-separated when copying)',
