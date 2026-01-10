@@ -1,16 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
-import {
-  ObjectInputProps,
-  useFormValue,
-  MemberField,
-  FieldMember,
-  ObjectMember,
-  PatchEvent,
-  set,
-} from 'sanity'
+import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
 import { generateContent } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
@@ -31,38 +23,13 @@ interface GenerateResponse {
   error?: string
 }
 
-function isFieldMember(member: ObjectMember): member is FieldMember {
-  return member.kind === 'field'
-}
-
 export function NewsletterInput(props: ObjectInputProps) {
-  const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
-  const newsletterTitle = useFormValue([
-    'distribution',
-    'newsletter',
-    'title',
-  ]) as string | undefined
-  const newsletterSubtitle = useFormValue([
-    'distribution',
-    'newsletter',
-    'subtitle',
-  ]) as string | undefined
   const newsletterBody = useFormValue([
     'distribution',
     'newsletter',
     'body',
   ]) as PortableTextBlock[] | undefined
-  const newsletterCtaText = useFormValue([
-    'distribution',
-    'newsletter',
-    'ctaText',
-  ]) as string | undefined
-  const newsletterCtaUrl = useFormValue([
-    'distribution',
-    'newsletter',
-    'ctaUrl',
-  ]) as string | undefined
   const generatedAt = useFormValue([
     'distribution',
     'newsletter',
@@ -73,43 +40,6 @@ export function NewsletterInput(props: ObjectInputProps) {
 
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
-
-  // Find specific field members
-  const titleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'title'
-      ),
-    [members]
-  )
-  const subtitleMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'subtitle'
-      ),
-    [members]
-  )
-  const bodyMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'body'
-      ),
-    [members]
-  )
-  const ctaTextMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaText'
-      ),
-    [members]
-  )
-  const ctaUrlMember = useMemo(
-    () =>
-      members?.find(
-        (m): m is FieldMember => isFieldMember(m) && m.name === 'ctaUrl'
-      ),
-    [members]
-  )
 
   // Format generatedAt date
   const formatDate = (dateString: string) => {
@@ -135,26 +65,17 @@ export function NewsletterInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-      // Update local form state with generated content (visible fields only)
-      // Hidden fields (generatedAt, model) are saved by the API
+      // Update local form state with generated content
       const newsletter = result.generated?.newsletter
       if (newsletter) {
         const patches = []
-        if (newsletter.title !== undefined) {
-          patches.push(set(newsletter.title, ['title']))
-        }
-        if (newsletter.subtitle !== undefined) {
+        if (newsletter.title) patches.push(set(newsletter.title, ['title']))
+        if (newsletter.subtitle)
           patches.push(set(newsletter.subtitle, ['subtitle']))
-        }
-        if (newsletter.body !== undefined) {
-          patches.push(set(newsletter.body, ['body']))
-        }
-        if (newsletter.ctaText !== undefined) {
+        if (newsletter.body) patches.push(set(newsletter.body, ['body']))
+        if (newsletter.ctaText)
           patches.push(set(newsletter.ctaText, ['ctaText']))
-        }
-        if (newsletter.ctaUrl !== undefined) {
-          patches.push(set(newsletter.ctaUrl, ['ctaUrl']))
-        }
+        if (newsletter.ctaUrl) patches.push(set(newsletter.ctaUrl, ['ctaUrl']))
         if (patches.length > 0) {
           props.onChange(PatchEvent.from(patches))
         }
@@ -166,25 +87,11 @@ export function NewsletterInput(props: ObjectInputProps) {
     }
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
-
   const copyBodyAsMarkdown = () => {
     if (newsletterBody) {
       const markdown = portableTextToMarkdown(newsletterBody)
       navigator.clipboard.writeText(markdown)
     }
-  }
-
-  const renderMemberProps = {
-    renderAnnotation: props.renderAnnotation,
-    renderBlock: props.renderBlock,
-    renderField: props.renderField,
-    renderInlineBlock: props.renderInlineBlock,
-    renderInput: props.renderInput,
-    renderItem: props.renderItem,
-    renderPreview: props.renderPreview,
   }
 
   return (
@@ -221,46 +128,12 @@ export function NewsletterInput(props: ObjectInputProps) {
           </Text>
         )}
 
-        {/* Title field with copy button */}
-        {titleMember && (
-          <Stack space={2}>
-            <MemberField member={titleMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Title"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterTitle || '')}
-                disabled={!newsletterTitle}
-              />
-            </Flex>
-          </Stack>
-        )}
+        {/* Use Sanity's default rendering - handles all field updates properly */}
+        {props.renderDefault(props)}
 
-        {/* Subtitle field with copy button */}
-        {subtitleMember && (
-          <Stack space={2}>
-            <MemberField member={subtitleMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy Subtitle"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterSubtitle || '')}
-                disabled={!newsletterSubtitle}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Body field with copy button */}
-        {bodyMember && (
-          <Stack space={2}>
-            <MemberField member={bodyMember} {...renderMemberProps} />
+        {/* Footer with copy button and generated date */}
+        {generatedAt && (
+          <Flex align="center" justify="space-between">
             <Flex justify="flex-start">
               <Button
                 type="button"
@@ -272,48 +145,6 @@ export function NewsletterInput(props: ObjectInputProps) {
                 disabled={!newsletterBody || newsletterBody.length === 0}
               />
             </Flex>
-          </Stack>
-        )}
-
-        {/* CTA Text field with copy button */}
-        {ctaTextMember && (
-          <Stack space={2}>
-            <MemberField member={ctaTextMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy CTA Text"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterCtaText || '')}
-                disabled={!newsletterCtaText}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* CTA URL field with copy button */}
-        {ctaUrlMember && (
-          <Stack space={2}>
-            <MemberField member={ctaUrlMember} {...renderMemberProps} />
-            <Flex justify="flex-start">
-              <Button
-                type="button"
-                text="Copy CTA URL"
-                mode="ghost"
-                fontSize={0}
-                padding={1}
-                onClick={() => copyToClipboard(newsletterCtaUrl || '')}
-                disabled={!newsletterCtaUrl}
-              />
-            </Flex>
-          </Stack>
-        )}
-
-        {/* Generated date - bottom right */}
-        {generatedAt && (
-          <Flex justify="flex-end">
             <Text size={0} muted>
               Generated: {formatDate(generatedAt)}
             </Text>

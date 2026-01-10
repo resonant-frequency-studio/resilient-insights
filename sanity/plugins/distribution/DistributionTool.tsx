@@ -238,17 +238,17 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
     <Card padding={4} radius={2} shadow={1}>
       <Stack space={4}>
         <Flex align="center" justify="space-between">
-          <Text size={2} weight="bold">
+          {/* <Text size={2} weight="bold">
             Distribution
-          </Text>
-          <SocialAccountsMenu
+          </Text> */}
+          {/* <SocialAccountsMenu
             socialAccounts={distribution?.socialAccounts}
             postId={postId}
             loading={loading}
             onSetLoading={setLoading}
             onSetSuccess={setSuccess}
             onSetError={setError}
-          />
+          /> */}
         </Flex>
 
         {/* Newsletter Section - Using MemberField for native Sanity rendering */}
