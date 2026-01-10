@@ -105,21 +105,26 @@ export function MediumInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-      // Update local form state with generated content
+      // Update local form state with generated content (visible fields only)
+      // Hidden fields (status, generatedAt, canonicalUrl, error) are saved by the API
       const medium = result.data
       if (medium) {
-        props.onChange(
-          PatchEvent.from(
-            set({
-              status: 'ready',
-              title: medium.title,
-              subtitle: medium.subtitle,
-              body: medium.body,
-              tags: medium.tags,
-              generatedAt: medium.generatedAt,
-            })
-          )
-        )
+        const patches = []
+        if (medium.title !== undefined) {
+          patches.push(set(medium.title, ['title']))
+        }
+        if (medium.subtitle !== undefined) {
+          patches.push(set(medium.subtitle, ['subtitle']))
+        }
+        if (medium.body !== undefined) {
+          patches.push(set(medium.body, ['body']))
+        }
+        if (medium.tags !== undefined) {
+          patches.push(set(medium.tags, ['tags']))
+        }
+        if (patches.length > 0) {
+          props.onChange(PatchEvent.from(patches))
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')

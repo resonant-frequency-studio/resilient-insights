@@ -135,22 +135,29 @@ export function NewsletterInput(props: ObjectInputProps) {
         setError(result.error || 'Generation failed')
         return
       }
-      // Update local form state with generated content
+      // Update local form state with generated content (visible fields only)
+      // Hidden fields (generatedAt, model) are saved by the API
       const newsletter = result.generated?.newsletter
       if (newsletter) {
-        props.onChange(
-          PatchEvent.from(
-            set({
-              title: newsletter.title,
-              subtitle: newsletter.subtitle,
-              body: newsletter.body,
-              ctaText: newsletter.ctaText,
-              ctaUrl: newsletter.ctaUrl,
-              generatedAt: newsletter.generatedAt,
-              model: newsletter.model,
-            })
-          )
-        )
+        const patches = []
+        if (newsletter.title !== undefined) {
+          patches.push(set(newsletter.title, ['title']))
+        }
+        if (newsletter.subtitle !== undefined) {
+          patches.push(set(newsletter.subtitle, ['subtitle']))
+        }
+        if (newsletter.body !== undefined) {
+          patches.push(set(newsletter.body, ['body']))
+        }
+        if (newsletter.ctaText !== undefined) {
+          patches.push(set(newsletter.ctaText, ['ctaText']))
+        }
+        if (newsletter.ctaUrl !== undefined) {
+          patches.push(set(newsletter.ctaUrl, ['ctaUrl']))
+        }
+        if (patches.length > 0) {
+          props.onChange(PatchEvent.from(patches))
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
