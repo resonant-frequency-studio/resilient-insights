@@ -18,7 +18,7 @@ interface GenerateResponse {
   data?: {
     title?: string
     subtitle?: string
-    generatedContent?: PortableTextBlock[]
+    body?: PortableTextBlock[]
     tags?: string[]
     generatedAt?: string
   }
@@ -32,11 +32,9 @@ function isFieldMember(member: ObjectMember): member is FieldMember {
 export function MediumInput(props: ObjectInputProps) {
   const { members } = props
   const postId = useFormValue(['_id']) as string | undefined
-  const mediumContent = useFormValue([
-    'distribution',
-    'medium',
-    'generatedContent',
-  ]) as PortableTextBlock[] | undefined
+  const mediumContent = useFormValue(['distribution', 'medium', 'body']) as
+    | PortableTextBlock[]
+    | undefined
   const mediumStatus = useFormValue(['distribution', 'medium', 'status']) as
     | string
     | undefined

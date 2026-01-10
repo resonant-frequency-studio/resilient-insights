@@ -57,7 +57,7 @@ interface DistributionData {
   medium?: {
     status?: 'idle' | 'ready' | 'error'
     canonicalUrl?: string
-    generatedContent?: string
+    body?: string
     title?: string
     subtitle?: string
     tags?: string[]

@@ -15,7 +15,7 @@ import { PatchEvent, set } from 'sanity'
 interface MediumData {
   status?: 'idle' | 'ready' | 'error'
   canonicalUrl?: string
-  generatedContent?: string
+  body?: string
   title?: string
   subtitle?: string
   tags?: string[]
@@ -172,12 +172,12 @@ export function MediumStatusSection({
         <Stack space={2}>
           <Label>Body</Label>
           <TextArea
-            value={medium?.generatedContent || ''}
+            value={medium?.body || ''}
             onChange={e => {
               if (onChange) {
                 onChange(
                   PatchEvent.from(
-                    set(e.currentTarget.value, ['medium', 'generatedContent'])
+                    set(e.currentTarget.value, ['medium', 'body'])
                   )
                 )
               }
@@ -191,7 +191,7 @@ export function MediumStatusSection({
               mode="ghost"
               fontSize={0}
               padding={1}
-              onClick={() => onCopy(medium?.generatedContent || '')}
+              onClick={() => onCopy(medium?.body || '')}
             />
           </Flex>
           <Text size={0} muted>
