@@ -27,7 +27,9 @@ jest.mock('next/image', () => ({
         src={src}
         alt={alt}
         className={className}
-        {...(fill ? { style: { position: 'absolute', inset: 0 } } : { width, height })}
+        {...(fill
+          ? { style: { position: 'absolute', inset: 0 } }
+          : { width, height })}
       />
     )
   },
@@ -68,10 +70,15 @@ jest.mock('@portabletext/react', () => ({
       return (
         <div data-testid="portable-text">
           {value
-            .filter((block: unknown) => (block as { _type?: string })._type === 'block')
+            .filter(
+              (block: unknown) =>
+                (block as { _type?: string })._type === 'block'
+            )
             .map((block: unknown) => {
               const b = block as { children?: Array<{ text?: string }> }
-              return b.children?.map((child, i) => <span key={i}>{child.text}</span>)
+              return b.children?.map((child, i) => (
+                <span key={i}>{child.text}</span>
+              ))
             })}
         </div>
       )
@@ -91,7 +98,9 @@ jest.mock('@/components/AudioPlayer', () => ({
 jest.mock('@/components/AuthorSidebar', () => ({
   __esModule: true,
   default: ({ author }: { author?: { name: string } }) => (
-    <div data-testid="author-sidebar">Author: {author?.name || 'No author'}</div>
+    <div data-testid="author-sidebar">
+      Author: {author?.name || 'No author'}
+    </div>
   ),
 }))
 
@@ -125,7 +134,9 @@ jest.mock('@/lib/tts/portableTextToSpeechText', () => ({
   portableTextToSpeechText: jest.fn((body: unknown) => {
     if (Array.isArray(body)) {
       return body
-        .filter((block: unknown) => (block as { _type?: string })._type === 'block')
+        .filter(
+          (block: unknown) => (block as { _type?: string })._type === 'block'
+        )
         .map((block: unknown) => {
           const b = block as { children?: Array<{ text?: string }> }
           return b.children?.map(child => child.text).join(' ')
@@ -219,7 +230,9 @@ describe('Blog Post Page', () => {
   it('renders post with all content (title, author, categories, body)', async () => {
     ;(mockClient.fetch as jest.Mock).mockResolvedValue(mockPost)
 
-    const component = await BlogPostPage({ params: Promise.resolve({ slug: 'test-blog-post' }) })
+    const component = await BlogPostPage({
+      params: Promise.resolve({ slug: 'test-blog-post' }),
+    })
     render(component)
 
     // Check title
@@ -229,12 +242,18 @@ describe('Blog Post Page', () => {
     expect(screen.getByText(/written by JOHN DOE/i)).toBeInTheDocument()
 
     // Check categories
-    expect(screen.getByText(/filed under LEADERSHIP \| COACHING/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/filed under LEADERSHIP \| COACHING/i)
+    ).toBeInTheDocument()
 
     // Check body content
     expect(screen.getByTestId('portable-text')).toBeInTheDocument()
-    expect(screen.getByText('This is the first paragraph of the blog post.')).toBeInTheDocument()
-    expect(screen.getByText('This is the second paragraph.')).toBeInTheDocument()
+    expect(
+      screen.getByText('This is the first paragraph of the blog post.')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('This is the second paragraph.')
+    ).toBeInTheDocument()
   })
 
   it('calls notFound() when post does not exist', async () => {
@@ -251,7 +270,9 @@ describe('Blog Post Page', () => {
   it('renders "Back to Articles" link', async () => {
     ;(mockClient.fetch as jest.Mock).mockResolvedValue(mockPost)
 
-    const component = await BlogPostPage({ params: Promise.resolve({ slug: 'test-blog-post' }) })
+    const component = await BlogPostPage({
+      params: Promise.resolve({ slug: 'test-blog-post' }),
+    })
     render(component)
 
     const backLink = screen.getByText('← Back to Articles')
@@ -261,7 +282,9 @@ describe('Blog Post Page', () => {
   it('displays AudioPlayer component', async () => {
     ;(mockClient.fetch as jest.Mock).mockResolvedValue(mockPost)
 
-    const component = await BlogPostPage({ params: Promise.resolve({ slug: 'test-blog-post' }) })
+    const component = await BlogPostPage({
+      params: Promise.resolve({ slug: 'test-blog-post' }),
+    })
     render(component)
 
     expect(screen.getByTestId('audio-player')).toBeInTheDocument()
@@ -271,7 +294,9 @@ describe('Blog Post Page', () => {
   it('displays AuthorSidebar component', async () => {
     ;(mockClient.fetch as jest.Mock).mockResolvedValue(mockPost)
 
-    const component = await BlogPostPage({ params: Promise.resolve({ slug: 'test-blog-post' }) })
+    const component = await BlogPostPage({
+      params: Promise.resolve({ slug: 'test-blog-post' }),
+    })
     render(component)
 
     expect(screen.getByTestId('author-sidebar')).toBeInTheDocument()
@@ -286,7 +311,9 @@ describe('Blog Post Page', () => {
 
     ;(mockClient.fetch as jest.Mock).mockResolvedValue(postWithoutAuthor)
 
-    const component = await BlogPostPage({ params: Promise.resolve({ slug: 'test-blog-post' }) })
+    const component = await BlogPostPage({
+      params: Promise.resolve({ slug: 'test-blog-post' }),
+    })
     render(component)
 
     expect(screen.getByText('Author: No author')).toBeInTheDocument()
@@ -300,8 +327,12 @@ describe('Blog Post Page', () => {
         params: Promise.resolve({ slug: 'test-blog-post' }),
       })
 
-      expect(metadata.title).toBe('Test Blog Post | by John Doe | Resilient Leadership')
-      expect(metadata.description).toBe('This is a test excerpt for the blog post')
+      expect(metadata.title).toBe(
+        'Test Blog Post | by John Doe | Resilient Leadership'
+      )
+      expect(metadata.description).toBe(
+        'This is a test excerpt for the blog post'
+      )
       // Keywords include categories as comma-separated string plus default keywords
       expect(metadata.keywords).toContain('Leadership, Coaching')
       expect(metadata.keywords).toContain('leadership')
@@ -309,7 +340,9 @@ describe('Blog Post Page', () => {
       expect(metadata.authors).toEqual([{ name: 'John Doe' }])
       expect(metadata.openGraph?.title).toBe('Test Blog Post')
       expect((metadata.openGraph as { type?: string })?.type).toBe('article')
-      expect((metadata.openGraph as { authors?: string[] })?.authors).toEqual(['John Doe'])
+      expect((metadata.openGraph as { authors?: string[] })?.authors).toEqual([
+        'John Doe',
+      ])
       expect(metadata.twitter?.title).toBe('Test Blog Post')
     })
 
@@ -327,7 +360,9 @@ describe('Blog Post Page', () => {
 
       expect(metadata.title).toBe('Test Blog Post | Resilient Leadership')
       expect(metadata.authors).toBeUndefined()
-      expect((metadata.openGraph as { authors?: string[] })?.authors).toBeUndefined()
+      expect(
+        (metadata.openGraph as { authors?: string[] })?.authors
+      ).toBeUndefined()
     })
 
     it('generates metadata with body text when excerpt is missing', async () => {
@@ -348,10 +383,14 @@ describe('Blog Post Page', () => {
     it('generates metadata for not found post', async () => {
       ;(mockClient.fetch as jest.Mock).mockResolvedValue(null)
 
-      const metadata = await generateMetadata({ params: Promise.resolve({ slug: 'non-existent' }) })
+      const metadata = await generateMetadata({
+        params: Promise.resolve({ slug: 'non-existent' }),
+      })
 
       expect(metadata.title).toBe('Article Not Found | Resilient Leadership')
-      expect(metadata.description).toBe('The requested article could not be found.')
+      expect(metadata.description).toBe(
+        'The requested article could not be found.'
+      )
     })
 
     it('generates metadata with image when mainImage exists', async () => {
@@ -385,7 +424,11 @@ describe('Blog Post Page', () => {
 
       const params = await generateStaticParams()
 
-      expect(params).toEqual([{ slug: 'post-1' }, { slug: 'post-2' }, { slug: 'post-3' }])
+      expect(params).toEqual([
+        { slug: 'post-1' },
+        { slug: 'post-2' },
+        { slug: 'post-3' },
+      ])
     })
 
     it('handles empty slugs array', async () => {

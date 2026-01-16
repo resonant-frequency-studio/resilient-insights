@@ -6,9 +6,13 @@ import Checkbox from '../Checkbox'
 // Mock Next.js Link
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode
+    href: string
+  }) => <a href={href}>{children}</a>,
 }))
 
 describe('Checkbox', () => {
@@ -49,10 +53,9 @@ describe('Checkbox', () => {
     const label = screen.getByText(/By sending this form, I agree to the/)
     expect(label).toBeInTheDocument()
     expect(screen.getByText('Terms of Service')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Terms of Service' })).toHaveAttribute(
-      'href',
-      '/terms/terms-of-service'
-    )
+    expect(
+      screen.getByRole('link', { name: 'Terms of Service' })
+    ).toHaveAttribute('href', '/terms/terms-of-service')
   })
 
   it('is unchecked by default', () => {
@@ -95,7 +98,10 @@ describe('Checkbox', () => {
   it('displays error message when error prop is provided', () => {
     render(<Checkbox error="You must agree to continue" />)
     expect(screen.getByText('You must agree to continue')).toBeInTheDocument()
-    expect(screen.getByText('You must agree to continue')).toHaveAttribute('role', 'alert')
+    expect(screen.getByText('You must agree to continue')).toHaveAttribute(
+      'role',
+      'alert'
+    )
   })
 
   it('applies error styles when error is present', () => {
@@ -159,11 +165,16 @@ describe('Checkbox', () => {
     const { container } = render(<Checkbox />)
     const visualBox = container.querySelector('div[aria-hidden="true"]')
     // The visual box should have focus-within styles
-    expect(visualBox).toHaveClass('focus-within:ring-2', 'focus-within:ring-input-focus-ring/20')
+    expect(visualBox).toHaveClass(
+      'focus-within:ring-2',
+      'focus-within:ring-input-focus-ring/20'
+    )
   })
 
   it('accepts all standard checkbox attributes', () => {
-    render(<Checkbox name="agree" value="yes" required aria-label="Agree to terms" />)
+    render(
+      <Checkbox name="agree" value="yes" required aria-label="Agree to terms" />
+    )
     const checkbox = screen.getByLabelText('Agree to terms')
     expect(checkbox).toHaveAttribute('name', 'agree')
     expect(checkbox).toHaveAttribute('value', 'yes')

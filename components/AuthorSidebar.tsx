@@ -33,7 +33,11 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
               />
             </div>
           )}
-          <Typography as="h2" variant="heading-6" className="uppercase font-semibold">
+          <Typography
+            as="h2"
+            variant="heading-6"
+            className="uppercase font-semibold"
+          >
             ABOUT THE AUTHOR
           </Typography>
         </div>
@@ -53,7 +57,9 @@ const AuthorSidebar: React.FC<AuthorSidebarProps> = ({ author }) => {
               <div className="w-10 h-10 rounded-full border border-foreground-dark flex items-center justify-center transition-all group-hover:border-button-primary group-hover:bg-button-primary group-hover:text-foreground-light">
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
-              <span>LEARN MORE ABOUT {author.name.split(' ')[0].toUpperCase()}</span>
+              <span>
+                LEARN MORE ABOUT {author.name.split(' ')[0].toUpperCase()}
+              </span>
             </a>
             {/* Social Media Icons */}
             <SocialLinks

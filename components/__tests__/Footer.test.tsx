@@ -15,7 +15,9 @@ describe('Footer', () => {
   it('renders company description', () => {
     render(<Footer />)
     expect(
-      screen.getByText(/Resilient Leadership helps leaders and teams grow through change/i)
+      screen.getByText(
+        /Resilient Leadership helps leaders and teams grow through change/i
+      )
     ).toBeInTheDocument()
   })
 
@@ -46,7 +48,9 @@ describe('Footer', () => {
 
   it('service links have correct href attributes', () => {
     render(<Footer />)
-    const executiveCoaching = screen.getByText('Executive Coaching').closest('a')
+    const executiveCoaching = screen
+      .getByText('Executive Coaching')
+      .closest('a')
     expect(executiveCoaching).toHaveAttribute(
       'href',
       'https://resilientleadership.us/services/executive-coaching'

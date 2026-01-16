@@ -49,7 +49,10 @@ describe('Input', () => {
   it('displays error message when error prop is provided', () => {
     render(<Input error="This field is required" />)
     expect(screen.getByText('This field is required')).toBeInTheDocument()
-    expect(screen.getByText('This field is required')).toHaveAttribute('role', 'alert')
+    expect(screen.getByText('This field is required')).toHaveAttribute(
+      'role',
+      'alert'
+    )
   })
 
   it('applies error styles when error is present', () => {
@@ -89,7 +92,9 @@ describe('Input', () => {
   })
 
   it('accepts all standard input attributes', () => {
-    render(<Input type="email" name="email" required aria-label="Email address" />)
+    render(
+      <Input type="email" name="email" required aria-label="Email address" />
+    )
     const input = screen.getByLabelText('Email address')
     expect(input).toHaveAttribute('type', 'email')
     expect(input).toHaveAttribute('name', 'email')

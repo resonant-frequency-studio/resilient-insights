@@ -2,7 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href'> {
+export interface ButtonProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'href'
+> {
   variant?: 'primary' | 'inverse' | 'outline' | 'glass'
   size?: 'sm' | 'md' | 'lg'
   icon?: React.ReactNode
@@ -46,13 +49,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'px-8 py-4 text-lg',
     }
 
-    const buttonClasses = cn(baseStyles, variantStyles[variant], sizeStyles[size], className)
+    const buttonClasses = cn(
+      baseStyles,
+      variantStyles[variant],
+      sizeStyles[size],
+      className
+    )
 
     const content = (
       <>
-        {icon && iconPosition === 'left' && <span className="shrink-0 mr-2">{icon}</span>}
+        {icon && iconPosition === 'left' && (
+          <span className="shrink-0 mr-2">{icon}</span>
+        )}
         {children}
-        {icon && iconPosition === 'right' && <span className="shrink-0 ml-2">{icon}</span>}
+        {icon && iconPosition === 'right' && (
+          <span className="shrink-0 ml-2">{icon}</span>
+        )}
       </>
     )
 
