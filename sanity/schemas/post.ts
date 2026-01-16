@@ -3,6 +3,7 @@ import { DistributionTool } from '../plugins/distribution/DistributionTool'
 import { SocialInput } from '../components/SocialInput'
 import { NewsletterInput } from '../components/NewsletterInput'
 import { MediumInput } from '../components/MediumInput'
+import { PostEditorModes } from '../components/post/PostEditorModes'
 // These imports are used in the schema type references (lines 148, 153, 158)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { linkedinSocial } from './objects/linkedinSocial'
@@ -15,6 +16,10 @@ export default defineType({
   name: 'post',
   title: 'Post',
   type: 'document',
+  components: {
+    // Custom editor with Edit/Distribute mode switcher
+    input: PostEditorModes,
+  },
   fields: [
     defineField({
       name: 'title',
