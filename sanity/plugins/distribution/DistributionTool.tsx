@@ -10,6 +10,7 @@ import {
   Menu,
   MenuItem,
   Button,
+  Box,
 } from '@sanity/ui'
 import { EllipsisVerticalIcon } from '@sanity/icons'
 import {
@@ -259,7 +260,7 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
   }, [error])
 
   return (
-    <Card padding={4} radius={2} shadow={1}>
+    <Box>
       <Stack space={4}>
         {/* Status Messages */}
         {error && (
@@ -432,6 +433,6 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
             </Card>
           )}
       </Stack>
-    </Card>
+    </Box>
   )
 }
