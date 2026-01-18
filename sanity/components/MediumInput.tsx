@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
@@ -10,7 +10,10 @@ import {
   FieldProps,
 } from 'sanity'
 import { PortableTextBlock } from '@sanity/types'
-import { generateMediumDraft } from '../plugins/distribution/actions'
+import {
+  generateMediumDraft,
+  checkRateLimitStatus,
+} from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
 
 interface GenerateResponse {
@@ -23,6 +26,8 @@ interface GenerateResponse {
     generatedAt?: string
   }
   error?: string
+  rateLimitRemainingMs?: number
+  rateLimitType?: string
 }
 
 export function MediumInput(props: ObjectInputProps) {
@@ -54,18 +59,44 @@ export function MediumInput(props: ObjectInputProps) {
     | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
 
   const handleGenerate = async () => {
     if (!postId) {
-      setError('Post ID not found')
+      setError('Post information is missing. Please refresh the page.')
       return
     }
+
+    // Check rate limit before attempting generation
+    const status = await checkRateLimitStatus(postId, 'medium')
+    if (status.rateLimited) {
+      const seconds = Math.ceil(status.remainingMs / 1000)
+      setRateLimitRemainingSeconds(seconds)
+      setError(
+        `Please wait ${seconds} second${seconds !== 1 ? 's' : ''} before generating again.`
+      )
+      return
+    }
+
     setIsGenerating(true)
     setError(null)
     try {
       const result = (await generateMediumDraft(postId)) as GenerateResponse
       if (!result.success) {
-        setError(result.error || 'Generation failed')
+        // Handle rate limit errors with countdown
+        if (result.rateLimitRemainingMs !== undefined) {
+          const seconds = Math.ceil(result.rateLimitRemainingMs / 1000)
+          setRateLimitRemainingSeconds(seconds)
+          setError(
+            result.error ||
+              `Please wait ${seconds} second${seconds !== 1 ? 's' : ''} before generating again.`
+          )
+        } else {
+          // Handle other errors with better messages
+          const errorMessage =
+            result.error || 'Generation failed. Please try again in a moment.'
+          setError(errorMessage)
+        }
         return
       }
       // Update local form state with generated content
@@ -82,7 +113,20 @@ export function MediumInput(props: ObjectInputProps) {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      // Handle network and other errors
+      if (err instanceof Error) {
+        if (err.message.includes('network') || err.message.includes('fetch')) {
+          setError(
+            'Unable to connect. Please check your connection and try again.'
+          )
+        } else {
+          setError(
+            err.message || 'Generation failed. Please try again in a moment.'
+          )
+        }
+      } else {
+        setError('Generation failed. Please try again in a moment.')
+      }
     } finally {
       setIsGenerating(false)
     }
@@ -126,6 +170,29 @@ export function MediumInput(props: ObjectInputProps) {
       return dateString
     }
   }
+
+  // Check rate limit status on mount and poll every second
+  useEffect(() => {
+    if (!postId) return
+
+    const checkRateLimit = async () => {
+      const status = await checkRateLimitStatus(postId, 'medium')
+      if (status.rateLimited) {
+        const seconds = Math.ceil(status.remainingMs / 1000)
+        setRateLimitRemainingSeconds(seconds)
+      } else {
+        setRateLimitRemainingSeconds(0)
+      }
+    }
+
+    // Check immediately
+    checkRateLimit()
+
+    // Poll every second
+    const interval = setInterval(checkRateLimit, 1000)
+
+    return () => clearInterval(interval)
+  }, [postId])
 
   // Combine local error state with stored error
   const displayError = error || storedError
@@ -240,22 +307,41 @@ export function MediumInput(props: ObjectInputProps) {
             )}
             <Button
               type="button"
-              text={isGenerating ? 'Generating...' : 'Generate Medium Draft'}
+              text={
+                isGenerating
+                  ? 'Generating...'
+                  : rateLimitRemainingSeconds > 0
+                    ? `Generate Medium Draft (${rateLimitRemainingSeconds}s)`
+                    : 'Generate Medium Draft'
+              }
               mode="ghost"
               tone="primary"
               fontSize={0}
               padding={2}
               onClick={handleGenerate}
-              disabled={isGenerating || !postId}
+              disabled={
+                isGenerating || !postId || rateLimitRemainingSeconds > 0
+              }
             />
           </Flex>
         </Flex>
 
-        {/* Display error as text */}
+        {/* Display error with better styling */}
         {displayError && (
-          <Text size={0} style={{ color: '#f03e3e' }}>
-            Error: {displayError}
-          </Text>
+          <Card
+            padding={2}
+            radius={2}
+            tone={rateLimitRemainingSeconds > 0 ? 'caution' : 'critical'}
+          >
+            <Text
+              size={0}
+              style={{
+                color: rateLimitRemainingSeconds > 0 ? '#f59e0b' : '#ef4444',
+              }}
+            >
+              {displayError}
+            </Text>
+          </Card>
         )}
 
         {/* Use Sanity's renderDefault with custom renderField for copy buttons */}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { schedulePost } from '@/lib/scheduler/schedule'
 import { z } from 'zod'
 import { validateAuth } from '@/lib/auth/validateDistribution'
+import { logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       message: 'Post scheduled successfully',
     })
   } catch (error) {
-    console.error('Schedule post error:', error)
+    logError('Schedule post error:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request', details: error.issues },

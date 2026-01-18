@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { disconnectLinkedIn } from '@/lib/social/linkedin/tokens'
 import { z } from 'zod'
+import { logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
       message: 'LinkedIn account disconnected',
     })
   } catch (error) {
-    console.error('LinkedIn disconnect error:', error)
+    logError('LinkedIn disconnect error:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request', details: error.issues },

@@ -223,7 +223,10 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
       )
       return imageBuilder.url()
     } catch (error) {
-      console.warn('Failed to build image URL with builder:', error)
+      // Silently fail in production - image URL building is non-critical
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to build image URL with builder:', error)
+      }
       return null
     }
   }

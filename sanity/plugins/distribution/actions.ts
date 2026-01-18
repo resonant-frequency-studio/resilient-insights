@@ -1,3 +1,5 @@
+import { logError } from '@/lib/utils/logger'
+
 /**
  * Action handlers for Distribution panel
  * These functions call the Next.js API routes
@@ -242,4 +244,55 @@ export async function disconnectLinkedIn(
   return callAPI('/api/auth/linkedin/disconnect', {
     postId,
   })
+}
+
+/**
+ * Check rate limit status for a post and content type
+ */
+export async function checkRateLimitStatus(
+  postId: string,
+  contentType:
+    | 'newsletter'
+    | 'linkedin'
+    | 'facebook'
+    | 'instagram'
+    | 'social'
+    | 'medium'
+): Promise<{ rateLimited: boolean; remainingMs: number }> {
+  const API_BASE_URL =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'http://localhost:3000'
+  const DISTRIBUTION_SECRET = process.env.NEXT_PUBLIC_DISTRIBUTION_SECRET || ''
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/distribution/rate-limit-status?postId=${encodeURIComponent(postId)}&contentType=${contentType}`,
+      {
+        headers: {
+          'X-DISTRIBUTION-SECRET': DISTRIBUTION_SECRET,
+        },
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return {
+        rateLimited: false,
+        remainingMs: 0,
+      }
+    }
+
+    return {
+      rateLimited: data.rateLimited || false,
+      remainingMs: data.remainingMs || 0,
+    }
+  } catch (error) {
+    logError('Rate limit status check error:', error)
+    return {
+      rateLimited: false,
+      remainingMs: 0,
+    }
+  }
 }

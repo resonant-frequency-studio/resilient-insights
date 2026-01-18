@@ -72,15 +72,19 @@ export async function findCachedUrl(
         }
       } catch (oldError) {
         // If old format lookup fails, continue (don't log as error since it's optional)
-        console.log(
-          `[TTS Cache] Old format lookup failed, continuing with cache miss`,
-          oldError
-        )
+        if (process.env.NODE_ENV === 'development') {
+          console.log(
+            `[TTS Cache] Old format lookup failed, continuing with cache miss`,
+            oldError
+          )
+        }
       }
     }
   } catch (error) {
     // If list fails, treat as cache miss
-    console.error('[TTS Cache] Error checking cache:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[TTS Cache] Error checking cache:', error)
+    }
     return null
   }
 

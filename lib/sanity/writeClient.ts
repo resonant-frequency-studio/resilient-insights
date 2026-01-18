@@ -1,10 +1,11 @@
 import { createClient } from '@sanity/client'
 import { apiVersion, dataset, projectId } from '@/sanity/env'
+import { logWarn, logError } from '@/lib/utils/logger'
 
 const writeToken = process.env.SANITY_WRITE_TOKEN
 
 if (!writeToken) {
-  console.warn(
+  logWarn(
     'SANITY_WRITE_TOKEN is not set. Distribution features requiring writes will not work.'
   )
 }
@@ -75,7 +76,7 @@ export async function patchPostDistribution(
 
     await patch.commit()
   } catch (error) {
-    console.error('Error patching post distribution:', error)
+    logError('Error patching post distribution:', error)
     throw error
   }
 }
@@ -120,7 +121,7 @@ export async function patchSocialPlatform(
 
     await patch.commit()
   } catch (error) {
-    console.error(`Error patching ${platform} distribution:`, error)
+    logError(`Error patching ${platform} distribution:`, error)
     throw error
   }
 }

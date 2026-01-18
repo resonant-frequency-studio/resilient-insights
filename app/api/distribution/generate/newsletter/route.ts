@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { client } from '@/sanity/lib/client'
-import { generateNewsletter } from '@/lib/distribution/generate'
+import { generateNewsletter, RateLimitError } from '@/lib/distribution/generate'
 import { patchPostDistribution } from '@/lib/sanity/writeClient'
 import { plainTextToPortableText } from '@/lib/sanity/portableTextConverter'
 import { z } from 'zod'
+import { logWarn, logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -18,7 +19,7 @@ const RequestSchema = z.object({
 function validateAuth(request: NextRequest): boolean {
   const secret = process.env.DISTRIBUTION_SECRET
   if (!secret) {
-    console.warn('DISTRIBUTION_SECRET is not set')
+    logWarn('DISTRIBUTION_SECRET is not set')
     return false
   }
 
@@ -96,18 +97,61 @@ export async function POST(request: NextRequest) {
       canonicalUrl,
     })
   } catch (error) {
-    console.error('Newsletter generation error:', error)
+    logError('Newsletter generation error:', error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request', details: error.issues },
+        {
+          error: 'Invalid request. Please check your post content.',
+          details: error.issues,
+        },
         { status: 400 }
       )
     }
 
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        {
+          error: error.message,
+          rateLimitRemainingMs: error.remainingMs,
+          rateLimitType: error.contentType,
+        },
+        { status: 429 }
+      )
+    }
+
+    // Handle specific error types with better messages
+    if (error instanceof Error) {
+      if (
+        error.message.includes('not found') ||
+        error.message.includes('missing')
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'Post information is missing. Please refresh the page and try again.',
+          },
+          { status: 404 }
+        )
+      }
+
+      if (
+        error.message.includes('network') ||
+        error.message.includes('fetch')
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'Unable to connect. Please check your connection and try again.',
+          },
+          { status: 503 }
+        )
+      }
+    }
+
     return NextResponse.json(
       {
-        error: 'Newsletter generation failed',
+        error: 'Generation failed. Please try again in a moment.',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

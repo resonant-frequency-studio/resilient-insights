@@ -8,6 +8,7 @@ import { LinkedInSocialInput } from '../LinkedInSocialInput'
 jest.mock('../../plugins/distribution/actions', () => ({
   generateLinkedInDraft: jest.fn(),
   schedulePost: jest.fn(),
+  checkRateLimitStatus: jest.fn(),
 }))
 
 // Mock the portableText module
@@ -35,9 +36,11 @@ jest.mock('@/lib/social/imageOptimizer', () => ({
 import {
   generateLinkedInDraft,
   schedulePost,
+  checkRateLimitStatus,
 } from '../../plugins/distribution/actions'
 const mockGenerateLinkedInDraft = generateLinkedInDraft as jest.Mock
 const mockSchedulePost = schedulePost as jest.Mock
+const mockCheckRateLimitStatus = checkRateLimitStatus as jest.Mock
 
 // Mock useFormValue
 const mockUseFormValue = jest.fn()
@@ -113,6 +116,10 @@ const createMockProps = (overrides = {}) =>
 describe('LinkedInSocialInput', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockCheckRateLimitStatus.mockResolvedValue({
+      rateLimited: false,
+      remainingMs: 0,
+    })
     mockUseFormValue.mockImplementation((path: string[]) => {
       if (path.includes('_id')) return 'test-post-id'
       if (path.includes('generatedAt')) return null

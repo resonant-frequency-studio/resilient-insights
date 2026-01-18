@@ -9,6 +9,7 @@ import {
   saveMp3,
 } from '@/lib/tts/audioCache'
 import { fetchSpeechStream } from '@/lib/tts/elevenlabs.server'
+import { logWarn, logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -75,12 +76,14 @@ export async function GET(request: NextRequest) {
 
     if (cachedUrl) {
       // Cache hit: fetch and stream the cached MP3
-      console.log(`[TTS] Cache hit for slug: ${slug}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[TTS] Cache hit for slug: ${slug}`)
+      }
 
       const cachedResponse = await fetch(cachedUrl)
       if (!cachedResponse.ok) {
         // If cached URL fails, fall through to generate new audio
-        console.warn(`[TTS] Failed to fetch cached audio, generating new`)
+        logWarn(`[TTS] Failed to fetch cached audio, generating new`)
       } else {
         // Stream the cached MP3
         const cachedBody = cachedResponse.body
@@ -95,7 +98,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache miss: fetch from ElevenLabs and stream while caching
-    console.log(`[TTS] Cache miss for slug: ${slug}, generating audio`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[TTS] Cache miss for slug: ${slug}, generating audio`)
+    }
 
     const elevenLabsResponse = await fetchSpeechStream(text)
 
@@ -148,16 +153,15 @@ export async function GET(request: NextRequest) {
           )
           saveMp3(cacheKey, mp3Buffer)
             .then(url => {
-              console.log(`[TTS] Cached audio for slug: ${slug} at ${url}`)
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`[TTS] Cached audio for slug: ${slug} at ${url}`)
+              }
             })
             .catch(error => {
-              console.error(
-                `[TTS] Failed to cache audio for slug: ${slug}`,
-                error
-              )
+              logError(`[TTS] Failed to cache audio for slug: ${slug}`, error)
             })
         } catch (error) {
-          console.error('[TTS] Error streaming audio:', error)
+          logError('[TTS] Error streaming audio:', error)
           controller.error(error)
         }
       },
@@ -171,7 +175,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('[TTS] Error in API route:', error)
+    logError('[TTS] Error in API route:', error)
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

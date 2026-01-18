@@ -1,9 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { logWarn, logError } from '@/lib/utils/logger'
 
 const apiKey = process.env.GOOGLE_GEMINI_API_KEY
 
+// Only warn in development environment
 if (!apiKey) {
-  console.warn(
+  logWarn(
     'GOOGLE_GEMINI_API_KEY is not set. Distribution generation will not work.'
   )
 }
@@ -35,21 +37,18 @@ export async function generateWithGemini(
     const response = await result.response
     return response.text()
   } catch (error) {
-    console.error('Gemini API error:', error)
+    logError('Gemini API error:', error)
 
     // If model not found, try to list available models for debugging
     if (error instanceof Error && error.message.includes('not found')) {
       try {
         const availableModels = await listAvailableModels()
-        console.error('Available models from API:', availableModels)
+        logError('Available models from API:', availableModels)
         if (availableModels.length > 0) {
-          console.error(
-            'Try using one of these models:',
-            availableModels.join(', ')
-          )
+          logError('Try using one of these models:', availableModels.join(', '))
         }
       } catch (listError) {
-        console.error('Could not list models:', listError)
+        logError('Could not list models:', listError)
       }
     }
 
@@ -81,11 +80,7 @@ export async function listAvailableModels(): Promise<string[]> {
     )
 
     if (!response.ok) {
-      console.error(
-        'Failed to list models:',
-        response.status,
-        response.statusText
-      )
+      logError('Failed to list models:', response.status, response.statusText)
       return []
     }
 
@@ -101,7 +96,7 @@ export async function listAvailableModels(): Promise<string[]> {
 
     return []
   } catch (error) {
-    console.error('Error listing models:', error)
+    logError('Error listing models:', error)
     return []
   }
 }
@@ -112,17 +107,41 @@ export async function listAvailableModels(): Promise<string[]> {
 const rateLimitCache = new Map<string, number>()
 const DEFAULT_RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
 
+export interface RateLimitResult {
+  allowed: boolean
+  remainingMs?: number
+}
+
 export function checkRateLimit(
   key: string,
   windowMs: number = DEFAULT_RATE_LIMIT_WINDOW
-): boolean {
+): RateLimitResult {
   const now = Date.now()
   const lastRequest = rateLimitCache.get(key)
 
   if (lastRequest && now - lastRequest < windowMs) {
-    return false
+    const remainingMs = windowMs - (now - lastRequest)
+    return { allowed: false, remainingMs }
   }
 
   rateLimitCache.set(key, now)
-  return true
+  return { allowed: true }
+}
+
+/**
+ * Get rate limit status without updating the cache
+ */
+export function getRateLimitStatus(
+  key: string,
+  windowMs: number = DEFAULT_RATE_LIMIT_WINDOW
+): RateLimitResult {
+  const now = Date.now()
+  const lastRequest = rateLimitCache.get(key)
+
+  if (lastRequest && now - lastRequest < windowMs) {
+    const remainingMs = windowMs - (now - lastRequest)
+    return { allowed: false, remainingMs }
+  }
+
+  return { allowed: true }
 }

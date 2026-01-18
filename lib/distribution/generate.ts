@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { generateWithGemini, checkRateLimit } from './gemini'
+import { logError } from '@/lib/utils/logger'
 import { createNewsletterPrompt } from './prompts/newsletter'
 import { createLinkedInPrompt } from './prompts/linkedin'
 import { createFacebookPrompt } from './prompts/facebook'
@@ -92,10 +93,24 @@ function parseGeminiJson(response: string): unknown {
   try {
     return JSON.parse(cleaned)
   } catch (error) {
-    console.error('Failed to parse JSON:', cleaned)
+    logError('Failed to parse JSON:', cleaned)
     throw new Error(
       `Invalid JSON response from Gemini: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
+  }
+}
+
+/**
+ * Custom error class for rate limiting with remaining time
+ */
+export class RateLimitError extends Error {
+  constructor(
+    message: string,
+    public remainingMs: number,
+    public contentType: string
+  ) {
+    super(message)
+    this.name = 'RateLimitError'
   }
 }
 
@@ -106,9 +121,15 @@ export async function generateNewsletter(
   options: GenerateOptions
 ): Promise<GeneratedNewsletter> {
   const rateLimitKey = `newsletter:${options.postId}`
-  if (!checkRateLimit(rateLimitKey)) {
-    throw new Error(
-      'Rate limit exceeded. Please wait a minute before regenerating.'
+  const rateLimitResult = checkRateLimit(rateLimitKey)
+  if (!rateLimitResult.allowed) {
+    const remainingSeconds = Math.ceil(
+      (rateLimitResult.remainingMs || 0) / 1000
+    )
+    throw new RateLimitError(
+      `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before generating again.`,
+      rateLimitResult.remainingMs || 0,
+      'newsletter'
     )
   }
 
@@ -152,9 +173,15 @@ export async function generateLinkedIn(
   options: GenerateOptions
 ): Promise<GeneratedLinkedIn> {
   const rateLimitKey = `linkedin:${options.postId}`
-  if (!checkRateLimit(rateLimitKey)) {
-    throw new Error(
-      'Rate limit exceeded. Please wait a minute before regenerating.'
+  const rateLimitResult = checkRateLimit(rateLimitKey)
+  if (!rateLimitResult.allowed) {
+    const remainingSeconds = Math.ceil(
+      (rateLimitResult.remainingMs || 0) / 1000
+    )
+    throw new RateLimitError(
+      `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before generating again.`,
+      rateLimitResult.remainingMs || 0,
+      'linkedin'
     )
   }
 
@@ -203,9 +230,15 @@ export async function generateFacebook(
   options: GenerateOptions
 ): Promise<GeneratedFacebook> {
   const rateLimitKey = `facebook:${options.postId}`
-  if (!checkRateLimit(rateLimitKey)) {
-    throw new Error(
-      'Rate limit exceeded. Please wait a minute before regenerating.'
+  const rateLimitResult = checkRateLimit(rateLimitKey)
+  if (!rateLimitResult.allowed) {
+    const remainingSeconds = Math.ceil(
+      (rateLimitResult.remainingMs || 0) / 1000
+    )
+    throw new RateLimitError(
+      `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before generating again.`,
+      rateLimitResult.remainingMs || 0,
+      'facebook'
     )
   }
 
@@ -253,9 +286,15 @@ export async function generateInstagram(
   options: GenerateOptions
 ): Promise<GeneratedInstagram> {
   const rateLimitKey = `instagram:${options.postId}`
-  if (!checkRateLimit(rateLimitKey)) {
-    throw new Error(
-      'Rate limit exceeded. Please wait a minute before regenerating.'
+  const rateLimitResult = checkRateLimit(rateLimitKey)
+  if (!rateLimitResult.allowed) {
+    const remainingSeconds = Math.ceil(
+      (rateLimitResult.remainingMs || 0) / 1000
+    )
+    throw new RateLimitError(
+      `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before generating again.`,
+      rateLimitResult.remainingMs || 0,
+      'instagram'
     )
   }
 
@@ -308,9 +347,15 @@ export async function generateSocial(
   options: GenerateOptions
 ): Promise<GeneratedSocial> {
   const rateLimitKey = `social:${options.postId}`
-  if (!checkRateLimit(rateLimitKey)) {
-    throw new Error(
-      'Rate limit exceeded. Please wait a minute before regenerating.'
+  const rateLimitResult = checkRateLimit(rateLimitKey)
+  if (!rateLimitResult.allowed) {
+    const remainingSeconds = Math.ceil(
+      (rateLimitResult.remainingMs || 0) / 1000
+    )
+    throw new RateLimitError(
+      `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before generating again.`,
+      rateLimitResult.remainingMs || 0,
+      'social'
     )
   }
 
@@ -449,9 +494,15 @@ export async function generateMedium(
   options: GenerateOptions & { tags?: string[] }
 ): Promise<MediumOutput> {
   const rateLimitKey = `medium:${options.postId}`
-  if (!checkRateLimit(rateLimitKey)) {
-    throw new Error(
-      'Rate limit exceeded. Please wait a minute before regenerating.'
+  const rateLimitResult = checkRateLimit(rateLimitKey)
+  if (!rateLimitResult.allowed) {
+    const remainingSeconds = Math.ceil(
+      (rateLimitResult.remainingMs || 0) / 1000
+    )
+    throw new RateLimitError(
+      `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before generating again.`,
+      rateLimitResult.remainingMs || 0,
+      'medium'
     )
   }
 

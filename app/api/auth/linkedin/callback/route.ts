@@ -4,6 +4,7 @@ import {
   getLinkedInProfile,
 } from '@/lib/social/linkedin/oauth'
 import { storeLinkedInTokens } from '@/lib/social/linkedin/tokens'
+import { logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
     redirectUrl.searchParams.set('linkedin_connected', 'true')
     return NextResponse.redirect(redirectUrl.toString())
   } catch (error) {
-    console.error('LinkedIn OAuth callback error:', error)
+    logError('LinkedIn OAuth callback error:', error)
     return NextResponse.redirect(
       new URL(
         `/studio?error=${encodeURIComponent(error instanceof Error ? error.message : 'oauth_failed')}`,
