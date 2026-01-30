@@ -31,7 +31,16 @@ export function getRecommendedTimes(
   const times = OPTIMAL_TIMES[channel] || OPTIMAL_TIMES.linkedin
   const recommendations: Date[] = []
 
-  // Get the date at midnight in the specified timezone
+  // We currently generate recommendations in the server/user's local timezone.
+  // The `timezone` argument is accepted for API compatibility and for formatting
+  // elsewhere; here we just validate it when provided.
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: timezone }).format(date)
+  } catch {
+    // Ignore invalid timezone strings and fall back to local behavior.
+  }
+
+  // Get the date at midnight (local)
   const targetDate = new Date(date)
   targetDate.setHours(0, 0, 0, 0)
 

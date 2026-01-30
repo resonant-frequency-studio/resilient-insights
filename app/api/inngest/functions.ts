@@ -6,6 +6,8 @@ import { inngest } from '@/lib/inngest/client'
 import { client } from '@/sanity/lib/client'
 import { writeClient } from '@/lib/sanity/writeClient'
 import { publishToLinkedIn } from '@/lib/social/linkedin/publish'
+import { publishToFacebook } from '@/lib/social/facebook/publish'
+import { publishToInstagram } from '@/lib/social/instagram/publish'
 
 /**
  * Function to publish a scheduled post
@@ -60,8 +62,23 @@ export const publishScheduledPost = inngest.createFunction(
           content,
           imageUrl: scheduledPost.imageUrl || imageUrl, // Use imageUrl from scheduledPost or event
         })
+      } else if (channel === 'facebook') {
+        result = await publishToFacebook({
+          postId: articleId,
+          content,
+          imageUrl: scheduledPost.imageUrl || imageUrl, // Use imageUrl from scheduledPost or event
+        })
+      } else if (channel === 'instagram') {
+        // Instagram requires caption, hashtags, and imageUrl
+        // The content field contains the caption
+        // Hashtags and imageUrl come from scheduledPost or event
+        result = await publishToInstagram({
+          postId: articleId,
+          caption: content,
+          imageUrl: scheduledPost.imageUrl || imageUrl || '', // Instagram requires image
+          hashtags: scheduledPost.hashtags || [],
+        })
       } else {
-        // Facebook and Instagram will be implemented later
         throw new Error(`Channel ${channel} not yet implemented`)
       }
 
