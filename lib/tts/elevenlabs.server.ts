@@ -44,9 +44,11 @@ export async function fetchSpeechStream(text: string): Promise<Response> {
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error')
-    console.error(
-      `[TTS] ElevenLabs API error (${response.status}): ${errorText.substring(0, 100)}`
-    )
+    if (process.env.NODE_ENV === 'development') {
+      console.error(
+        `[TTS] ElevenLabs API error (${response.status}): ${errorText.substring(0, 100)}`
+      )
+    }
     throw new Error(
       `ElevenLabs API error: ${response.status} ${response.statusText}`
     )

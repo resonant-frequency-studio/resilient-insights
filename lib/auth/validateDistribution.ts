@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { logWarn } from '@/lib/utils/logger'
 
 /**
  * Validate authentication header for distribution API routes
@@ -7,7 +8,7 @@ import { NextRequest } from 'next/server'
 export function validateAuth(request: NextRequest): boolean {
   const secret = process.env.DISTRIBUTION_SECRET
   if (!secret) {
-    console.warn('DISTRIBUTION_SECRET is not set')
+    logWarn('DISTRIBUTION_SECRET is not set')
     return false
   }
 

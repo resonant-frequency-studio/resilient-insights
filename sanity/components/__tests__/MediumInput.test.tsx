@@ -7,6 +7,7 @@ import { MediumInput } from '../MediumInput'
 // Mock the actions module
 jest.mock('../../plugins/distribution/actions', () => ({
   generateMediumDraft: jest.fn(),
+  checkRateLimitStatus: jest.fn(),
 }))
 
 // Mock the portableText module
@@ -15,8 +16,12 @@ jest.mock('@/lib/sanity/portableText', () => ({
 }))
 
 // Get mocked functions
-import { generateMediumDraft } from '../../plugins/distribution/actions'
+import {
+  generateMediumDraft,
+  checkRateLimitStatus,
+} from '../../plugins/distribution/actions'
 const mockGenerateMediumDraft = generateMediumDraft as jest.Mock
+const mockCheckRateLimitStatus = checkRateLimitStatus as jest.Mock
 
 // Mock useFormValue
 const mockUseFormValue = jest.fn()
@@ -92,6 +97,10 @@ const createMockProps = (overrides = {}) =>
 describe('MediumInput', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockCheckRateLimitStatus.mockResolvedValue({
+      rateLimited: false,
+      remainingMs: 0,
+    })
     mockUseFormValue.mockImplementation((path: string[]) => {
       if (path.includes('_id')) return 'test-post-id'
       if (path.includes('generatedAt')) return null

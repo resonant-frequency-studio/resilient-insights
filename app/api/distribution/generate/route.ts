@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { client } from '@/sanity/lib/client'
-import { generateNewsletter, generateSocial } from '@/lib/distribution/generate'
+import {
+  generateNewsletter,
+  generateSocial,
+  RateLimitError,
+} from '@/lib/distribution/generate'
 import { patchPostDistribution } from '@/lib/sanity/writeClient'
 import { z } from 'zod'
+import { logWarn, logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -18,7 +23,7 @@ const RequestSchema = z.object({
 function validateAuth(request: NextRequest): boolean {
   const secret = process.env.DISTRIBUTION_SECRET
   if (!secret) {
-    console.warn('DISTRIBUTION_SECRET is not set')
+    logWarn('DISTRIBUTION_SECRET is not set')
     return false
   }
 
@@ -88,10 +93,21 @@ export async function POST(request: NextRequest) {
           model: 'gemini-2.5-flash',
         }
       } catch (error) {
-        console.error('Newsletter generation error:', error)
+        logError('Newsletter generation error:', error)
+        if (error instanceof RateLimitError) {
+          return NextResponse.json(
+            {
+              error: error.message,
+              rateLimitRemainingMs: error.remainingMs,
+              rateLimitType: error.contentType,
+            },
+            { status: 429 }
+          )
+        }
         return NextResponse.json(
           {
-            error: 'Newsletter generation failed',
+            error:
+              'Newsletter generation failed. Please try again in a moment.',
             details: error instanceof Error ? error.message : 'Unknown error',
           },
           { status: 500 }
@@ -116,10 +132,20 @@ export async function POST(request: NextRequest) {
           model: 'gemini-2.5-flash',
         }
       } catch (error) {
-        console.error('Social generation error:', error)
+        logError('Social generation error:', error)
+        if (error instanceof RateLimitError) {
+          return NextResponse.json(
+            {
+              error: error.message,
+              rateLimitRemainingMs: error.remainingMs,
+              rateLimitType: error.contentType,
+            },
+            { status: 429 }
+          )
+        }
         return NextResponse.json(
           {
-            error: 'Social generation failed',
+            error: 'Social generation failed. Please try again in a moment.',
             details: error instanceof Error ? error.message : 'Unknown error',
           },
           { status: 500 }
@@ -127,22 +153,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Save to Sanity
+    // Save to Sanity (postDistribution document)
     try {
-      const distribution: Record<string, unknown> = {}
+      const distributionPatch: Record<string, unknown> = {}
       if (generated.newsletter) {
-        distribution.newsletter = generated.newsletter
+        distributionPatch.newsletter = generated.newsletter
       }
       if (generated.social) {
-        distribution.social = generated.social
+        distributionPatch.social = generated.social
       }
 
-      await patchPostDistribution(postId, {
-        publishedUrl: canonicalUrl,
-        distribution,
-      })
+      await patchPostDistribution(postId, distributionPatch)
+
+      // Also update the canonical URL on the post document if needed
+      // Note: publishedUrl remains on the post document, not distribution
     } catch (error) {
-      console.error('Error saving to Sanity:', error)
+      logError('Error saving to Sanity:', error)
       return NextResponse.json(
         {
           error: 'Failed to save generated content',
@@ -158,16 +184,29 @@ export async function POST(request: NextRequest) {
       canonicalUrl,
     })
   } catch (error) {
-    console.error('Generate endpoint error:', error)
+    logError('Generate endpoint error:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request', details: error.issues },
+        {
+          error: 'Invalid request. Please check your post content.',
+          details: error.issues,
+        },
         { status: 400 }
+      )
+    }
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        {
+          error: error.message,
+          rateLimitRemainingMs: error.remainingMs,
+          rateLimitType: error.contentType,
+        },
+        { status: 429 }
       )
     }
     return NextResponse.json(
       {
-        error: 'Internal server error',
+        error: 'Generation failed. Please try again in a moment.',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

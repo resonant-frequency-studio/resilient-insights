@@ -81,7 +81,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
         } catch (err) {
           // Ignore AbortError - it happens when play() is interrupted
           if (err instanceof Error && err.name !== 'AbortError') {
-            console.error('Error playing audio:', err)
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Error playing audio:', err)
+            }
             setState('error')
             setError('Failed to play audio. Please try again.')
           }
@@ -113,7 +115,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
             await audio.play()
           } catch (err) {
             if (err instanceof Error && err.name !== 'AbortError') {
-              console.error('Error playing audio:', err)
+              if (process.env.NODE_ENV === 'development') {
+                console.error('Error playing audio:', err)
+              }
               setState('error')
               setError('Failed to play audio. Please try again.')
             }
@@ -289,7 +293,9 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
       if (err instanceof Error && err.name === 'AbortError') {
         return
       }
-      console.error('Error playing audio:', err)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error playing audio:', err)
+      }
       wantsToPlayRef.current = false
       isLoadingRef.current = false
       setState('error')

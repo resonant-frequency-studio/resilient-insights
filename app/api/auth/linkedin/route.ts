@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getLinkedInAuthUrl } from '@/lib/social/linkedin/oauth'
+import { logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
       state,
     })
   } catch (error) {
-    console.error('LinkedIn OAuth initiation error:', error)
+    logError('LinkedIn OAuth initiation error:', error)
     return NextResponse.json(
       {
         error: 'Failed to initiate OAuth',

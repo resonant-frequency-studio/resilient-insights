@@ -8,6 +8,7 @@ import {
   getRecommendations,
   connectLinkedIn,
   disconnectLinkedIn,
+  checkRateLimitStatus,
 } from '../actions'
 
 // Mock fetch globally
@@ -357,6 +358,95 @@ describe('distribution actions', () => {
 
       const result = await disconnectLinkedIn('post-123')
       expect(result.success).toBe(true)
+    })
+  })
+
+  describe('checkRateLimitStatus', () => {
+    it('calls correct endpoint with postId and contentType', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ rateLimited: false, remainingMs: 0 }),
+      })
+
+      await checkRateLimitStatus('post-123', 'newsletter')
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '/api/distribution/rate-limit-status?postId=post-123&contentType=newsletter'
+        ),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'X-DISTRIBUTION-SECRET': expect.any(String),
+          }),
+        })
+      )
+    })
+
+    it('returns rate limit status when rate limited', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ rateLimited: true, remainingMs: 45000 }),
+      })
+
+      const result = await checkRateLimitStatus('post-123', 'linkedin')
+
+      expect(result.rateLimited).toBe(true)
+      expect(result.remainingMs).toBe(45000)
+    })
+
+    it('returns not rate limited when allowed', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ rateLimited: false, remainingMs: 0 }),
+      })
+
+      const result = await checkRateLimitStatus('post-123', 'facebook')
+
+      expect(result.rateLimited).toBe(false)
+      expect(result.remainingMs).toBe(0)
+    })
+
+    it('handles all content types', async () => {
+      const contentTypes = [
+        'newsletter',
+        'linkedin',
+        'facebook',
+        'instagram',
+        'social',
+        'medium',
+      ] as const
+
+      for (const contentType of contentTypes) {
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ rateLimited: false, remainingMs: 0 }),
+        })
+
+        const result = await checkRateLimitStatus('post-123', contentType)
+        expect(result.rateLimited).toBe(false)
+      }
+    })
+
+    it('handles network errors gracefully', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network failure'))
+
+      const result = await checkRateLimitStatus('post-123', 'newsletter')
+
+      expect(result.rateLimited).toBe(false)
+      expect(result.remainingMs).toBe(0)
+    })
+
+    it('handles HTTP errors gracefully', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => ({ error: 'Unauthorized' }),
+      })
+
+      const result = await checkRateLimitStatus('post-123', 'newsletter')
+
+      expect(result.rateLimited).toBe(false)
+      expect(result.remainingMs).toBe(0)
     })
   })
 

@@ -74,7 +74,9 @@ export function getOptimizedImageUrl(
       .quality(85)
       .url()
   } catch (error) {
-    console.error('Failed to generate optimized image URL:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to generate optimized image URL:', error)
+    }
     return null
   }
 }
@@ -108,7 +110,9 @@ export function getPreviewImageUrl(
       .quality(80)
       .url()
   } catch (error) {
-    console.error('Failed to generate preview image URL:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to generate preview image URL:', error)
+    }
     return null
   }
 }
@@ -128,7 +132,9 @@ export function getOriginalImageUrl(
   try {
     return builder.image(image).auto('format').url()
   } catch (error) {
-    console.error('Failed to generate original image URL:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to generate original image URL:', error)
+    }
     return null
   }
 }

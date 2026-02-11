@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRecommendedTimes, Channel } from '@/lib/scheduler/recommendations'
 import { validateAuth } from '@/lib/auth/validateDistribution'
+import { logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
       timezone,
     })
   } catch (error) {
-    console.error('Get recommendations error:', error)
+    logError('Get recommendations error:', error)
     return NextResponse.json(
       {
         error: 'Internal server error',

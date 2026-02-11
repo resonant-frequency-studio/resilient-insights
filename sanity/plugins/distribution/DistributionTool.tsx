@@ -20,7 +20,13 @@ import {
   FieldMember,
   ObjectMember,
 } from 'sanity'
-import { schedulePost, connectLinkedIn, disconnectLinkedIn } from './actions'
+import {
+  schedulePost,
+  connectLinkedIn,
+  disconnectLinkedIn,
+  connectFacebook,
+  disconnectFacebook,
+} from './actions'
 import { SchedulePicker } from './SchedulePicker'
 import { ScheduledPostsList } from './ScheduledPostsList'
 import imageUrlBuilder from '@sanity/image-url'
@@ -137,15 +143,9 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
   const isLinkedInConnected = Boolean(
     distribution?.socialAccounts?.linkedin?.accessToken
   )
-  // Facebook and Instagram connection not yet implemented
-  const _isFacebookConnected = Boolean(
+  const isFacebookConnected = Boolean(
     distribution?.socialAccounts?.facebook?.accessToken
   )
-  const _isInstagramConnected = Boolean(
-    distribution?.socialAccounts?.instagram?.accessToken
-  )
-  void _isFacebookConnected
-  void _isInstagramConnected
 
   // Handle LinkedIn connection
   const handleConnectLinkedIn = useCallback(async () => {
@@ -171,6 +171,34 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
       })
     } else {
       setError(result.error || 'Failed to disconnect LinkedIn')
+    }
+    setLoading(null)
+  }, [postId])
+
+  // Handle Meta connection (Facebook + Instagram share this OAuth flow)
+  const handleConnectFacebook = useCallback(async () => {
+    if (!postId) return
+    setLoading('Connecting Meta...')
+    const result = await connectFacebook(postId)
+    if (result.success && result.authUrl) {
+      window.location.href = result.authUrl
+    } else {
+      setError(result.error || 'Failed to connect Meta')
+    }
+    setLoading(null)
+  }, [postId])
+
+  // Handle Meta disconnection (disconnecting Facebook also removes Instagram access for this post)
+  const handleDisconnectFacebook = useCallback(async () => {
+    if (!postId) return
+    setLoading('Disconnecting Meta...')
+    const result = await disconnectFacebook(postId)
+    if (result.success) {
+      queueMicrotask(() => {
+        setSuccess('Meta disconnected successfully')
+      })
+    } else {
+      setError(result.error || 'Failed to disconnect Meta')
     }
     setLoading(null)
   }, [postId])
@@ -223,7 +251,10 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
       )
       return imageBuilder.url()
     } catch (error) {
-      console.warn('Failed to build image URL with builder:', error)
+      // Silently fail in production - image URL building is non-critical
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to build image URL with builder:', error)
+      }
       return null
     }
   }
@@ -233,13 +264,19 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       if (params.get('linkedin_connected') === 'true') {
-        // Remove the parameter from URL first
         params.delete('linkedin_connected')
         const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`
         window.history.replaceState({}, '', newUrl)
-        // Defer setState to avoid synchronous state update in effect
         queueMicrotask(() => {
           setSuccess('LinkedIn account connected successfully!')
+        })
+      }
+      if (params.get('facebook_connected') === 'true') {
+        params.delete('facebook_connected')
+        const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`
+        window.history.replaceState({}, '', newUrl)
+        queueMicrotask(() => {
+          setSuccess('Meta account connected successfully!')
         })
       }
     }
@@ -330,12 +367,17 @@ export const DistributionTool = (props: ObjectInputProps<DistributionData>) => {
                         onClick={handleConnectLinkedIn}
                       />
                     )}
-                    <MenuItem text="Connect Facebook" disabled tone="default" />
-                    <MenuItem
-                      text="Connect Instagram"
-                      disabled
-                      tone="default"
-                    />
+                    {isFacebookConnected ? (
+                      <MenuItem
+                        text="Disconnect Meta"
+                        onClick={handleDisconnectFacebook}
+                      />
+                    ) : (
+                      <MenuItem
+                        text="Connect Meta"
+                        onClick={handleConnectFacebook}
+                      />
+                    )}
                   </Menu>
                 }
                 popover={{ portal: true }}

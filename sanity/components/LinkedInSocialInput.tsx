@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import {
   generateLinkedInDraft,
   schedulePost,
+  checkRateLimitStatus,
 } from '../plugins/distribution/actions'
 import { ScheduleModal } from './ScheduleModal'
 import { portableTextToPlainText } from '@/lib/sanity/portableText'
@@ -23,33 +24,33 @@ interface GenerateResponse {
     }
   }
   error?: string
+  rateLimitRemainingMs?: number
+  rateLimitType?: string
 }
 
 export function LinkedInSocialInput(props: ObjectInputProps) {
   const { onChange } = props
-  const postId = useFormValue(['_id']) as string | undefined
-  const linkedInText = useFormValue([
-    'distribution',
-    'social',
-    'linkedin',
-    'text',
-  ]) as unknown[] | undefined
-  const generatedAt = useFormValue([
-    'distribution',
-    'social',
-    'generatedAt',
-  ]) as string | undefined
-  const linkedInImage = useFormValue([
-    'distribution',
-    'social',
-    'linkedin',
-    'image',
-  ]) as SanityImageReference | undefined
+  // Get the referenced post ID (postDistribution has a post reference)
+  const postRef = useFormValue(['post', '_ref']) as string | undefined
+  const documentId = useFormValue(['_id']) as string | undefined
+  // Use the post reference for API calls, fall back to document ID for legacy support
+  const postId = postRef || documentId
+  // Fields are now at root level of postDistribution document
+  const linkedInText = useFormValue(['social', 'linkedin', 'text']) as
+    | unknown[]
+    | undefined
+  const generatedAt = useFormValue(['social', 'generatedAt']) as
+    | string
+    | undefined
+  const linkedInImage = useFormValue(['social', 'linkedin', 'image']) as
+    | SanityImageReference
+    | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [isScheduling, setIsScheduling] = useState(false)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
 
   // Determine status based on content (now Portable Text array)
   const status = linkedInText && linkedInText.length > 0 ? 'ready' : 'idle'
@@ -59,6 +60,29 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     if (!linkedInText || linkedInText.length === 0) return ''
     return portableTextToPlainText(linkedInText as PortableTextBlock[])
   }, [linkedInText])
+
+  // Check rate limit status on mount and poll every second
+  useEffect(() => {
+    if (!postId) return
+
+    const checkRateLimit = async () => {
+      const status = await checkRateLimitStatus(postId, 'linkedin')
+      if (status.rateLimited) {
+        const seconds = Math.ceil(status.remainingMs / 1000)
+        setRateLimitRemainingSeconds(seconds)
+      } else {
+        setRateLimitRemainingSeconds(0)
+      }
+    }
+
+    // Check immediately
+    checkRateLimit()
+
+    // Poll every second
+    const interval = setInterval(checkRateLimit, 1000)
+
+    return () => clearInterval(interval)
+  }, [postId])
 
   // Get recommended posting times for LinkedIn
   const recommendations = useMemo(() => {
@@ -77,16 +101,41 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
 
   const handleGenerate = async () => {
     if (!postId) {
-      setError('Post ID not found')
+      setError('Post information is missing. Please refresh the page.')
       return
     }
+
+    // Check rate limit before attempting generation
+    const status = await checkRateLimitStatus(postId, 'linkedin')
+    if (status.rateLimited) {
+      const seconds = Math.ceil(status.remainingMs / 1000)
+      setRateLimitRemainingSeconds(seconds)
+      setError(
+        `Please wait ${seconds} second${seconds !== 1 ? 's' : ''} before generating again.`
+      )
+      return
+    }
+
     setIsGenerating(true)
     setError(null)
     setSuccess(null)
     try {
       const result = (await generateLinkedInDraft(postId)) as GenerateResponse
       if (!result.success) {
-        setError(result.error || 'Generation failed')
+        // Handle rate limit errors with countdown
+        if (result.rateLimitRemainingMs !== undefined) {
+          const seconds = Math.ceil(result.rateLimitRemainingMs / 1000)
+          setRateLimitRemainingSeconds(seconds)
+          setError(
+            result.error ||
+              `Please wait ${seconds} second${seconds !== 1 ? 's' : ''} before generating again.`
+          )
+        } else {
+          // Handle other errors with better messages
+          const errorMessage =
+            result.error || 'Generation failed. Please try again in a moment.'
+          setError(errorMessage)
+        }
         return
       }
 
@@ -96,7 +145,20 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
         onChange(PatchEvent.from(set(generatedText, ['text'])))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      // Handle network and other errors
+      if (err instanceof Error) {
+        if (err.message.includes('network') || err.message.includes('fetch')) {
+          setError(
+            'Unable to connect. Please check your connection and try again.'
+          )
+        } else {
+          setError(
+            err.message || 'Generation failed. Please try again in a moment.'
+          )
+        }
+      } else {
+        setError('Generation failed. Please try again in a moment.')
+      }
     } finally {
       setIsGenerating(false)
     }
@@ -156,13 +218,21 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
             )}
             <Button
               type="button"
-              text={isGenerating ? 'Generating...' : 'Generate LinkedIn Draft'}
+              text={
+                isGenerating
+                  ? 'Generating...'
+                  : rateLimitRemainingSeconds > 0
+                    ? `Generate LinkedIn Draft (${rateLimitRemainingSeconds}s)`
+                    : 'Generate LinkedIn Draft'
+              }
               mode="ghost"
               tone="primary"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={handleGenerate}
-              disabled={isGenerating || !postId}
+              disabled={
+                isGenerating || !postId || rateLimitRemainingSeconds > 0
+              }
             />
           </Flex>
         </Flex>
@@ -175,8 +245,8 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
               text="Schedule LinkedIn Post"
               tone="positive"
               mode="ghost"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={() => setShowScheduleModal(true)}
               disabled={isScheduling}
             />
@@ -184,15 +254,28 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
         )}
 
         {error && (
-          <Text size={0} style={{ color: 'red' }}>
-            {error}
-          </Text>
+          <Card
+            padding={2}
+            radius={2}
+            tone={rateLimitRemainingSeconds > 0 ? 'caution' : 'critical'}
+          >
+            <Text
+              size={0}
+              style={{
+                color: rateLimitRemainingSeconds > 0 ? '#f59e0b' : '#ef4444',
+              }}
+            >
+              {error}
+            </Text>
+          </Card>
         )}
 
         {success && (
-          <Text size={0} style={{ color: 'green' }}>
-            {success}
-          </Text>
+          <Card padding={2} radius={2} tone="positive">
+            <Text size={0} style={{ color: '#10b981' }}>
+              {success}
+            </Text>
+          </Card>
         )}
 
         {/* Render all fields using Sanity's default rendering */}
