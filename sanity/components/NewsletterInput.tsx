@@ -35,37 +35,30 @@ interface GenerateResponse {
 }
 
 export function NewsletterInput(props: ObjectInputProps) {
-  const postId = useFormValue(['_id']) as string | undefined
-  const newsletterTitle = useFormValue([
-    'distribution',
-    'newsletter',
-    'title',
-  ]) as string | undefined
-  const newsletterSubtitle = useFormValue([
-    'distribution',
-    'newsletter',
-    'subtitle',
-  ]) as string | undefined
-  const newsletterBody = useFormValue([
-    'distribution',
-    'newsletter',
-    'body',
-  ]) as PortableTextBlock[] | undefined
-  const newsletterCtaText = useFormValue([
-    'distribution',
-    'newsletter',
-    'ctaText',
-  ]) as string | undefined
-  const newsletterCtaUrl = useFormValue([
-    'distribution',
-    'newsletter',
-    'ctaUrl',
-  ]) as string | undefined
-  const generatedAt = useFormValue([
-    'distribution',
-    'newsletter',
-    'generatedAt',
-  ]) as string | undefined
+  // Get the referenced post ID (postDistribution has a post reference)
+  const postRef = useFormValue(['post', '_ref']) as string | undefined
+  const documentId = useFormValue(['_id']) as string | undefined
+  // Use the post reference for API calls, fall back to document ID for legacy support
+  const postId = postRef || documentId
+  // Fields are now at root level of postDistribution document
+  const newsletterTitle = useFormValue(['newsletter', 'title']) as
+    | string
+    | undefined
+  const newsletterSubtitle = useFormValue(['newsletter', 'subtitle']) as
+    | string
+    | undefined
+  const newsletterBody = useFormValue(['newsletter', 'body']) as
+    | PortableTextBlock[]
+    | undefined
+  const newsletterCtaText = useFormValue(['newsletter', 'ctaText']) as
+    | string
+    | undefined
+  const newsletterCtaUrl = useFormValue(['newsletter', 'ctaUrl']) as
+    | string
+    | undefined
+  const generatedAt = useFormValue(['newsletter', 'generatedAt']) as
+    | string
+    | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
@@ -327,8 +320,8 @@ export function NewsletterInput(props: ObjectInputProps) {
               }
               mode="ghost"
               tone="primary"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={handleGenerate}
               disabled={
                 isGenerating || !postId || rateLimitRemainingSeconds > 0

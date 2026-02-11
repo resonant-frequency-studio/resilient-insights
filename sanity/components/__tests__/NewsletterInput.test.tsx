@@ -390,7 +390,6 @@ describe('NewsletterInput', () => {
     })
 
     it('shows rate limit error message when trying to generate', async () => {
-      const user = userEvent.setup({ delay: null })
       mockCheckRateLimitStatus.mockResolvedValue({
         rateLimited: true,
         remainingMs: 30000, // 30 seconds

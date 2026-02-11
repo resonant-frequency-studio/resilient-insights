@@ -3,6 +3,7 @@ import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemas'
 import { structure } from './structure'
+// import { manageSocialPlugin } from './plugins/managePosts'
 
 export default defineConfig({
   name: 'default',

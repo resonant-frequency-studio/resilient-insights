@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Stack,
   Text,
@@ -14,8 +14,14 @@ import {
 import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import {
   generateInstagramDraft,
+  schedulePost,
   checkRateLimitStatus,
 } from '../plugins/distribution/actions'
+import { ScheduleModal } from './ScheduleModal'
+import { portableTextToPlainText } from '@/lib/sanity/portableText'
+import { PortableTextBlock } from '@sanity/types'
+import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
+import { SanityImageReference } from '@/lib/social/imageOptimizer'
 
 interface GenerateResponse {
   success: boolean
@@ -35,25 +41,30 @@ interface GenerateResponse {
 
 export function InstagramSocialInput(props: ObjectInputProps) {
   const { onChange } = props
-  const postId = useFormValue(['_id']) as string | undefined
-  const instagramCaption = useFormValue([
-    'distribution',
-    'social',
-    'instagram',
-    'caption',
-  ]) as unknown[] | undefined
-  const generatedAt = useFormValue([
-    'distribution',
-    'social',
-    'generatedAt',
-  ]) as string | undefined
+  // Get the referenced post ID (postDistribution has a post reference)
+  const postRef = useFormValue(['post', '_ref']) as string | undefined
+  const documentId = useFormValue(['_id']) as string | undefined
+  // Use the post reference for API calls, fall back to document ID for legacy support
+  const postId = postRef || documentId
+  // Fields are now at root level of postDistribution document
+  const instagramCaption = useFormValue(['social', 'instagram', 'caption']) as
+    | unknown[]
+    | undefined
+  const generatedAt = useFormValue(['social', 'generatedAt']) as
+    | string
+    | undefined
+  const instagramImage = useFormValue(['social', 'instagram', 'image']) as
+    | SanityImageReference
+    | undefined
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isScheduling, setIsScheduling] = useState(false)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
 
   // Read suggested first comment from parent social object
   const suggestedFirstComment = useFormValue([
-    'distribution',
     'social',
     'suggestedFirstComment',
   ]) as string | undefined
@@ -61,6 +72,12 @@ export function InstagramSocialInput(props: ObjectInputProps) {
   // Determine status based on content (now Portable Text array)
   const status =
     instagramCaption && instagramCaption.length > 0 ? 'ready' : 'idle'
+
+  // Convert Portable Text to plain text for preview
+  const previewText = useMemo(() => {
+    if (!instagramCaption || instagramCaption.length === 0) return ''
+    return portableTextToPlainText(instagramCaption as PortableTextBlock[])
+  }, [instagramCaption])
 
   // Check rate limit status on mount and poll every second
   useEffect(() => {
@@ -84,6 +101,12 @@ export function InstagramSocialInput(props: ObjectInputProps) {
 
     return () => clearInterval(interval)
   }, [postId])
+
+  // Get recommended posting times for Instagram
+  const recommendations = useMemo(() => {
+    const times = getNextOptimalTimes('instagram', new Date(), 5)
+    return times.map(date => date.toISOString())
+  }, [])
 
   // Format generatedAt date
   const formatDate = (dateString: string) => {
@@ -113,6 +136,7 @@ export function InstagramSocialInput(props: ObjectInputProps) {
 
     setIsGenerating(true)
     setError(null)
+    setSuccess(null)
     try {
       const result = (await generateInstagramDraft(postId)) as GenerateResponse
       if (!result.success) {
@@ -161,6 +185,44 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     }
   }
 
+  const handleSchedule = async (scheduledAt: string) => {
+    if (!postId || !instagramCaption) {
+      setError('Post ID or content not found')
+      return
+    }
+
+    setIsScheduling(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const content = portableTextToPlainText(
+        instagramCaption as PortableTextBlock[]
+      )
+
+      const result = await schedulePost(
+        postId,
+        'instagram',
+        content,
+        scheduledAt
+      )
+
+      if (!result.success) {
+        setError(result.error || 'Scheduling failed')
+        return
+      }
+
+      setSuccess(
+        `Instagram post scheduled for ${new Date(scheduledAt).toLocaleString()}`
+      )
+      setShowScheduleModal(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setIsScheduling(false)
+    }
+  }
+
   return (
     <Card padding={3} radius={2} tone="transparent" border>
       <Stack space={4}>
@@ -185,8 +247,8 @@ export function InstagramSocialInput(props: ObjectInputProps) {
               }
               mode="ghost"
               tone="primary"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={handleGenerate}
               disabled={
                 isGenerating || !postId || rateLimitRemainingSeconds > 0
@@ -194,6 +256,22 @@ export function InstagramSocialInput(props: ObjectInputProps) {
             />
           </Flex>
         </Flex>
+
+        {/* Schedule Button - Only show when content exists */}
+        {status === 'ready' && (
+          <Flex justify="flex-end">
+            <Button
+              type="button"
+              text="Schedule Instagram Post"
+              tone="positive"
+              mode="ghost"
+              fontSize={1}
+              padding={3}
+              onClick={() => setShowScheduleModal(true)}
+              disabled={isScheduling}
+            />
+          </Flex>
+        )}
 
         {error && (
           <Card
@@ -208,6 +286,14 @@ export function InstagramSocialInput(props: ObjectInputProps) {
               }}
             >
               {error}
+            </Text>
+          </Card>
+        )}
+
+        {success && (
+          <Card padding={2} radius={2} tone="positive">
+            <Text size={0} style={{ color: '#10b981' }}>
+              {success}
             </Text>
           </Card>
         )}
@@ -243,6 +329,18 @@ export function InstagramSocialInput(props: ObjectInputProps) {
             </Text>
           </Flex>
         )}
+
+        {/* Schedule Modal */}
+        <ScheduleModal
+          isOpen={showScheduleModal}
+          onClose={() => setShowScheduleModal(false)}
+          onSchedule={handleSchedule}
+          channel="instagram"
+          recommendations={recommendations}
+          loading={isScheduling}
+          image={instagramImage}
+          textContent={previewText}
+        />
       </Stack>
     </Card>
   )

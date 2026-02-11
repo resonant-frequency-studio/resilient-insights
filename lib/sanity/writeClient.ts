@@ -12,7 +12,7 @@ if (!writeToken) {
 
 /**
  * Server-side Sanity client with write permissions
- * Used for updating post documents with generated distribution content
+ * Used for updating documents with generated distribution content
  */
 export const writeClient = createClient({
   projectId,
@@ -23,20 +23,56 @@ export const writeClient = createClient({
 })
 
 /**
- * Patch a post document's distribution fields
+ * Find or create a postDistribution document for a given post
  * @param postId - The Sanity document ID of the post
- * @param patchObject - Object with distribution fields to update
+ * @returns The ID of the postDistribution document
+ */
+export async function findOrCreateDistributionDoc(
+  postId: string
+): Promise<string> {
+  if (!writeToken) {
+    throw new Error('SANITY_WRITE_TOKEN is required for distribution updates')
+  }
+
+  // Clean the post ID (remove drafts prefix)
+  const cleanPostId = postId.replace(/^drafts\./, '')
+
+  // Check if a postDistribution document already exists
+  const existing = await writeClient.fetch<{ _id: string } | null>(
+    `*[_type == "postDistribution" && post._ref == $postId][0]{_id}`,
+    { postId: cleanPostId }
+  )
+
+  if (existing) {
+    return existing._id
+  }
+
+  // Create a new postDistribution document
+  const newDoc = await writeClient.create({
+    _type: 'postDistribution',
+    post: {
+      _type: 'reference',
+      _ref: cleanPostId,
+    },
+  })
+
+  return newDoc._id
+}
+
+/**
+ * Patch a postDistribution document's fields
+ * @param postId - The Sanity document ID of the post (will find the distribution doc)
+ * @param patchObject - Object with fields to update
  */
 export async function patchPostDistribution(
   postId: string,
   patchObject: {
-    distribution?: {
-      newsletter?: Record<string, unknown>
-      social?: Record<string, unknown>
-      buffer?: Record<string, unknown>
-      medium?: Record<string, unknown>
-    }
-    publishedUrl?: string
+    newsletter?: Record<string, unknown>
+    social?: Record<string, unknown>
+    buffer?: Record<string, unknown>
+    medium?: Record<string, unknown>
+    scheduledPosts?: Array<Record<string, unknown>>
+    socialAccounts?: Record<string, unknown>
   }
 ): Promise<void> {
   if (!writeToken) {
@@ -44,34 +80,29 @@ export async function patchPostDistribution(
   }
 
   try {
+    // Find or create the distribution document
+    const distributionDocId = await findOrCreateDistributionDoc(postId)
+
     // Build the patch object
-    const patch = writeClient.patch(postId)
+    const patch = writeClient.patch(distributionDocId)
 
-    if (patchObject.publishedUrl) {
-      patch.set({ publishedUrl: patchObject.publishedUrl })
+    if (patchObject.newsletter) {
+      patch.set({ newsletter: patchObject.newsletter })
     }
-
-    if (patchObject.distribution) {
-      if (patchObject.distribution.newsletter) {
-        patch.set({
-          'distribution.newsletter': patchObject.distribution.newsletter,
-        })
-      }
-      if (patchObject.distribution.social) {
-        patch.set({
-          'distribution.social': patchObject.distribution.social,
-        })
-      }
-      if (patchObject.distribution.buffer) {
-        patch.set({
-          'distribution.buffer': patchObject.distribution.buffer,
-        })
-      }
-      if (patchObject.distribution.medium) {
-        patch.set({
-          'distribution.medium': patchObject.distribution.medium,
-        })
-      }
+    if (patchObject.social) {
+      patch.set({ social: patchObject.social })
+    }
+    if (patchObject.buffer) {
+      patch.set({ buffer: patchObject.buffer })
+    }
+    if (patchObject.medium) {
+      patch.set({ medium: patchObject.medium })
+    }
+    if (patchObject.scheduledPosts) {
+      patch.set({ scheduledPosts: patchObject.scheduledPosts })
+    }
+    if (patchObject.socialAccounts) {
+      patch.set({ socialAccounts: patchObject.socialAccounts })
     }
 
     await patch.commit()
@@ -100,28 +131,68 @@ export async function patchSocialPlatform(
   }
 
   try {
-    const patch = writeClient.patch(postId)
+    // Find or create the distribution document
+    const distributionDocId = await findOrCreateDistributionDoc(postId)
+
+    const patch = writeClient.patch(distributionDocId)
 
     // Set only the specific platform field
-    patch.set({ [`distribution.social.${platform}`]: data })
+    patch.set({ [`social.${platform}`]: data })
 
     // Update metadata if provided
     if (metadata?.generatedAt) {
-      patch.set({ 'distribution.social.generatedAt': metadata.generatedAt })
+      patch.set({ 'social.generatedAt': metadata.generatedAt })
     }
     if (metadata?.model) {
-      patch.set({ 'distribution.social.model': metadata.model })
+      patch.set({ 'social.model': metadata.model })
     }
     if (metadata?.suggestedFirstComment !== undefined) {
       patch.set({
-        'distribution.social.suggestedFirstComment':
-          metadata.suggestedFirstComment,
+        'social.suggestedFirstComment': metadata.suggestedFirstComment,
       })
     }
 
     await patch.commit()
   } catch (error) {
     logError(`Error patching ${platform} distribution:`, error)
+    throw error
+  }
+}
+
+/**
+ * Get the distribution document for a post
+ * @param postId - The Sanity document ID of the post
+ * @returns The postDistribution document or null if not found
+ */
+export async function getDistributionDoc(postId: string): Promise<{
+  _id: string
+  scheduledPosts?: Array<Record<string, unknown>>
+} | null> {
+  const cleanPostId = postId.replace(/^drafts\./, '')
+  return writeClient.fetch<{
+    _id: string
+    scheduledPosts?: Array<Record<string, unknown>>
+  } | null>(
+    `*[_type == "postDistribution" && post._ref == $postId][0]{_id, scheduledPosts}`,
+    { postId: cleanPostId }
+  )
+}
+
+/**
+ * Patch a distribution document directly by its ID
+ */
+export async function patchDistributionDocById(
+  distributionDocId: string,
+  patchObject: Record<string, unknown>
+): Promise<void> {
+  if (!writeToken) {
+    throw new Error('SANITY_WRITE_TOKEN is required for distribution updates')
+  }
+
+  try {
+    await writeClient.patch(distributionDocId).set(patchObject).commit()
+  } catch (error) {
+    logError('Error patching distribution document:', error)
     throw error
   }
 }

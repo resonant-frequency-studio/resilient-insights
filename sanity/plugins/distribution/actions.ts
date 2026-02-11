@@ -247,6 +247,65 @@ export async function disconnectLinkedIn(
 }
 
 /**
+ * Connect Facebook account (initiate OAuth).
+ * Same flow enables Instagram when the Page has an Instagram Business account linked.
+ */
+export async function connectFacebook(
+  postId: string,
+  returnUrl?: string
+): Promise<{ success: boolean; authUrl?: string; error?: string }> {
+  const API_BASE_URL =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'http://localhost:3000'
+
+  try {
+    const finalReturnUrl =
+      returnUrl ||
+      (typeof window !== 'undefined' ? window.location.href : undefined)
+
+    const params = new URLSearchParams({
+      postId,
+      ...(finalReturnUrl && { returnUrl: finalReturnUrl }),
+    })
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/auth/facebook?${params.toString()}`
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || `HTTP ${response.status}`,
+      }
+    }
+
+    return {
+      success: true,
+      authUrl: data.authUrl,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Network error',
+    }
+  }
+}
+
+/**
+ * Disconnect Facebook account (also removes Instagram access for this post)
+ */
+export async function disconnectFacebook(
+  postId: string
+): Promise<{ success: boolean; error?: string }> {
+  return callAPI('/api/auth/facebook/disconnect', {
+    postId,
+  })
+}
+
+/**
  * Check rate limit status for a post and content type
  */
 export async function checkRateLimitStatus(

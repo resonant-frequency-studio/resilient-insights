@@ -153,20 +153,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Save to Sanity
+    // Save to Sanity (postDistribution document)
     try {
-      const distribution: Record<string, unknown> = {}
+      const distributionPatch: Record<string, unknown> = {}
       if (generated.newsletter) {
-        distribution.newsletter = generated.newsletter
+        distributionPatch.newsletter = generated.newsletter
       }
       if (generated.social) {
-        distribution.social = generated.social
+        distributionPatch.social = generated.social
       }
 
-      await patchPostDistribution(postId, {
-        publishedUrl: canonicalUrl,
-        distribution,
-      })
+      await patchPostDistribution(postId, distributionPatch)
+
+      // Also update the canonical URL on the post document if needed
+      // Note: publishedUrl remains on the post document, not distribution
     } catch (error) {
       logError('Error saving to Sanity:', error)
       return NextResponse.json(

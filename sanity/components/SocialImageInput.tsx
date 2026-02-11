@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Flex, Stack } from '@sanity/ui'
+import { Button, Flex, Stack, TextInput, Label, Box } from '@sanity/ui'
 import {
   PatchEvent,
   ObjectInputProps,
@@ -12,7 +12,7 @@ import {
 
 type ImageRef = { _type?: 'reference'; _ref?: string }
 
-type ImageValue = { _type?: 'image'; asset?: ImageRef }
+type ImageValue = { _type?: 'image'; asset?: ImageRef; alt?: string }
 
 export function SocialImageInput(props: ObjectInputProps) {
   const mainImageAssetRef = useFormValue(['mainImage', 'asset', '_ref']) as
@@ -22,6 +22,7 @@ export function SocialImageInput(props: ObjectInputProps) {
   const imageValue = props.value as ImageValue | undefined
   const imageAssetRef = (imageValue?.asset as ImageRef | undefined)?._ref
   const hasImage = Boolean(imageValue?.asset) || Boolean(imageAssetRef)
+  const altValue = imageValue?.alt || ''
 
   const useMainImage = () => {
     if (!mainImageAssetRef) return
@@ -68,7 +69,28 @@ export function SocialImageInput(props: ObjectInputProps) {
           </Flex>
         )}
 
-        {props.renderDefault(props)}
+        <Box style={{ position: 'relative', zIndex: 1 }}>
+          {props.renderDefault(props)}
+        </Box>
+
+        {/* Editable alternative text (custom since default is hidden) */}
+        <Box style={{ position: 'relative', zIndex: 2 }}>
+          <Stack space={2}>
+            <Label size={1}>Alternative Text</Label>
+            <TextInput
+              value={altValue}
+              readOnly={props.readOnly}
+              onChange={event => {
+                const nextValue = event.currentTarget.value
+                if (nextValue) {
+                  props.onChange(PatchEvent.from(set(nextValue, ['alt'])))
+                } else {
+                  props.onChange(PatchEvent.from(unset(['alt'])))
+                }
+              }}
+            />
+          </Stack>
+        </Box>
       </Stack>
     </div>
   )

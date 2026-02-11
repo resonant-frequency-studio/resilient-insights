@@ -85,8 +85,7 @@ export async function publishLinkedInPost(
  * Returns upload URL and asset URN
  */
 async function registerImageUpload(
-  accessToken: string,
-  imageSize: number
+  accessToken: string
 ): Promise<{ uploadUrl: string; asset: string }> {
   const profile = await getLinkedInProfile(accessToken)
   const authorUrn = profile.id?.startsWith('urn:')
@@ -202,7 +201,7 @@ export async function publishLinkedInPostWithImage(
   }
 
   // Step 2: Register the upload
-  const { uploadUrl, asset } = await registerImageUpload(accessToken, imageSize)
+  const { uploadUrl, asset } = await registerImageUpload(accessToken)
 
   // Step 3: Upload the image binary
   await uploadImageToLinkedIn(uploadUrl, imageBuffer)
