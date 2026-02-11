@@ -152,7 +152,9 @@ describe('generateFacebook', () => {
     jest.clearAllMocks()
     mockCheckRateLimit.mockReturnValue({ allowed: true })
     mockGenerateWithGemini.mockResolvedValue(
-      JSON.stringify({ post: 'Facebook post content' })
+      JSON.stringify({
+        post: 'Facebook post content that is long enough to satisfy the minimum character requirement for validation checks.',
+      })
     )
   })
 
@@ -165,6 +167,32 @@ describe('generateFacebook', () => {
     const error = await generateFacebook(mockOptions).catch(e => e)
     expect(error).toBeInstanceOf(RateLimitError)
     expect(error.contentType).toBe('facebook')
+  })
+
+  it('appends canonical URL when missing', async () => {
+    mockGenerateWithGemini.mockResolvedValue(
+      JSON.stringify({
+        post: 'Facebook post content that is long enough to satisfy the minimum character requirement for validation checks.',
+      })
+    )
+
+    const result = await generateFacebook(mockOptions)
+
+    expect(result.text).toContain(mockOptions.canonicalUrl)
+    expect(result.text).toMatch(/Facebook post content/)
+  })
+
+  it('does not duplicate canonical URL when present', async () => {
+    mockGenerateWithGemini.mockResolvedValue(
+      JSON.stringify({
+        post: `Facebook post content that is long enough to satisfy the minimum character requirement for validation checks.\n\n${mockOptions.canonicalUrl}`,
+      })
+    )
+
+    const result = await generateFacebook(mockOptions)
+
+    const occurrences = result.text.split(mockOptions.canonicalUrl).length - 1
+    expect(occurrences).toBe(1)
   })
 })
 
@@ -213,11 +241,20 @@ describe('generateSocial', () => {
     jest.clearAllMocks()
     mockCheckRateLimit.mockReturnValue({ allowed: true })
     mockGenerateWithGemini
-      .mockResolvedValueOnce(JSON.stringify({ post: 'LinkedIn post content' }))
-      .mockResolvedValueOnce(JSON.stringify({ post: 'Facebook post content' }))
       .mockResolvedValueOnce(
         JSON.stringify({
-          caption: 'Instagram caption',
+          post: 'LinkedIn post content that is long enough to satisfy the minimum character requirement for validation checks and continues a bit more.',
+        })
+      )
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          post: 'Facebook post content that is long enough to satisfy the minimum character requirement for validation checks.',
+        })
+      )
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          caption:
+            'Instagram caption that is long enough to satisfy the minimum character requirement for validation checks.',
           hashtags: ['tag1', 'tag2', 'tag3', 'tag4', 'tag5'],
         })
       )
@@ -232,6 +269,38 @@ describe('generateSocial', () => {
     const error = await generateSocial(mockOptions).catch(e => e)
     expect(error).toBeInstanceOf(RateLimitError)
     expect(error.contentType).toBe('social')
+  })
+
+  it('appends canonical URL to Facebook when missing', async () => {
+    const result = await generateSocial(mockOptions)
+
+    expect(result.facebook.text).toContain(mockOptions.canonicalUrl)
+  })
+
+  it('does not duplicate canonical URL for Facebook when present', async () => {
+    mockGenerateWithGemini
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          post: 'LinkedIn post content that is long enough to satisfy the minimum character requirement for validation checks and continues a bit more.',
+        })
+      )
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          post: `Facebook post content that is long enough to satisfy the minimum character requirement for validation checks.\n\n${mockOptions.canonicalUrl}`,
+        })
+      )
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          caption:
+            'Instagram caption that is long enough to satisfy the minimum character requirement for validation checks.',
+          hashtags: ['tag1', 'tag2', 'tag3', 'tag4', 'tag5'],
+        })
+      )
+
+    const result = await generateSocial(mockOptions)
+    const occurrences =
+      result.facebook.text.split(mockOptions.canonicalUrl).length - 1
+    expect(occurrences).toBe(1)
   })
 })
 

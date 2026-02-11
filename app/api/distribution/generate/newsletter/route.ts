@@ -83,10 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     await patchPostDistribution(post._id, {
-      publishedUrl: canonicalUrl,
-      distribution: {
-        newsletter: newsletterData,
-      },
+      newsletter: newsletterData,
     })
 
     return NextResponse.json({

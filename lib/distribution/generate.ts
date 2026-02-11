@@ -274,8 +274,12 @@ export async function generateFacebook(
 
   const validated = FacebookSchema.parse(parsed)
 
+  const facebookPost = validated.post.includes(options.canonicalUrl)
+    ? validated.post
+    : `${validated.post}\n\n${options.canonicalUrl}`
+
   return {
-    text: validated.post,
+    text: facebookPost,
   }
 }
 
@@ -472,12 +476,17 @@ export async function generateSocial(
   // Format LinkedIn post with URL
   const linkedinPost = `${linkedinValidated.post}\n\n${options.canonicalUrl}`
 
+  // Ensure Facebook post includes the full canonical URL
+  const facebookPost = facebookValidated.post.includes(options.canonicalUrl)
+    ? facebookValidated.post
+    : `${facebookValidated.post}\n\n${options.canonicalUrl}`
+
   return {
     linkedin: {
       text: linkedinPost,
     },
     facebook: {
-      text: facebookValidated.post,
+      text: facebookPost,
     },
     instagram: {
       caption: instagramValidated.caption,

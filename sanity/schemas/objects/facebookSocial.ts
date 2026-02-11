@@ -32,6 +32,7 @@ export const facebookSocial = defineType({
           type: 'string',
           title: 'Alternative Text',
           description: 'Optional description for accessibility',
+          hidden: true,
         },
       ],
     }),
