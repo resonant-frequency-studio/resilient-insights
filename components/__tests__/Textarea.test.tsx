@@ -26,7 +26,9 @@ describe('Textarea', () => {
 
   it('renders placeholder text', () => {
     render(<Textarea placeholder="Tell us about your project" />)
-    expect(screen.getByPlaceholderText('Tell us about your project')).toBeInTheDocument()
+    expect(
+      screen.getByPlaceholderText('Tell us about your project')
+    ).toBeInTheDocument()
   })
 
   it('displays value when provided', () => {
@@ -49,7 +51,10 @@ describe('Textarea', () => {
   it('displays error message when error prop is provided', () => {
     render(<Textarea error="This field is required" />)
     expect(screen.getByText('This field is required')).toBeInTheDocument()
-    expect(screen.getByText('This field is required')).toHaveAttribute('role', 'alert')
+    expect(screen.getByText('This field is required')).toHaveAttribute(
+      'role',
+      'alert'
+    )
   })
 
   it('applies error styles when error is present', () => {
@@ -101,7 +106,14 @@ describe('Textarea', () => {
   })
 
   it('accepts all standard textarea attributes', () => {
-    render(<Textarea name="message" rows={5} required aria-label="Message textarea" />)
+    render(
+      <Textarea
+        name="message"
+        rows={5}
+        required
+        aria-label="Message textarea"
+      />
+    )
     const textarea = screen.getByLabelText('Message textarea')
     expect(textarea).toHaveAttribute('name', 'message')
     expect(textarea).toHaveAttribute('rows', '5')

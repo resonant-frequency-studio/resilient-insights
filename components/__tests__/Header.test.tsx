@@ -31,7 +31,9 @@ jest.mock('next/image', () => ({
         src={src}
         alt={alt}
         className={className}
-        {...(fill ? { style: { position: 'absolute', inset: 0 } } : { width, height })}
+        {...(fill
+          ? { style: { position: 'absolute', inset: 0 } }
+          : { width, height })}
       />
     )
   },

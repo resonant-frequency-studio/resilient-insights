@@ -2,7 +2,8 @@ import 'server-only'
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID
-const ELEVENLABS_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2'
+const ELEVENLABS_MODEL_ID =
+  process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2'
 
 if (!ELEVENLABS_API_KEY) {
   throw new Error('ELEVENLABS_API_KEY environment variable is required')
@@ -43,8 +44,14 @@ export async function fetchSpeechStream(text: string): Promise<Response> {
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error')
-    console.error(`[TTS] ElevenLabs API error (${response.status}): ${errorText.substring(0, 100)}`)
-    throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.error(
+        `[TTS] ElevenLabs API error (${response.status}): ${errorText.substring(0, 100)}`
+      )
+    }
+    throw new Error(
+      `ElevenLabs API error: ${response.status} ${response.statusText}`
+    )
   }
 
   return response

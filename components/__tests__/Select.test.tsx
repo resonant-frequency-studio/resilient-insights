@@ -66,7 +66,10 @@ describe('Select', () => {
   it('displays error message when error prop is provided', () => {
     render(<Select error="Please select an option" />)
     expect(screen.getByText('Please select an option')).toBeInTheDocument()
-    expect(screen.getByText('Please select an option')).toHaveAttribute('role', 'alert')
+    expect(screen.getByText('Please select an option')).toHaveAttribute(
+      'role',
+      'alert'
+    )
   })
 
   it('applies error styles when error is present', () => {
@@ -102,7 +105,13 @@ describe('Select', () => {
   it('applies base styles', () => {
     const { container } = render(<Select />)
     const select = container.querySelector('select')
-    expect(select).toHaveClass('w-full', 'px-4', 'py-3', 'rounded-lg', 'appearance-none')
+    expect(select).toHaveClass(
+      'w-full',
+      'px-4',
+      'py-3',
+      'rounded-lg',
+      'appearance-none'
+    )
   })
 
   it('has proper focus styles', () => {

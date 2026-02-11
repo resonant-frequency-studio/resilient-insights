@@ -74,6 +74,15 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'publishedUrl',
+      title: 'Published URL',
+      type: 'url',
+      description: 'The canonical URL for this post (computed from slug)',
+      readOnly: true,
+    }),
+    // Distribution is now managed via the separate postDistribution document type
+    // Use the Manage Social plugin to edit distribution content
   ],
   preview: {
     select: {

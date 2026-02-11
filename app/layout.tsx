@@ -58,7 +58,10 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      className={`${cormorantGaramond.variable} ${inter.variable}`}
+    >
       <body className={inter.className}>
         <SmoothScrollProvider />
         <ConditionalLayout>{children}</ConditionalLayout>

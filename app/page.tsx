@@ -39,15 +39,22 @@ function extractPreviewText(body: unknown, maxLength: number = 150): string {
     if (block._type === 'block' && block.children) {
       for (const child of block.children) {
         if (child._type === 'span' && child.text) {
-          text += child.text + ' '
+          text += child.text
           if (text.length >= maxLength) {
-            return text.trim().substring(0, maxLength) + '...'
+            return (
+              text
+                .replace(/\s+/g, ' ')
+                .trim()
+                .substring(0, maxLength)
+                .trimEnd() + '...'
+            )
           }
         }
       }
+      text += ' '
     }
   }
-  return text.trim()
+  return text.replace(/\s+/g, ' ').trim()
 }
 
 // Helper function to group posts by category
@@ -56,7 +63,9 @@ function groupPostsByCategory(posts: Post[]): Record<string, Post[]> {
 
   posts.forEach(post => {
     const category =
-      post.categories && post.categories.length > 0 ? post.categories[0].title : 'Uncategorized'
+      post.categories && post.categories.length > 0
+        ? post.categories[0].title
+        : 'Uncategorized'
 
     if (!grouped[category]) {
       grouped[category] = []
@@ -83,14 +92,18 @@ export default async function Home() {
           as="p"
           className="max-w-2xl mx-auto text-foreground-dark/80"
         >
-          Practical reflections on leadership, resilience, and growth—for navigating complexity with
-          clarity and confidence.
+          Practical reflections on leadership, resilience, and growth—for
+          navigating complexity with clarity and confidence.
         </Typography>
       </div>
 
       {posts.length === 0 ? (
         <div className="text-center py-12">
-          <Typography variant="body" as="p" className="mb-4 text-foreground-dark/60">
+          <Typography
+            variant="body"
+            as="p"
+            className="mb-4 text-foreground-dark/60"
+          >
             No blog posts yet.
           </Typography>
           <Link href="/studio" className="text-button-primary hover:underline">
@@ -102,7 +115,11 @@ export default async function Home() {
           {Object.entries(groupedPosts).map(([category, categoryPosts]) => (
             <section key={category}>
               {/* Category Header */}
-              <Typography variant="heading-3" as="h2" className="mb-8 uppercase tracking-wider">
+              <Typography
+                variant="heading-3"
+                as="h2"
+                className="mb-8 uppercase tracking-wider"
+              >
                 {category}
               </Typography>
 
@@ -117,7 +134,10 @@ export default async function Home() {
 
                   return (
                     <div key={post._id}>
-                      <Link href={`/${post.slug.current}`} className="block group">
+                      <Link
+                        href={`/${post.slug.current}`}
+                        className="block group"
+                      >
                         <article className="flex flex-col md:flex-row gap-6 md:gap-8 pb-8">
                           {/* Article Content */}
                           <div className="flex-1 min-w-0">
@@ -146,11 +166,14 @@ export default async function Home() {
                                 as="p"
                                 className="text-foreground-dark/50"
                               >
-                                {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                })}
+                                {new Date(post.publishedAt).toLocaleDateString(
+                                  'en-US',
+                                  {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                  }
+                                )}
                               </Typography>
                             )}
                           </div>
@@ -159,7 +182,10 @@ export default async function Home() {
                           {post.mainImage && (
                             <div className="relative w-full md:w-64 h-48 md:h-40 shrink-0 rounded-lg overflow-hidden">
                               <Image
-                                src={urlFor(post.mainImage).width(400).height(300).url()}
+                                src={urlFor(post.mainImage)
+                                  .width(400)
+                                  .height(300)
+                                  .url()}
                                 alt={post.title}
                                 fill
                                 className="object-cover group-hover:scale-105 transition-transform duration-300"

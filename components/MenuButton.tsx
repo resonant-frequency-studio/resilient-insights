@@ -13,7 +13,10 @@ export interface MenuButtonProps extends Omit<
 }
 
 const MenuButton = React.forwardRef<HTMLButtonElement, MenuButtonProps>(
-  ({ isOpen = false, onToggle, className, 'aria-label': ariaLabel, ...props }, ref) => {
+  (
+    { isOpen = false, onToggle, className, 'aria-label': ariaLabel, ...props },
+    ref
+  ) => {
     const defaultAriaLabel = isOpen ? 'Close menu' : 'Open menu'
 
     return (

@@ -56,16 +56,21 @@ const variantStyles: Record<TypographyVariant, string> = {
   body: '[font-family:var(--font-body)] text-base leading-body text-foreground-dark',
   'body-large':
     '[font-family:var(--font-body)] text-lg md:text-xl leading-body text-foreground-dark',
-  'body-small': '[font-family:var(--font-body)] text-sm leading-body text-foreground-dark',
-  'body-muted': '[font-family:var(--font-body)] text-base leading-body text-foreground-dark/70',
+  'body-small':
+    '[font-family:var(--font-body)] text-sm leading-body text-foreground-dark',
+  'body-muted':
+    '[font-family:var(--font-body)] text-base leading-body text-foreground-dark/70',
   'body-light':
     '[font-family:var(--font-body)] text-base md:text-lg leading-body text-foreground-light',
   'body-semibold':
     '[font-family:var(--font-body)] text-base leading-body text-foreground-dark font-semibold',
-  caption: '[font-family:var(--font-body)] text-xs leading-normal text-foreground-dark',
+  caption:
+    '[font-family:var(--font-body)] text-xs leading-normal text-foreground-dark',
   nav: '[font-family:var(--font-body)] font-medium tracking-nav text-foreground-dark',
-  button: '[font-family:var(--font-body)] font-semibold tracking-nav text-foreground-dark',
-  quote: '[font-family:var(--font-heading)] italic text-xl leading-body text-foreground-dark',
+  button:
+    '[font-family:var(--font-body)] font-semibold tracking-nav text-foreground-dark',
+  quote:
+    '[font-family:var(--font-heading)] italic text-xl leading-body text-foreground-dark',
 }
 
 const defaultElements: Record<TypographyVariant, TypographyElement> = {

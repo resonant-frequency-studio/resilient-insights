@@ -7,7 +7,9 @@ import { ArrowRight } from '../icons/ArrowRight'
 describe('Button', () => {
   it('renders with children text', () => {
     render(<Button>Click me</Button>)
-    expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /click me/i })
+    ).toBeInTheDocument()
   })
 
   it('renders with default primary variant', () => {
@@ -17,21 +19,31 @@ describe('Button', () => {
   })
 
   it('renders primary variant correctly', () => {
-    const { container } = render(<Button variant="primary">Primary Button</Button>)
+    const { container } = render(
+      <Button variant="primary">Primary Button</Button>
+    )
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('bg-button-primary', 'text-foreground-light')
   })
 
   it('renders inverse variant correctly', () => {
-    const { container } = render(<Button variant="inverse">Inverse Button</Button>)
+    const { container } = render(
+      <Button variant="inverse">Inverse Button</Button>
+    )
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('bg-button-inverse', 'text-button-primary')
   })
 
   it('renders outline variant correctly', () => {
-    const { container } = render(<Button variant="outline">Outline Button</Button>)
+    const { container } = render(
+      <Button variant="outline">Outline Button</Button>
+    )
     const button = container.firstChild as HTMLElement
-    expect(button).toHaveClass('bg-transparent', 'border', 'border-button-outline')
+    expect(button).toHaveClass(
+      'bg-transparent',
+      'border',
+      'border-button-outline'
+    )
   })
 
   it('renders glass variant correctly', () => {
@@ -119,7 +131,9 @@ describe('Button', () => {
   })
 
   it('applies custom className', () => {
-    const { container } = render(<Button className="custom-class">Button</Button>)
+    const { container } = render(
+      <Button className="custom-class">Button</Button>
+    )
     const button = container.firstChild as HTMLElement
     expect(button).toHaveClass('custom-class')
   })

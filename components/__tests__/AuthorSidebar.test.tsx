@@ -6,7 +6,16 @@ import { Author } from '@/types/sanity'
 // Mock Next.js Image and PortableText
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, fill, ...props }: { src: string; alt: string; fill?: boolean }) => {
+  default: ({
+    src,
+    alt,
+    fill,
+    ...props
+  }: {
+    src: string
+    alt: string
+    fill?: boolean
+  }) => {
     const imgProps: { style?: React.CSSProperties } = fill
       ? { style: { position: 'absolute', inset: 0 } }
       : {}
@@ -25,7 +34,8 @@ jest.mock('@/sanity/lib/image', () => ({
   urlFor: (source: { _ref?: string }) => ({
     width: () => ({
       height: () => ({
-        url: () => `https://cdn.sanity.io/images/test/${source?._ref || 'image'}.jpg`,
+        url: () =>
+          `https://cdn.sanity.io/images/test/${source?._ref || 'image'}.jpg`,
       }),
     }),
   }),
@@ -46,7 +56,13 @@ const mockAuthor: Author = {
     {
       _type: 'block',
       _key: 'block-1',
-      children: [{ _type: 'span', text: 'Executive Coach and Facilitator', _key: 'span-1' }],
+      children: [
+        {
+          _type: 'span',
+          text: 'Executive Coach and Facilitator',
+          _key: 'span-1',
+        },
+      ],
     },
   ],
   linkedin: 'https://linkedin.com/in/charlene',
@@ -95,7 +111,10 @@ describe('AuthorSidebar', () => {
     render(<AuthorSidebar author={mockAuthor} />)
     const link = screen.getByText(/LEARN MORE ABOUT CHARLENE/i)
     expect(link).toBeInTheDocument()
-    expect(link.closest('a')).toHaveAttribute('href', 'https://resilientleadership.us/about')
+    expect(link.closest('a')).toHaveAttribute(
+      'href',
+      'https://resilientleadership.us/about'
+    )
   })
 
   it('shows only first name in learn more text', () => {

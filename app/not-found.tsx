@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Typography from '@/components/Typography'
 import Button from '@/components/Button'
-import { Pill } from '@/components'
+import Pill from '@/components/Pill'
 
 export const metadata: Metadata = {
   title: 'Page Not Found | Resilient Leadership',
@@ -21,9 +21,13 @@ export default function NotFound() {
             Page Not Found
           </Typography>
 
-          <Typography variant="body-large" as="p" className="text-foreground-dark/80 mb-12">
-            We couldn&apos;t find the page you&apos;re looking for. It may have been moved, deleted,
-            or the URL might be incorrect.
+          <Typography
+            variant="body-large"
+            as="p"
+            className="text-foreground-dark/80 mb-12"
+          >
+            We couldn&apos;t find the page you&apos;re looking for. It may have
+            been moved, deleted, or the URL might be incorrect.
           </Typography>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">

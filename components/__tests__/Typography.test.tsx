@@ -37,7 +37,9 @@ describe('Typography', () => {
   })
 
   it('applies variant styles correctly', () => {
-    const { container } = render(<Typography variant="heading-1">Title</Typography>)
+    const { container } = render(
+      <Typography variant="heading-1">Title</Typography>
+    )
     const element = container.firstChild as HTMLElement
     expect(element).toHaveClass('text-4xl', 'md:text-heading-1')
   })
@@ -68,7 +70,9 @@ describe('Typography', () => {
       'heading-6',
     ] as const
     variants.forEach(variant => {
-      const { container } = render(<Typography variant={variant}>Heading</Typography>)
+      const { container } = render(
+        <Typography variant={variant}>Heading</Typography>
+      )
       expect(container.firstChild).toBeInTheDocument()
     })
   })
@@ -76,7 +80,9 @@ describe('Typography', () => {
   it('renders all body variants', () => {
     const variants = ['body', 'body-large', 'body-small'] as const
     variants.forEach(variant => {
-      const { container } = render(<Typography variant={variant}>Body text</Typography>)
+      const { container } = render(
+        <Typography variant={variant}>Body text</Typography>
+      )
       expect(container.firstChild).toBeInTheDocument()
     })
   })
@@ -114,7 +120,9 @@ describe('Typography', () => {
   })
 
   it('uses semantic color classes', () => {
-    const { container } = render(<Typography variant="heading-1">Title</Typography>)
+    const { container } = render(
+      <Typography variant="heading-1">Title</Typography>
+    )
     const element = container.firstChild as HTMLElement
     expect(element).toHaveClass('text-foreground-dark')
   })

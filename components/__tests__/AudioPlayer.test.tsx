@@ -91,7 +91,9 @@ class MockAudio {
 }
 
 // Mock global Audio constructor
-global.Audio = jest.fn().mockImplementation(() => new MockAudio()) as unknown as typeof Audio
+global.Audio = jest
+  .fn()
+  .mockImplementation(() => new MockAudio()) as unknown as typeof Audio
 
 describe('AudioPlayer', () => {
   let mockAudioInstance: MockAudio
@@ -112,7 +114,9 @@ describe('AudioPlayer', () => {
 
   it('renders initial button state', () => {
     render(<AudioPlayer slug="test-article" />)
-    expect(screen.getByRole('button', { name: /listen to this article/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /listen to this article/i })
+    ).toBeInTheDocument()
     expect(screen.getByText('LISTEN TO THIS ARTICLE')).toBeInTheDocument()
   })
 
@@ -120,12 +124,16 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Wait for player UI to appear
     await waitFor(() => {
-      expect(screen.queryByText('LISTEN TO THIS ARTICLE')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('LISTEN TO THIS ARTICLE')
+      ).not.toBeInTheDocument()
     })
 
     // Player UI should be visible
@@ -136,7 +144,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Should show play button (loading state)
@@ -160,7 +170,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Wait for player UI to appear and be in loading state
@@ -186,7 +198,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Wait for player UI
@@ -205,7 +219,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const initialButton = screen.getByRole('button', { name: /listen to this article/i })
+    const initialButton = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(initialButton)
 
     // Wait for player UI to appear - this verifies the transition works
@@ -233,7 +249,9 @@ describe('AudioPlayer', () => {
       expect(playButton).toBeInTheDocument()
     } else {
       // If button wasn't found, at least verify the initial button is gone
-      expect(screen.queryByText('LISTEN TO THIS ARTICLE')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('LISTEN TO THIS ARTICLE')
+      ).not.toBeInTheDocument()
     }
   })
 
@@ -250,7 +268,9 @@ describe('AudioPlayer', () => {
 
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Wait for loadstart
@@ -272,7 +292,9 @@ describe('AudioPlayer', () => {
   })
 
   it('applies custom className', () => {
-    const { container } = render(<AudioPlayer slug="test-article" className="custom-class" />)
+    const { container } = render(
+      <AudioPlayer slug="test-article" className="custom-class" />
+    )
     const wrapper = container.firstChild as HTMLElement
     expect(wrapper).toHaveClass('custom-class')
   })
@@ -281,7 +303,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     await waitFor(() => {
@@ -294,7 +318,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Wait for player UI and audio to load
@@ -325,12 +351,16 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Should not show message immediately
     expect(
-      screen.queryByText(/generating audio\.\.\. this may take a minute on first play\./i)
+      screen.queryByText(
+        /generating audio\.\.\. this may take a minute on first play\./i
+      )
     ).not.toBeInTheDocument()
 
     // Fast-forward 1 second (less than 2 seconds)
@@ -340,7 +370,9 @@ describe('AudioPlayer', () => {
 
     // Still should not show
     expect(
-      screen.queryByText(/generating audio\.\.\. this may take a minute on first play\./i)
+      screen.queryByText(
+        /generating audio\.\.\. this may take a minute on first play\./i
+      )
     ).not.toBeInTheDocument()
   })
 
@@ -351,7 +383,9 @@ describe('AudioPlayer', () => {
     const user = userEvent.setup({ delay: null })
     render(<AudioPlayer slug="test-article" />)
 
-    const button = screen.getByRole('button', { name: /listen to this article/i })
+    const button = screen.getByRole('button', {
+      name: /listen to this article/i,
+    })
     await user.click(button)
 
     // Wait for player UI
@@ -361,7 +395,9 @@ describe('AudioPlayer', () => {
 
     // Verify message is not shown initially
     expect(
-      screen.queryByText(/generating audio\.\.\. this may take a minute on first play\./i)
+      screen.queryByText(
+        /generating audio\.\.\. this may take a minute on first play\./i
+      )
     ).not.toBeInTheDocument()
   })
 

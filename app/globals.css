@@ -357,3 +357,22 @@ input:-webkit-autofill:active {
   border-left: 3px solid var(--color-checkbox-border);
   color: var(--color-foreground-dark);
 }
+
+.article-content ul,
+.article-content ol {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem !important;
+  list-style-position: outside;
+}
+
+.article-content ul {
+  list-style: disc !important;
+}
+
+.article-content ol {
+  list-style: decimal !important;
+}
+
+.article-content li {
+  margin-bottom: 0.75rem;
+}

@@ -58,21 +58,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [lastScrollY])
 
-  // Determine Articles link based on environment
-  const getArticlesLink = () => {
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname
-      if (hostname === 'staging.resilientleadership.us') {
-        return 'https://staging.resilientleadership.us'
-      } else if (hostname === 'articles.resilientleadership.us') {
-        return 'https://articles.resilientleadership.us'
-      }
-    }
-    // Local development
-    return '/'
-  }
-
-  const articlesLink = getArticlesLink()
   const mainSiteUrl = getMainSiteUrl()
 
   const handleMobileMenuToggle = () => {
@@ -121,19 +106,14 @@ const Header = () => {
                 What We Do
               </Typography>
             </a>
-            {articlesLink.startsWith('http') ? (
-              <a href={articlesLink} className="hover:text-button-primary transition-colors">
-                <Typography variant="nav" as="span">
-                  Articles
-                </Typography>
-              </a>
-            ) : (
-              <Link href={articlesLink} className="hover:text-button-primary transition-colors">
-                <Typography variant="nav" as="span">
-                  Articles
-                </Typography>
-              </Link>
-            )}
+            <Link
+              href="/"
+              className="hover:text-button-primary transition-colors"
+            >
+              <Typography variant="nav" as="span">
+                Articles
+              </Typography>
+            </Link>
             <a
               href={`${mainSiteUrl}/about`}
               className="hover:text-button-primary transition-colors"
@@ -165,8 +145,15 @@ const Header = () => {
         <div className="mx-auto h-full px-4 flex items-center justify-between">
           {/* Left: MenuButton and Logo */}
           <div className="flex items-center gap-3">
-            <MenuButton isOpen={isMobileMenuOpen} onToggle={handleMobileMenuToggle} />
-            <a href={mainSiteUrl} className="flex items-center" onClick={handleNavLinkClick}>
+            <MenuButton
+              isOpen={isMobileMenuOpen}
+              onToggle={handleMobileMenuToggle}
+            />
+            <a
+              href={mainSiteUrl}
+              className="flex items-center"
+              onClick={handleNavLinkClick}
+            >
               <Image
                 src="/resilient-leadership-dark.png"
                 alt="Resilient Leadership"
@@ -191,45 +178,117 @@ const Header = () => {
           ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}
         `}
       >
-        <nav className="h-full flex flex-col pt-[90px] px-6">
-          <div className="flex flex-col gap-6">
-            <a
-              href={`${mainSiteUrl}/services`}
+        <nav className="h-full flex flex-col pt-[90px] px-6 overflow-y-auto">
+          <div className="flex flex-col gap-4 pb-6">
+            {/* What We Do with nested services */}
+            <div className="flex flex-col gap-2">
+              <a
+                href={`${mainSiteUrl}/services`}
+                onClick={handleNavLinkClick}
+                className="hover:text-button-primary transition-colors py-2"
+              >
+                <Typography
+                  variant="body-large"
+                  as="span"
+                  className="font-medium"
+                >
+                  What We Do
+                </Typography>
+              </a>
+              <div className="flex flex-col gap-2 pl-4">
+                <a
+                  href={`${mainSiteUrl}/services/executive-coaching`}
+                  onClick={handleNavLinkClick}
+                  className="hover:text-button-primary transition-colors py-2"
+                >
+                  <Typography variant="body" as="span">
+                    Executive Coaching
+                  </Typography>
+                </a>
+                <a
+                  href={`${mainSiteUrl}/services/360-feedback`}
+                  onClick={handleNavLinkClick}
+                  className="hover:text-button-primary transition-colors py-2"
+                >
+                  <Typography variant="body" as="span">
+                    Executive Coaching + 360° Feedback
+                  </Typography>
+                </a>
+                <a
+                  href={`${mainSiteUrl}/services/team-coaching`}
+                  onClick={handleNavLinkClick}
+                  className="hover:text-button-primary transition-colors py-2"
+                >
+                  <Typography variant="body" as="span">
+                    Team Coaching
+                  </Typography>
+                </a>
+                <a
+                  href={`${mainSiteUrl}/services/change-management`}
+                  onClick={handleNavLinkClick}
+                  className="hover:text-button-primary transition-colors py-2"
+                >
+                  <Typography variant="body" as="span">
+                    Change Management
+                  </Typography>
+                </a>
+                <a
+                  href={`${mainSiteUrl}/services/surveys-assessments`}
+                  onClick={handleNavLinkClick}
+                  className="hover:text-button-primary transition-colors py-2"
+                >
+                  <Typography variant="body" as="span">
+                    Surveys & Assessments
+                  </Typography>
+                </a>
+                <a
+                  href={`${mainSiteUrl}/services/custom-engagements`}
+                  onClick={handleNavLinkClick}
+                  className="hover:text-button-primary transition-colors py-2"
+                >
+                  <Typography variant="body" as="span">
+                    Custom Engagements
+                  </Typography>
+                </a>
+              </div>
+            </div>
+            <Link
+              href="/"
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
-              <Typography variant="body-large" as="span" className="font-medium">
-                What We Do
+              <Typography
+                variant="body-large"
+                as="span"
+                className="font-medium"
+              >
+                Articles
               </Typography>
-            </a>
-            {articlesLink.startsWith('http') ? (
-              <a
-                href={articlesLink}
-                onClick={handleNavLinkClick}
-                className="hover:text-button-primary transition-colors py-2"
-              >
-                <Typography variant="body-large" as="span" className="font-medium">
-                  Articles
-                </Typography>
-              </a>
-            ) : (
-              <Link
-                href={articlesLink}
-                onClick={handleNavLinkClick}
-                className="hover:text-button-primary transition-colors py-2"
-              >
-                <Typography variant="body-large" as="span" className="font-medium">
-                  Articles
-                </Typography>
-              </Link>
-            )}
+            </Link>
             <a
               href={`${mainSiteUrl}/about`}
               onClick={handleNavLinkClick}
               className="hover:text-button-primary transition-colors py-2"
             >
-              <Typography variant="body-large" as="span" className="font-medium">
+              <Typography
+                variant="body-large"
+                as="span"
+                className="font-medium"
+              >
                 About
+              </Typography>
+            </a>
+            <a
+              href={`${mainSiteUrl}/contact`}
+              onClick={handleNavLinkClick}
+              className="hover:text-button-primary transition-colors py-2"
+            >
+              <Typography
+                variant="body-large"
+                as="span"
+                className="font-medium"
+              >
+                Contact
               </Typography>
             </a>
           </div>
