@@ -30,24 +30,21 @@ interface GenerateResponse {
 
 export function LinkedInSocialInput(props: ObjectInputProps) {
   const { onChange } = props
-  const postId = useFormValue(['_id']) as string | undefined
-  const linkedInText = useFormValue([
-    'distribution',
-    'social',
-    'linkedin',
-    'text',
-  ]) as unknown[] | undefined
-  const generatedAt = useFormValue([
-    'distribution',
-    'social',
-    'generatedAt',
-  ]) as string | undefined
-  const linkedInImage = useFormValue([
-    'distribution',
-    'social',
-    'linkedin',
-    'image',
-  ]) as SanityImageReference | undefined
+  // Get the referenced post ID (postDistribution has a post reference)
+  const postRef = useFormValue(['post', '_ref']) as string | undefined
+  const documentId = useFormValue(['_id']) as string | undefined
+  // Use the post reference for API calls, fall back to document ID for legacy support
+  const postId = postRef || documentId
+  // Fields are now at root level of postDistribution document
+  const linkedInText = useFormValue(['social', 'linkedin', 'text']) as
+    | unknown[]
+    | undefined
+  const generatedAt = useFormValue(['social', 'generatedAt']) as
+    | string
+    | undefined
+  const linkedInImage = useFormValue(['social', 'linkedin', 'image']) as
+    | SanityImageReference
+    | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [isScheduling, setIsScheduling] = useState(false)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
@@ -230,8 +227,8 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
               }
               mode="ghost"
               tone="primary"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={handleGenerate}
               disabled={
                 isGenerating || !postId || rateLimitRemainingSeconds > 0
@@ -248,8 +245,8 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
               text="Schedule LinkedIn Post"
               tone="positive"
               mode="ghost"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={() => setShowScheduleModal(true)}
               disabled={isScheduling}
             />

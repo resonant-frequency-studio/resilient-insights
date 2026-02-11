@@ -39,15 +39,22 @@ function extractPreviewText(body: unknown, maxLength: number = 150): string {
     if (block._type === 'block' && block.children) {
       for (const child of block.children) {
         if (child._type === 'span' && child.text) {
-          text += child.text + ' '
+          text += child.text
           if (text.length >= maxLength) {
-            return text.trim().substring(0, maxLength) + '...'
+            return (
+              text
+                .replace(/\s+/g, ' ')
+                .trim()
+                .substring(0, maxLength)
+                .trimEnd() + '...'
+            )
           }
         }
       }
+      text += ' '
     }
   }
-  return text.trim()
+  return text.replace(/\s+/g, ' ').trim()
 }
 
 // Helper function to group posts by category

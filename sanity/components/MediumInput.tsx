@@ -31,32 +31,25 @@ interface GenerateResponse {
 }
 
 export function MediumInput(props: ObjectInputProps) {
-  const postId = useFormValue(['_id']) as string | undefined
-  const mediumTitle = useFormValue(['distribution', 'medium', 'title']) as
+  // Get the referenced post ID (postDistribution has a post reference)
+  const postRef = useFormValue(['post', '_ref']) as string | undefined
+  const documentId = useFormValue(['_id']) as string | undefined
+  // Use the post reference for API calls, fall back to document ID for legacy support
+  const postId = postRef || documentId
+  // Fields are now at root level of postDistribution document
+  const mediumTitle = useFormValue(['medium', 'title']) as string | undefined
+  const mediumSubtitle = useFormValue(['medium', 'subtitle']) as
     | string
     | undefined
-  const mediumSubtitle = useFormValue([
-    'distribution',
-    'medium',
-    'subtitle',
-  ]) as string | undefined
-  const mediumContent = useFormValue(['distribution', 'medium', 'body']) as
+  const mediumContent = useFormValue(['medium', 'body']) as
     | PortableTextBlock[]
     | undefined
-  const mediumTags = useFormValue(['distribution', 'medium', 'tags']) as
-    | string[]
-    | undefined
-  const mediumStatus = useFormValue(['distribution', 'medium', 'status']) as
+  const mediumTags = useFormValue(['medium', 'tags']) as string[] | undefined
+  const mediumStatus = useFormValue(['medium', 'status']) as string | undefined
+  const generatedAt = useFormValue(['medium', 'generatedAt']) as
     | string
     | undefined
-  const generatedAt = useFormValue([
-    'distribution',
-    'medium',
-    'generatedAt',
-  ]) as string | undefined
-  const storedError = useFormValue(['distribution', 'medium', 'error']) as
-    | string
-    | undefined
+  const storedError = useFormValue(['medium', 'error']) as string | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
@@ -316,8 +309,8 @@ export function MediumInput(props: ObjectInputProps) {
               }
               mode="ghost"
               tone="primary"
-              fontSize={0}
-              padding={2}
+              fontSize={1}
+              padding={3}
               onClick={handleGenerate}
               disabled={
                 isGenerating || !postId || rateLimitRemainingSeconds > 0

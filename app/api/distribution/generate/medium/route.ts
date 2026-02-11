@@ -93,9 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     await patchPostDistribution(post._id, {
-      distribution: {
-        medium: mediumData,
-      },
+      medium: mediumData,
     })
 
     return NextResponse.json({

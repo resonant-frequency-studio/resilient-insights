@@ -134,18 +134,16 @@ export async function runDistribution(
 
     // Save generated content to Sanity
     await patchPostDistribution(articleId, {
-      distribution: {
-        social: {
-          ...(socialContent.linkedin && { linkedin: socialContent.linkedin }),
-          ...(socialContent.facebook && { facebook: socialContent.facebook }),
-          ...(socialContent.instagram && {
-            instagram: socialContent.instagram,
-            ...(socialContent.suggestedFirstComment && {
-              suggestedFirstComment: socialContent.suggestedFirstComment,
-            }),
+      social: {
+        ...(socialContent.linkedin && { linkedin: socialContent.linkedin }),
+        ...(socialContent.facebook && { facebook: socialContent.facebook }),
+        ...(socialContent.instagram && {
+          instagram: socialContent.instagram,
+          ...(socialContent.suggestedFirstComment && {
+            suggestedFirstComment: socialContent.suggestedFirstComment,
           }),
-          generatedAt: new Date().toISOString(),
-        },
+        }),
+        generatedAt: new Date().toISOString(),
       },
     })
 
