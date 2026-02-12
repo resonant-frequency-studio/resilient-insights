@@ -6,6 +6,9 @@ export const linkedinSocial = defineType({
   name: 'linkedinSocial',
   title: 'LinkedIn',
   type: 'object',
+  options: {
+    canvasApp: { exclude: true },
+  },
   components: {
     input: LinkedInSocialInput,
   },

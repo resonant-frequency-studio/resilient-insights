@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import {
   ObjectInputProps,
@@ -15,6 +15,7 @@ import {
   checkRateLimitStatus,
 } from '../plugins/distribution/actions'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
+import { useRateLimitCountdown } from './hooks/useRateLimitCountdown'
 
 interface GenerateResponse {
   success: boolean
@@ -61,7 +62,8 @@ export function NewsletterInput(props: ObjectInputProps) {
     | undefined
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
+  const { rateLimitRemainingSeconds, setRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'newsletter')
 
   // Determine status based on content
   const status = newsletterBody && newsletterBody.length > 0 ? 'ready' : 'idle'
@@ -158,29 +160,6 @@ export function NewsletterInput(props: ObjectInputProps) {
       navigator.clipboard.writeText(markdown)
     }
   }, [newsletterBody])
-
-  // Check rate limit status on mount and poll every second
-  useEffect(() => {
-    if (!postId) return
-
-    const checkRateLimit = async () => {
-      const status = await checkRateLimitStatus(postId, 'newsletter')
-      if (status.rateLimited) {
-        const seconds = Math.ceil(status.remainingMs / 1000)
-        setRateLimitRemainingSeconds(seconds)
-      } else {
-        setRateLimitRemainingSeconds(0)
-      }
-    }
-
-    // Check immediately
-    checkRateLimit()
-
-    // Poll every second
-    const interval = setInterval(checkRateLimit, 1000)
-
-    return () => clearInterval(interval)
-  }, [postId])
 
   // Destructure renderField for useCallback dependency
   const { renderField } = props

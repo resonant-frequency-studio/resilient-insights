@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Stack,
   Text,
@@ -22,6 +22,7 @@ import { portableTextToPlainText } from '@/lib/sanity/portableText'
 import { PortableTextBlock } from '@sanity/types'
 import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
 import { SanityImageReference } from '@/lib/social/imageOptimizer'
+import { useRateLimitCountdown } from './hooks/useRateLimitCountdown'
 
 interface GenerateResponse {
   success: boolean
@@ -61,7 +62,8 @@ export function InstagramSocialInput(props: ObjectInputProps) {
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
+  const { rateLimitRemainingSeconds, setRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'instagram')
 
   // Read suggested first comment from parent social object
   const suggestedFirstComment = useFormValue([
@@ -78,29 +80,6 @@ export function InstagramSocialInput(props: ObjectInputProps) {
     if (!instagramCaption || instagramCaption.length === 0) return ''
     return portableTextToPlainText(instagramCaption as PortableTextBlock[])
   }, [instagramCaption])
-
-  // Check rate limit status on mount and poll every second
-  useEffect(() => {
-    if (!postId) return
-
-    const checkRateLimit = async () => {
-      const status = await checkRateLimitStatus(postId, 'instagram')
-      if (status.rateLimited) {
-        const seconds = Math.ceil(status.remainingMs / 1000)
-        setRateLimitRemainingSeconds(seconds)
-      } else {
-        setRateLimitRemainingSeconds(0)
-      }
-    }
-
-    // Check immediately
-    checkRateLimit()
-
-    // Poll every second
-    const interval = setInterval(checkRateLimit, 1000)
-
-    return () => clearInterval(interval)
-  }, [postId])
 
   // Get recommended posting times for Instagram
   const recommendations = useMemo(() => {

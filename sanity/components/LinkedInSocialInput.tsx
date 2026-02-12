@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Stack, Text, Button, Flex, Card, Badge } from '@sanity/ui'
 import { ObjectInputProps, useFormValue, PatchEvent, set } from 'sanity'
 import {
@@ -13,6 +13,7 @@ import { portableTextToPlainText } from '@/lib/sanity/portableText'
 import { PortableTextBlock } from '@sanity/types'
 import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
 import { SanityImageReference } from '@/lib/social/imageOptimizer'
+import { useRateLimitCountdown } from './hooks/useRateLimitCountdown'
 
 interface GenerateResponse {
   success: boolean
@@ -50,7 +51,8 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
+  const { rateLimitRemainingSeconds, setRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'linkedin')
 
   // Determine status based on content (now Portable Text array)
   const status = linkedInText && linkedInText.length > 0 ? 'ready' : 'idle'
@@ -60,29 +62,6 @@ export function LinkedInSocialInput(props: ObjectInputProps) {
     if (!linkedInText || linkedInText.length === 0) return ''
     return portableTextToPlainText(linkedInText as PortableTextBlock[])
   }, [linkedInText])
-
-  // Check rate limit status on mount and poll every second
-  useEffect(() => {
-    if (!postId) return
-
-    const checkRateLimit = async () => {
-      const status = await checkRateLimitStatus(postId, 'linkedin')
-      if (status.rateLimited) {
-        const seconds = Math.ceil(status.remainingMs / 1000)
-        setRateLimitRemainingSeconds(seconds)
-      } else {
-        setRateLimitRemainingSeconds(0)
-      }
-    }
-
-    // Check immediately
-    checkRateLimit()
-
-    // Poll every second
-    const interval = setInterval(checkRateLimit, 1000)
-
-    return () => clearInterval(interval)
-  }, [postId])
 
   // Get recommended posting times for LinkedIn
   const recommendations = useMemo(() => {

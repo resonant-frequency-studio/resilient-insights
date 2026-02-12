@@ -6,6 +6,9 @@ export const instagramSocial = defineType({
   name: 'instagramSocial',
   title: 'Instagram',
   type: 'object',
+  options: {
+    canvasApp: { exclude: true },
+  },
   components: {
     input: InstagramSocialInput,
   },

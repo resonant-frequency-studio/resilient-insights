@@ -5,7 +5,10 @@
 
 import { inngest } from '@/lib/inngest/client'
 import { client } from '@/sanity/lib/client'
-import { writeClient } from '@/lib/sanity/writeClient'
+import {
+  findOrCreateDistributionDoc,
+  writeClient,
+} from '@/lib/sanity/writeClient'
 
 export type Channel = 'linkedin' | 'facebook' | 'instagram'
 
@@ -37,7 +40,7 @@ export async function schedulePost(options: SchedulePostOptions): Promise<{
       }
     }
 
-    // Store scheduled post in Sanity
+    // Store scheduled post in postDistribution
     const scheduledPost: Record<string, unknown> = {
       channel,
       content,
@@ -46,21 +49,22 @@ export async function schedulePost(options: SchedulePostOptions): Promise<{
       ...(imageUrl && { imageUrl }), // Store image URL if provided
     }
 
-    // Add to scheduledPosts array
-    const post = await client.fetch(
-      `*[_type == "post" && _id == $articleId][0]{
-        "existingScheduled": distribution.scheduledPosts
+    // Find/create distribution doc and append to scheduledPosts array
+    const distributionDocId = await findOrCreateDistributionDoc(articleId)
+    const distribution = await client.fetch(
+      `*[_type == "postDistribution" && _id == $distributionDocId][0]{
+        "existingScheduled": scheduledPosts
       }`,
-      { articleId }
+      { distributionDocId }
     )
 
-    const existingScheduled = post?.existingScheduled || []
+    const existingScheduled = distribution?.existingScheduled || []
     const updatedScheduled = [...existingScheduled, scheduledPost]
 
     await writeClient
-      .patch(articleId)
+      .patch(distributionDocId)
       .set({
-        'distribution.scheduledPosts': updatedScheduled,
+        scheduledPosts: updatedScheduled,
       })
       .commit()
 
@@ -70,6 +74,7 @@ export async function schedulePost(options: SchedulePostOptions): Promise<{
       name: 'post/scheduled',
       data: {
         articleId,
+        distributionDocId,
         channel,
         content,
         scheduledAt,
@@ -98,14 +103,19 @@ export async function cancelScheduledPost(
   scheduledPostIndex: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const post = await client.fetch(
-      `*[_type == "post" && _id == $articleId][0]{
-        "scheduledPosts": distribution.scheduledPosts
+    const cleanArticleId = articleId.replace(/^drafts\./, '')
+    const distribution = await client.fetch(
+      `*[_type == "postDistribution" && post._ref == $articleId][0]{
+        _id,
+        scheduledPosts
       }`,
-      { articleId }
+      { articleId: cleanArticleId }
     )
 
-    if (!post?.scheduledPosts || !post.scheduledPosts[scheduledPostIndex]) {
+    if (
+      !distribution?.scheduledPosts ||
+      !distribution.scheduledPosts[scheduledPostIndex]
+    ) {
       return {
         success: false,
         error: 'Scheduled post not found',
@@ -113,14 +123,14 @@ export async function cancelScheduledPost(
     }
 
     // Remove the scheduled post from array
-    const updatedScheduled = post.scheduledPosts.filter(
+    const updatedScheduled = distribution.scheduledPosts.filter(
       (_: unknown, index: number) => index !== scheduledPostIndex
     )
 
     await writeClient
-      .patch(articleId)
+      .patch(distribution._id)
       .set({
-        'distribution.scheduledPosts': updatedScheduled,
+        scheduledPosts: updatedScheduled,
       })
       .commit()
 
@@ -139,12 +149,13 @@ export async function cancelScheduledPost(
  * Get all scheduled posts for an article
  */
 export async function getScheduledPosts(articleId: string) {
-  const post = await client.fetch(
-    `*[_type == "post" && _id == $articleId][0]{
-      "scheduledPosts": distribution.scheduledPosts
+  const cleanArticleId = articleId.replace(/^drafts\./, '')
+  const distribution = await client.fetch(
+    `*[_type == "postDistribution" && post._ref == $articleId][0]{
+      scheduledPosts
     }`,
-    { articleId }
+    { articleId: cleanArticleId }
   )
 
-  return post?.scheduledPosts || []
+  return distribution?.scheduledPosts || []
 }
