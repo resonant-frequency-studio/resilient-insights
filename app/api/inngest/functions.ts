@@ -134,6 +134,7 @@ export const checkScheduledPosts = inngest.createFunction(
   async ({ step }) => {
     return await step.run('find-ready-posts', async () => {
       const now = new Date().toISOString()
+      const nowDate = new Date(now)
 
       // Query Sanity for postDistribution documents with scheduled posts ready to publish
       const distributions = await client.fetch(
@@ -143,7 +144,7 @@ export const checkScheduledPosts = inngest.createFunction(
         ]{
           _id,
           "postId": post._ref,
-          "scheduledPosts": scheduledPosts[status == "scheduled" && scheduledAt <= $now]
+          scheduledPosts
         }`,
         { now }
       )
@@ -151,8 +152,20 @@ export const checkScheduledPosts = inngest.createFunction(
       // Send events for each ready post
       const events = []
       for (const distribution of distributions) {
-        for (let i = 0; i < distribution.scheduledPosts.length; i++) {
-          const scheduled = distribution.scheduledPosts[i]
+        const scheduledPosts = Array.isArray(distribution.scheduledPosts)
+          ? distribution.scheduledPosts
+          : []
+
+        for (let i = 0; i < scheduledPosts.length; i++) {
+          const scheduled = scheduledPosts[i]
+          const scheduledDate = new Date(scheduled.scheduledAt)
+          const isReady =
+            scheduled.status === 'scheduled' &&
+            !isNaN(scheduledDate.getTime()) &&
+            scheduledDate <= nowDate
+
+          if (!isReady) continue
+
           events.push({
             name: 'post/scheduled',
             data: {

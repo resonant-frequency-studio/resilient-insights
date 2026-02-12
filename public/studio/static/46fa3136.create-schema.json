@@ -1,0 +1,1761 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "to": [
+          {
+            "type": "author"
+          }
+        ],
+        "name": "author",
+        "type": "reference"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "name": "mainImage",
+        "type": "image",
+        "title": "Main image"
+      },
+      {
+        "of": [
+          {
+            "to": [
+              {
+                "type": "category"
+              }
+            ],
+            "type": "reference",
+            "title": "Reference to category"
+          }
+        ],
+        "name": "categories",
+        "type": "array"
+      },
+      {
+        "name": "publishedAt",
+        "type": "datetime",
+        "title": "Published at"
+      },
+      {
+        "rows": 4,
+        "description": "A short description of the post",
+        "name": "excerpt",
+        "type": "text"
+      },
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          },
+          {
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Alternative Text"
+              }
+            ],
+            "type": "image"
+          }
+        ],
+        "name": "body",
+        "type": "array"
+      },
+      {
+        "options": {
+          "canvasApp": {
+            "exclude": true
+          }
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "The canonical URL for this post (computed from slug)",
+        "readOnly": true,
+        "name": "publishedUrl",
+        "type": "url",
+        "title": "Published URL"
+      }
+    ],
+    "name": "post",
+    "type": "document"
+  },
+  {
+    "liveEdit": true,
+    "options": {
+      "canvasApp": {
+        "exclude": true
+      }
+    },
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "to": [
+          {
+            "type": "post"
+          }
+        ],
+        "readOnly": "conditional",
+        "name": "post",
+        "type": "reference"
+      },
+      {
+        "fields": [
+          {
+            "options": {
+              "list": [
+                {
+                  "title": "Idle",
+                  "value": "idle"
+                },
+                {
+                  "title": "Ready",
+                  "value": "ready"
+                },
+                {
+                  "title": "Error",
+                  "value": "error"
+                }
+              ]
+            },
+            "initialValue": "idle",
+            "hidden": true,
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "subtitle",
+            "type": "string"
+          },
+          {
+            "of": [
+              {
+                "marks": {
+                  "annotations": [
+                    {
+                      "i18nTitleKey": "inputs.portable-text.annotation.link",
+                      "options": {
+                        "modal": {
+                          "type": "popover"
+                        }
+                      },
+                      "fields": [
+                        {
+                          "validation": [
+                            {
+                              "rules": [
+                                {
+                                  "flag": "uri",
+                                  "constraint": {
+                                    "options": {
+                                      "scheme": [
+                                        "/^http$/",
+                                        "/^https$/",
+                                        "/^tel$/",
+                                        "/^mailto$/"
+                                      ],
+                                      "allowRelative": true,
+                                      "relativeOnly": false,
+                                      "allowCredentials": false
+                                    }
+                                  }
+                                }
+                              ],
+                              "level": "error"
+                            }
+                          ],
+                          "description": "A valid web, email, phone, or relative link.",
+                          "name": "href",
+                          "type": "url",
+                          "title": "Link"
+                        }
+                      ],
+                      "name": "link",
+                      "type": "object"
+                    }
+                  ],
+                  "decorators": [
+                    {
+                      "value": "strong",
+                      "title": "Strong"
+                    },
+                    {
+                      "value": "em",
+                      "title": "Italic"
+                    },
+                    {
+                      "value": "code",
+                      "title": "Code"
+                    },
+                    {
+                      "value": "underline",
+                      "title": "Underline"
+                    },
+                    {
+                      "value": "strike-through",
+                      "title": "Strike"
+                    }
+                  ]
+                },
+                "lists": [
+                  {
+                    "value": "bullet",
+                    "title": "Bulleted list"
+                  },
+                  {
+                    "value": "number",
+                    "title": "Numbered list"
+                  }
+                ],
+                "styles": [
+                  {
+                    "value": "normal",
+                    "title": "Normal"
+                  },
+                  {
+                    "value": "h1",
+                    "title": "Heading 1"
+                  },
+                  {
+                    "value": "h2",
+                    "title": "Heading 2"
+                  },
+                  {
+                    "value": "h3",
+                    "title": "Heading 3"
+                  },
+                  {
+                    "value": "h4",
+                    "title": "Heading 4"
+                  },
+                  {
+                    "value": "h5",
+                    "title": "Heading 5"
+                  },
+                  {
+                    "value": "h6",
+                    "title": "Heading 6"
+                  },
+                  {
+                    "value": "blockquote",
+                    "title": "Quote"
+                  }
+                ],
+                "of": [],
+                "type": "block"
+              }
+            ],
+            "name": "body",
+            "type": "array"
+          },
+          {
+            "description": "Tags for Medium (comma-separated when copying)",
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "tags",
+            "type": "array"
+          },
+          {
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "uri",
+                    "constraint": {
+                      "options": {
+                        "scheme": [
+                          "/^http$/",
+                          "/^https$/"
+                        ],
+                        "allowRelative": false,
+                        "relativeOnly": false,
+                        "allowCredentials": false
+                      }
+                    }
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "hidden": true,
+            "name": "canonicalUrl",
+            "type": "url",
+            "title": "Canonical URL"
+          },
+          {
+            "hidden": true,
+            "name": "generatedAt",
+            "type": "datetime"
+          },
+          {
+            "hidden": true,
+            "name": "error",
+            "type": "text"
+          }
+        ],
+        "name": "medium",
+        "type": "object"
+      },
+      {
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "subtitle",
+            "type": "string"
+          },
+          {
+            "of": [
+              {
+                "marks": {
+                  "annotations": [
+                    {
+                      "i18nTitleKey": "inputs.portable-text.annotation.link",
+                      "options": {
+                        "modal": {
+                          "type": "popover"
+                        }
+                      },
+                      "fields": [
+                        {
+                          "validation": [
+                            {
+                              "rules": [
+                                {
+                                  "flag": "uri",
+                                  "constraint": {
+                                    "options": {
+                                      "scheme": [
+                                        "/^http$/",
+                                        "/^https$/",
+                                        "/^tel$/",
+                                        "/^mailto$/"
+                                      ],
+                                      "allowRelative": true,
+                                      "relativeOnly": false,
+                                      "allowCredentials": false
+                                    }
+                                  }
+                                }
+                              ],
+                              "level": "error"
+                            }
+                          ],
+                          "description": "A valid web, email, phone, or relative link.",
+                          "name": "href",
+                          "type": "url",
+                          "title": "Link"
+                        }
+                      ],
+                      "name": "link",
+                      "type": "object"
+                    }
+                  ],
+                  "decorators": [
+                    {
+                      "value": "strong",
+                      "title": "Strong"
+                    },
+                    {
+                      "value": "em",
+                      "title": "Italic"
+                    },
+                    {
+                      "value": "code",
+                      "title": "Code"
+                    },
+                    {
+                      "value": "underline",
+                      "title": "Underline"
+                    },
+                    {
+                      "value": "strike-through",
+                      "title": "Strike"
+                    }
+                  ]
+                },
+                "lists": [
+                  {
+                    "value": "bullet",
+                    "title": "Bulleted list"
+                  },
+                  {
+                    "value": "number",
+                    "title": "Numbered list"
+                  }
+                ],
+                "styles": [
+                  {
+                    "value": "normal",
+                    "title": "Normal"
+                  },
+                  {
+                    "value": "h1",
+                    "title": "Heading 1"
+                  },
+                  {
+                    "value": "h2",
+                    "title": "Heading 2"
+                  },
+                  {
+                    "value": "h3",
+                    "title": "Heading 3"
+                  },
+                  {
+                    "value": "h4",
+                    "title": "Heading 4"
+                  },
+                  {
+                    "value": "h5",
+                    "title": "Heading 5"
+                  },
+                  {
+                    "value": "h6",
+                    "title": "Heading 6"
+                  },
+                  {
+                    "value": "blockquote",
+                    "title": "Quote"
+                  }
+                ],
+                "of": [],
+                "type": "block"
+              }
+            ],
+            "name": "body",
+            "type": "array"
+          },
+          {
+            "name": "ctaText",
+            "type": "string",
+            "title": "CTA Text"
+          },
+          {
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "uri",
+                    "constraint": {
+                      "options": {
+                        "scheme": [
+                          "/^http$/",
+                          "/^https$/"
+                        ],
+                        "allowRelative": false,
+                        "relativeOnly": false,
+                        "allowCredentials": false
+                      }
+                    }
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "readOnly": true,
+            "name": "ctaUrl",
+            "type": "url",
+            "title": "CTA URL"
+          },
+          {
+            "readOnly": true,
+            "hidden": true,
+            "name": "generatedAt",
+            "type": "datetime"
+          },
+          {
+            "readOnly": true,
+            "hidden": true,
+            "name": "model",
+            "type": "string"
+          }
+        ],
+        "name": "newsletter",
+        "type": "object"
+      },
+      {
+        "fields": [
+          {
+            "options": {
+              "canvasApp": {
+                "exclude": true
+              }
+            },
+            "name": "linkedin",
+            "type": "linkedinSocial",
+            "title": "LinkedIn"
+          },
+          {
+            "options": {
+              "canvasApp": {
+                "exclude": true
+              }
+            },
+            "name": "facebook",
+            "type": "facebookSocial"
+          },
+          {
+            "options": {
+              "canvasApp": {
+                "exclude": true
+              }
+            },
+            "name": "instagram",
+            "type": "instagramSocial"
+          },
+          {
+            "rows": 3,
+            "name": "suggestedFirstComment",
+            "type": "text"
+          },
+          {
+            "readOnly": true,
+            "hidden": true,
+            "name": "generatedAt",
+            "type": "datetime"
+          },
+          {
+            "readOnly": true,
+            "hidden": true,
+            "name": "model",
+            "type": "string"
+          }
+        ],
+        "name": "social",
+        "type": "object",
+        "title": "Social Media"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "options": {
+                  "list": [
+                    {
+                      "title": "LinkedIn",
+                      "value": "linkedin"
+                    },
+                    {
+                      "title": "Facebook",
+                      "value": "facebook"
+                    },
+                    {
+                      "title": "Instagram",
+                      "value": "instagram"
+                    }
+                  ]
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "valid",
+                        "constraint": [
+                          "linkedin",
+                          "facebook",
+                          "instagram"
+                        ]
+                      },
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "channel",
+                "type": "string"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "Generated post content",
+                "name": "content",
+                "type": "text"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "When to publish this post",
+                "name": "scheduledAt",
+                "type": "datetime"
+              },
+              {
+                "options": {
+                  "list": [
+                    {
+                      "title": "Scheduled",
+                      "value": "scheduled"
+                    },
+                    {
+                      "title": "Published",
+                      "value": "published"
+                    },
+                    {
+                      "title": "Failed",
+                      "value": "failed"
+                    }
+                  ]
+                },
+                "initialValue": "scheduled",
+                "name": "status",
+                "type": "string"
+              },
+              {
+                "description": "Post ID from LinkedIn/Facebook/Instagram after publishing",
+                "name": "platformPostId",
+                "type": "string",
+                "title": "Platform Post ID"
+              },
+              {
+                "description": "Error message if publishing failed",
+                "name": "error",
+                "type": "text"
+              },
+              {
+                "description": "When the post was actually published",
+                "name": "publishedAt",
+                "type": "datetime"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "description": "Optional image to include with the post (from Sanity assets)",
+                "name": "image",
+                "type": "image"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "Optional external image URL (if not using Sanity image)",
+                "name": "imageUrl",
+                "type": "url",
+                "title": "Image URL"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "scheduledPosts",
+        "type": "array"
+      },
+      {
+        "fields": [
+          {
+            "fields": [
+              {
+                "description": "OAuth access token (stored securely)",
+                "hidden": true,
+                "name": "accessToken",
+                "type": "string"
+              },
+              {
+                "description": "OAuth refresh token",
+                "hidden": true,
+                "name": "refreshToken",
+                "type": "string"
+              },
+              {
+                "description": "When the access token expires",
+                "hidden": true,
+                "name": "expiresAt",
+                "type": "datetime"
+              },
+              {
+                "description": "LinkedIn user/profile ID",
+                "hidden": true,
+                "name": "profileId",
+                "type": "string",
+                "title": "Profile ID"
+              },
+              {
+                "description": "When the account was connected",
+                "readOnly": true,
+                "name": "connectedAt",
+                "type": "datetime"
+              }
+            ],
+            "name": "linkedin",
+            "type": "object",
+            "title": "LinkedIn"
+          },
+          {
+            "fields": [
+              {
+                "hidden": true,
+                "name": "accessToken",
+                "type": "string"
+              },
+              {
+                "hidden": true,
+                "name": "refreshToken",
+                "type": "string"
+              },
+              {
+                "hidden": true,
+                "name": "expiresAt",
+                "type": "datetime"
+              },
+              {
+                "hidden": true,
+                "name": "pageId",
+                "type": "string",
+                "title": "Page ID"
+              },
+              {
+                "readOnly": true,
+                "name": "connectedAt",
+                "type": "datetime"
+              }
+            ],
+            "name": "facebook",
+            "type": "object"
+          },
+          {
+            "fields": [
+              {
+                "hidden": true,
+                "name": "accessToken",
+                "type": "string"
+              },
+              {
+                "hidden": true,
+                "name": "refreshToken",
+                "type": "string"
+              },
+              {
+                "hidden": true,
+                "name": "expiresAt",
+                "type": "datetime"
+              },
+              {
+                "hidden": true,
+                "name": "accountId",
+                "type": "string",
+                "title": "Account ID"
+              },
+              {
+                "readOnly": true,
+                "name": "connectedAt",
+                "type": "datetime"
+              }
+            ],
+            "name": "instagram",
+            "type": "object"
+          }
+        ],
+        "hidden": true,
+        "name": "socialAccounts",
+        "type": "object",
+        "title": "Social Media Accounts"
+      }
+    ],
+    "name": "postDistribution",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "name",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "name": "image",
+        "type": "image"
+      },
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "bio",
+        "type": "array"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Full URL to LinkedIn profile",
+        "name": "linkedin",
+        "type": "url",
+        "title": "LinkedIn URL"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Full URL to Facebook profile",
+        "name": "facebook",
+        "type": "url",
+        "title": "Facebook URL"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Full URL to Instagram profile",
+        "name": "instagram",
+        "type": "url",
+        "title": "Instagram URL"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Full URL to YouTube channel",
+        "name": "youtube",
+        "type": "url",
+        "title": "YouTube URL"
+      }
+    ],
+    "name": "author",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "name": "description",
+        "type": "text"
+      }
+    ],
+    "name": "category",
+    "type": "document"
+  },
+  {
+    "options": {
+      "canvasApp": {
+        "exclude": true
+      }
+    },
+    "fields": [
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "text",
+        "type": "array"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "Optional description for accessibility",
+            "hidden": true,
+            "name": "alt",
+            "type": "string",
+            "title": "Alternative Text"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "Image (optional)"
+      }
+    ],
+    "name": "linkedinSocial",
+    "type": "object",
+    "title": "LinkedIn"
+  },
+  {
+    "options": {
+      "canvasApp": {
+        "exclude": true
+      }
+    },
+    "fields": [
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "text",
+        "type": "array"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "Optional description for accessibility",
+            "hidden": true,
+            "name": "alt",
+            "type": "string",
+            "title": "Alternative Text"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "Image (optional)"
+      }
+    ],
+    "name": "facebookSocial",
+    "type": "object",
+    "title": "Facebook"
+  },
+  {
+    "options": {
+      "canvasApp": {
+        "exclude": true
+      }
+    },
+    "fields": [
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "caption",
+        "type": "array"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "Optional description for accessibility",
+            "hidden": true,
+            "name": "alt",
+            "type": "string",
+            "title": "Alternative Text"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "Image (optional)"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "hashtags",
+        "type": "array"
+      }
+    ],
+    "name": "instagramSocial",
+    "type": "object",
+    "title": "Instagram"
+  }
+]

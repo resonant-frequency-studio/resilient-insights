@@ -9,6 +9,9 @@ export default defineType({
   type: 'document',
   // Hide from the main document list - managed via Manage Social plugin
   liveEdit: true,
+  options: {
+    canvasApp: { exclude: true },
+  },
   fields: [
     defineField({
       name: 'post',

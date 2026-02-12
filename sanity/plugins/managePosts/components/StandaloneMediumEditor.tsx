@@ -20,6 +20,7 @@ import {
   plainTextToPortableText,
   portableTextToPlainTextString,
 } from '@/lib/sanity/portableTextConverter'
+import { useRateLimitCountdown } from '@/sanity/components/hooks/useRateLimitCountdown'
 
 interface MediumData {
   title?: string
@@ -53,7 +54,8 @@ export function StandaloneMediumEditor({
   const [tagsText, setTagsText] = useState((data.tags || []).join(', '))
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
+  const { rateLimitRemainingSeconds, setRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'medium')
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
@@ -100,24 +102,7 @@ export function StandaloneMediumEditor({
     } finally {
       setIsGenerating(false)
     }
-  }, [onRefresh, postId])
-
-  useEffect(() => {
-    if (!postId) return
-
-    const checkRateLimit = async () => {
-      const status = await checkRateLimitStatus(postId, 'medium')
-      if (status.rateLimited) {
-        setRateLimitRemainingSeconds(Math.ceil(status.remainingMs / 1000))
-      } else {
-        setRateLimitRemainingSeconds(0)
-      }
-    }
-
-    checkRateLimit()
-    const interval = setInterval(checkRateLimit, 1000)
-    return () => clearInterval(interval)
-  }, [postId])
+  }, [onRefresh, postId, setRateLimitRemainingSeconds])
 
   const handleSave = useCallback(async () => {
     setIsSaving(true)
