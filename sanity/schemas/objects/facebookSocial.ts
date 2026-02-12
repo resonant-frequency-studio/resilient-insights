@@ -6,6 +6,9 @@ export const facebookSocial = defineType({
   name: 'facebookSocial',
   title: 'Facebook',
   type: 'object',
+  options: {
+    canvasApp: { exclude: true },
+  },
   components: {
     input: FacebookSocialInput,
   },

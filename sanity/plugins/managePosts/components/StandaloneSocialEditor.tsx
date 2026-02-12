@@ -19,7 +19,6 @@ import {
 import imageUrlBuilder from '@sanity/image-url'
 import { useSchema } from 'sanity'
 import {
-  checkRateLimitStatus,
   generateFacebookDraft,
   generateInstagramDraft,
   generateLinkedInDraft,
@@ -30,6 +29,7 @@ import {
   portableTextToPlainTextString,
 } from '@/lib/sanity/portableTextConverter'
 import { ScheduleModal } from '@/sanity/components/ScheduleModal'
+import { useRateLimitCountdown } from '@/sanity/components/hooks/useRateLimitCountdown'
 import { ScheduledPostsList } from '../../distribution/ScheduledPostsList'
 import { StandaloneSocialImageUploader } from './StandaloneSocialImageUploader'
 import { getNextOptimalTimes } from '@/lib/scheduler/recommendations'
@@ -113,16 +113,30 @@ export function StandaloneSocialEditor({
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [rateLimitRemaining, setRateLimitRemaining] = useState({
-    linkedin: 0,
-    facebook: 0,
-    instagram: 0,
-  })
   const [isGenerating, setIsGenerating] = useState({
     linkedin: false,
     facebook: false,
     instagram: false,
   })
+  const { rateLimitRemainingSeconds: linkedinRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'linkedin')
+  const { rateLimitRemainingSeconds: facebookRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'facebook')
+  const { rateLimitRemainingSeconds: instagramRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'instagram')
+  const rateLimitRemaining = useMemo(
+    () => ({
+      linkedin: linkedinRateLimitRemainingSeconds,
+      facebook: facebookRateLimitRemainingSeconds,
+      instagram: instagramRateLimitRemainingSeconds,
+    }),
+    [
+      facebookRateLimitRemainingSeconds,
+      instagramRateLimitRemainingSeconds,
+      linkedinRateLimitRemainingSeconds,
+    ]
+  )
+
   const [showSchedulePicker, setShowSchedulePicker] = useState<
     'linkedin' | 'facebook' | 'instagram' | null
   >(null)
@@ -169,32 +183,6 @@ export function StandaloneSocialEditor({
       return () => clearTimeout(timer)
     }
   }, [success])
-
-  const checkRates = useCallback(async () => {
-    if (!postId) return
-    const [linkedin, facebook, instagram] = await Promise.all([
-      checkRateLimitStatus(postId, 'linkedin'),
-      checkRateLimitStatus(postId, 'facebook'),
-      checkRateLimitStatus(postId, 'instagram'),
-    ])
-    setRateLimitRemaining({
-      linkedin: linkedin.rateLimited
-        ? Math.ceil(linkedin.remainingMs / 1000)
-        : 0,
-      facebook: facebook.rateLimited
-        ? Math.ceil(facebook.remainingMs / 1000)
-        : 0,
-      instagram: instagram.rateLimited
-        ? Math.ceil(instagram.remainingMs / 1000)
-        : 0,
-    })
-  }, [postId])
-
-  useEffect(() => {
-    checkRates()
-    const interval = setInterval(checkRates, 1000)
-    return () => clearInterval(interval)
-  }, [checkRates])
 
   const getImageRef = useCallback(
     (channel: 'linkedin' | 'facebook' | 'instagram') => {

@@ -21,6 +21,7 @@ import {
   portableTextToPlainTextString,
 } from '@/lib/sanity/portableTextConverter'
 import { portableTextToMarkdown } from '@/lib/sanity/portableText'
+import { useRateLimitCountdown } from '@/sanity/components/hooks/useRateLimitCountdown'
 
 interface NewsletterData {
   title?: string
@@ -55,7 +56,8 @@ export function StandaloneNewsletterEditor({
   const [ctaUrl, setCtaUrl] = useState(data.ctaUrl || '')
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [rateLimitRemainingSeconds, setRateLimitRemainingSeconds] = useState(0)
+  const { rateLimitRemainingSeconds, setRateLimitRemainingSeconds } =
+    useRateLimitCountdown(postId, 'newsletter')
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
@@ -105,24 +107,7 @@ export function StandaloneNewsletterEditor({
     } finally {
       setIsGenerating(false)
     }
-  }, [onRefresh, postId])
-
-  useEffect(() => {
-    if (!postId) return
-
-    const checkRateLimit = async () => {
-      const status = await checkRateLimitStatus(postId, 'newsletter')
-      if (status.rateLimited) {
-        setRateLimitRemainingSeconds(Math.ceil(status.remainingMs / 1000))
-      } else {
-        setRateLimitRemainingSeconds(0)
-      }
-    }
-
-    checkRateLimit()
-    const interval = setInterval(checkRateLimit, 1000)
-    return () => clearInterval(interval)
-  }, [postId])
+  }, [onRefresh, postId, setRateLimitRemainingSeconds])
 
   const handleSave = useCallback(async () => {
     setIsSaving(true)

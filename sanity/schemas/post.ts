@@ -80,6 +80,9 @@ export default defineType({
       type: 'url',
       description: 'The canonical URL for this post (computed from slug)',
       readOnly: true,
+      options: {
+        canvasApp: { exclude: true },
+      },
     }),
     // Distribution is now managed via the separate postDistribution document type
     // Use the Manage Social plugin to edit distribution content

@@ -4,7 +4,8 @@ import { generateNewsletter, RateLimitError } from '@/lib/distribution/generate'
 import { patchPostDistribution } from '@/lib/sanity/writeClient'
 import { plainTextToPortableText } from '@/lib/sanity/portableTextConverter'
 import { z } from 'zod'
-import { logWarn, logError } from '@/lib/utils/logger'
+import { validateAuth } from '@/lib/auth/validateDistribution'
+import { logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
@@ -12,20 +13,6 @@ const RequestSchema = z.object({
   postId: z.string(),
   force: z.boolean().optional().default(false),
 })
-
-/**
- * Validate authentication header
- */
-function validateAuth(request: NextRequest): boolean {
-  const secret = process.env.DISTRIBUTION_SECRET
-  if (!secret) {
-    logWarn('DISTRIBUTION_SECRET is not set')
-    return false
-  }
-
-  const headerSecret = request.headers.get('X-DISTRIBUTION-SECRET')
-  return headerSecret === secret
-}
 
 /**
  * POST /api/distribution/generate/newsletter
