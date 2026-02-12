@@ -11,13 +11,22 @@ import Typography from '@/components/Typography'
 import AudioPlayer from '@/components/AudioPlayer'
 import { urlFor } from '@/sanity/lib/image'
 import { portableTextToSpeechText } from '@/lib/tts/portableTextToSpeechText'
+import { getSanityPostTag, SANITY_POSTS_TAG } from '@/lib/sanity/tags'
 
 async function getPost(slug: string): Promise<Post | null> {
-  return await client.fetch(postBySlugQuery, { slug })
+  return await client.fetch(
+    postBySlugQuery,
+    { slug },
+    { next: { tags: [SANITY_POSTS_TAG, getSanityPostTag(slug)] } }
+  )
 }
 
 async function getPostSlugs() {
-  const slugs = await client.fetch(postSlugsQuery)
+  const slugs = await client.fetch(
+    postSlugsQuery,
+    {},
+    { next: { tags: [SANITY_POSTS_TAG] } }
+  )
   return slugs.map((post: { slug: { current: string } }) => post.slug.current)
 }
 
