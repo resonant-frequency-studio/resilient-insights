@@ -6,6 +6,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import Typography from '@/components/Typography'
+import { SANITY_POSTS_TAG } from '@/lib/sanity/tags'
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Articles | Resilient Leadership',
@@ -27,7 +30,11 @@ export const metadata: Metadata = {
 }
 
 async function getPosts(): Promise<Post[]> {
-  return await client.fetch(postsQuery)
+  return await client.fetch(
+    postsQuery,
+    {},
+    { next: { tags: [SANITY_POSTS_TAG] } }
+  )
 }
 
 // Helper function to extract first few lines of text from PortableText

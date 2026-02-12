@@ -49,6 +49,7 @@ Edit `.env.local` and add your Sanity credentials:
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
 NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_REVALIDATE_SECRET=your_random_webhook_secret
 ```
 
 5. Run the development server:
@@ -60,6 +61,27 @@ npm run dev
 6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 7. Access Sanity Studio at [http://localhost:3000/studio](http://localhost:3000/studio) to start creating content.
+
+## Keep Homepage Fresh After Publish
+
+To make newly published articles appear quickly on `/`, configure a Sanity webhook:
+
+1. In Sanity project settings, create a webhook that targets:
+   - `https://your-domain.com/api/revalidate`
+2. Set trigger events to include create, update, and delete for these document types:
+   - `post`, `author`, and `category`
+3. Add a projection payload that includes the type and slug:
+
+```json
+{
+  "_type": _type,
+  "slug": slug.current
+}
+```
+
+4. Set the webhook secret to match `SANITY_REVALIDATE_SECRET`.
+
+The app also uses short ISR on the homepage as a fallback, but the webhook gives near-immediate cache invalidation when content changes.
 
 ## Project Structure
 
