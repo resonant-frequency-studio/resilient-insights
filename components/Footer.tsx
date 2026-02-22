@@ -41,7 +41,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/services/executive-coaching`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Executive Coaching
                 </a>
@@ -49,7 +49,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/services/team-coaching`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Team Coaching
                 </a>
@@ -57,7 +57,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/services/change-management`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Change Management
                 </a>
@@ -65,7 +65,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/services/360-feedback`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   360˚ Feedback
                 </a>
@@ -73,7 +73,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/services/surveys-assessments`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Surveys and Assessments
                 </a>
@@ -81,7 +81,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/services/custom-engagements`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Custom Engagements
                 </a>
@@ -102,7 +102,7 @@ const Footer = () => {
               <li>
                 <a
                   href={mainSiteUrl}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Home
                 </a>
@@ -110,7 +110,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/"
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Articles
                 </Link>
@@ -118,7 +118,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/about`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   About
                 </a>
@@ -126,7 +126,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/contact`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Contact
                 </a>
@@ -147,7 +147,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/privacy`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Privacy Policy
                 </a>
@@ -155,7 +155,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/cookies`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Cookie Policy
                 </a>
@@ -163,7 +163,7 @@ const Footer = () => {
               <li>
                 <a
                   href={`${mainSiteUrl}/terms`}
-                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm"
+                  className="text-foreground-light/80 hover:text-foreground-light transition-colors text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-fifth rounded"
                 >
                   Terms of Service
                 </a>
@@ -181,7 +181,7 @@ const Footer = () => {
               facebook="https://www.facebook.com/resilientleadershipcoaching"
               instagram="https://www.instagram.com/resilient.leadership.us/"
               youtube="https://www.youtube.com/@resilientleadership"
-              iconClassName="border-foreground-light/30 bg-transparent text-foreground-light/80 hover:border-foreground-light hover:text-foreground-light"
+              iconClassName="border-foreground-light/30 bg-transparent text-foreground-light/80 hover:border-foreground-light hover:text-foreground-light focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
             />
 
             {/* Copyright */}

@@ -8,12 +8,140 @@ import {
   findCachedUrl,
   saveMp3,
 } from '@/lib/tts/audioCache'
-import { fetchSpeechStream } from '@/lib/tts/elevenlabs.server'
+import {
+  fetchSpeechStream,
+  ELEVENLABS_MAX_CHARS,
+} from '@/lib/tts/elevenlabs.server'
 import { logWarn, logError } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
 
-const MAX_CHARS = 12_000 // ~8-10 min spoken audio
+const MAX_CHARS = 18_000 // ~12-15 min spoken audio
+
+/** Split text into chunks under maxLen, breaking at paragraph/sentence/word boundaries */
+function splitTextIntoChunks(text: string, maxLen: number): string[] {
+  if (text.length <= maxLen) return [text]
+  const chunks: string[] = []
+  let remaining = text
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLen) {
+      chunks.push(remaining)
+      break
+    }
+    const segment = remaining.slice(0, maxLen)
+    const lastParagraph = segment.lastIndexOf('\n\n')
+    const lastNewline = segment.lastIndexOf('\n')
+    const lastSentence = segment.lastIndexOf('. ')
+    const lastSpace = segment.lastIndexOf(' ')
+    const breakAt =
+      lastParagraph >= maxLen * 0.5
+        ? lastParagraph + 2
+        : lastSentence >= maxLen * 0.5
+          ? lastSentence + 2
+          : lastNewline >= maxLen * 0.5
+            ? lastNewline + 1
+            : lastSpace >= 0
+              ? lastSpace + 1
+              : maxLen
+    const chunk = remaining.slice(0, breakAt).trim()
+    chunks.push(chunk)
+    remaining = remaining.slice(breakAt).trim()
+  }
+  return chunks
+}
+
+type RangeParseResult =
+  | { type: 'full' }
+  | { type: 'partial'; start: number; end: number }
+  | { type: 'invalid' }
+
+function parseRangeHeader(
+  rangeHeader: string | null,
+  totalLength: number
+): RangeParseResult {
+  if (!rangeHeader) return { type: 'full' }
+
+  const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader)
+  if (!match) return { type: 'invalid' }
+
+  const [, startStr, endStr] = match
+  if (!startStr && !endStr) return { type: 'invalid' }
+
+  let start: number
+  let end: number
+
+  if (!startStr) {
+    // Suffix range: bytes=-500 (last 500 bytes)
+    const suffixLength = parseInt(endStr, 10)
+    if (!Number.isFinite(suffixLength) || suffixLength <= 0) {
+      return { type: 'invalid' }
+    }
+    start = Math.max(totalLength - suffixLength, 0)
+    end = totalLength - 1
+  } else {
+    start = parseInt(startStr, 10)
+    end = endStr ? parseInt(endStr, 10) : totalLength - 1
+  }
+
+  if (
+    !Number.isFinite(start) ||
+    !Number.isFinite(end) ||
+    start < 0 ||
+    end < 0 ||
+    start > end ||
+    start >= totalLength
+  ) {
+    return { type: 'invalid' }
+  }
+
+  end = Math.min(end, totalLength - 1)
+  return { type: 'partial', start, end }
+}
+
+function createAudioResponse(
+  mp3Buffer: Buffer,
+  cacheControl: string,
+  cacheStatus: 'hit' | 'miss',
+  rangeHeader: string | null
+): Response {
+  const totalLength = mp3Buffer.length
+  const range = parseRangeHeader(rangeHeader, totalLength)
+
+  if (range.type === 'invalid') {
+    return new Response(null, {
+      status: 416,
+      headers: {
+        'Content-Range': `bytes */${totalLength}`,
+        'Accept-Ranges': 'bytes',
+      },
+    })
+  }
+
+  if (range.type === 'partial') {
+    const chunk = mp3Buffer.subarray(range.start, range.end + 1)
+    return new Response(new Uint8Array(chunk), {
+      status: 206,
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': cacheControl,
+        'X-TTS-Cache': cacheStatus,
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes ${range.start}-${range.end}/${totalLength}`,
+        'Content-Length': String(chunk.length),
+      },
+    })
+  }
+
+  return new Response(new Uint8Array(mp3Buffer), {
+    headers: {
+      'Content-Type': 'audio/mpeg',
+      'Cache-Control': cacheControl,
+      'X-TTS-Cache': cacheStatus,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': String(totalLength),
+    },
+  })
+}
 
 /**
  * GET /api/tts/article?slug=...
@@ -22,6 +150,8 @@ const MAX_CHARS = 12_000 // ~8-10 min spoken audio
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const slug = searchParams.get('slug')
+  const isMetaRequest = searchParams.get('meta') === '1'
+  const rangeHeader = request.headers.get('range')
 
   if (!slug) {
     return new Response(JSON.stringify({ error: 'Missing slug parameter' }), {
@@ -65,6 +195,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    if (isMetaRequest) {
+      const firstChunkChars = Math.min(text.length, ELEVENLABS_MAX_CHARS)
+      const durationScale =
+        firstChunkChars > 0 ? text.length / firstChunkChars : 1
+
+      return new Response(
+        JSON.stringify({
+          textLength: text.length,
+          chunkCount: Math.ceil(text.length / ELEVENLABS_MAX_CHARS),
+          durationScale,
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
     // Build cache key from slug and body text hash
     // Using body text hash ensures cache only invalidates when actual content changes
     const postSlug = post.slug?.current || slug
@@ -75,7 +222,7 @@ export async function GET(request: NextRequest) {
     const cachedUrl = await findCachedUrl(cacheKey, postSlug, post._updatedAt)
 
     if (cachedUrl) {
-      // Cache hit: fetch and stream the cached MP3
+      // Cache hit: fetch cached MP3 and serve with byte-range support
       if (process.env.NODE_ENV === 'development') {
         console.log(`[TTS] Cache hit for slug: ${slug}`)
       }
@@ -85,15 +232,14 @@ export async function GET(request: NextRequest) {
         // If cached URL fails, fall through to generate new audio
         logWarn(`[TTS] Failed to fetch cached audio, generating new`)
       } else {
-        // Stream the cached MP3
-        const cachedBody = cachedResponse.body
-        return new Response(cachedBody, {
-          headers: {
-            'Content-Type': 'audio/mpeg',
-            'Cache-Control': 'public, max-age=31536000, immutable',
-            'X-TTS-Cache': 'hit',
-          },
-        })
+        const cachedArrayBuffer = await cachedResponse.arrayBuffer()
+        const cachedMp3 = Buffer.from(cachedArrayBuffer)
+        return createAudioResponse(
+          cachedMp3,
+          'public, max-age=31536000, immutable',
+          'hit',
+          rangeHeader
+        )
       }
     }
 
@@ -102,78 +248,63 @@ export async function GET(request: NextRequest) {
       console.log(`[TTS] Cache miss for slug: ${slug}, generating audio`)
     }
 
-    const elevenLabsResponse = await fetchSpeechStream(text)
+    const textChunks =
+      text.length > ELEVENLABS_MAX_CHARS
+        ? splitTextIntoChunks(text, ELEVENLABS_MAX_CHARS)
+        : [text]
 
-    if (!elevenLabsResponse.ok) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate audio' }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
+    if (process.env.NODE_ENV === 'development' && textChunks.length > 1) {
+      console.log(
+        `[TTS] Splitting into ${textChunks.length} chunks for ElevenLabs`
       )
     }
 
-    // Create a readable stream for the client
-    const reader = elevenLabsResponse.body?.getReader()
-    if (!reader) {
-      return new Response(
-        JSON.stringify({ error: 'No response body from ElevenLabs' }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Create a transform stream that tees the data
-    const stream = new ReadableStream({
-      async start(controller) {
-        const chunks: Uint8Array[] = []
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            // Write chunk to client stream immediately
-            controller.enqueue(value)
-
-            // Also accumulate for caching
-            chunks.push(value)
+    const audioBuffers: Buffer[] = []
+    for (let i = 0; i < textChunks.length; i++) {
+      const res = await fetchSpeechStream(textChunks[i])
+      if (!res.ok) {
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate audio' }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
           }
+        )
+      }
+      const body = res.body
+      if (!body) {
+        return new Response(
+          JSON.stringify({ error: 'No response body from ElevenLabs' }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+      }
+      const reader = body.getReader()
+      const parts: Uint8Array[] = []
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        parts.push(value)
+      }
+      audioBuffers.push(Buffer.concat(parts.map(p => Buffer.from(p))))
+    }
 
-          // Close the client stream
-          controller.close()
+    const mp3Buffer = Buffer.concat(audioBuffers)
 
-          // Cache the complete audio in the background
-          // (don't await to avoid blocking the response)
-          const mp3Buffer = Buffer.concat(
-            chunks.map(chunk => Buffer.from(chunk))
-          )
-          saveMp3(cacheKey, mp3Buffer)
-            .then(url => {
-              if (process.env.NODE_ENV === 'development') {
-                console.log(`[TTS] Cached audio for slug: ${slug} at ${url}`)
-              }
-            })
-            .catch(error => {
-              logError(`[TTS] Failed to cache audio for slug: ${slug}`, error)
-            })
-        } catch (error) {
-          logError('[TTS] Error streaming audio:', error)
-          controller.error(error)
+    // Cache in background
+    saveMp3(cacheKey, mp3Buffer)
+      .then(url => {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[TTS] Cached audio for slug: ${slug} at ${url}`)
         }
-      },
-    })
+      })
+      .catch(error => {
+        logError(`[TTS] Failed to cache audio for slug: ${slug}`, error)
+      })
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'audio/mpeg',
-        'Cache-Control': 'no-store',
-        'X-TTS-Cache': 'miss',
-      },
-    })
+    return createAudioResponse(mp3Buffer, 'no-store', 'miss', rangeHeader)
   } catch (error) {
     logError('[TTS] Error in API route:', error)
     return new Response(JSON.stringify({ error: 'Internal server error' }), {

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { client } from '@/sanity/lib/client'
 import { postsQuery } from '@/lib/sanity/queries'
 import { Post } from '@/types/sanity'
 import Link from 'next/link'
@@ -7,6 +6,7 @@ import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import Typography from '@/components/Typography'
 import { SANITY_POSTS_TAG } from '@/lib/sanity/tags'
+import { sanityFetch } from '@/sanity/lib/live'
 
 export const revalidate = 60
 
@@ -30,11 +30,11 @@ export const metadata: Metadata = {
 }
 
 async function getPosts(): Promise<Post[]> {
-  return await client.fetch(
-    postsQuery,
-    {},
-    { next: { tags: [SANITY_POSTS_TAG] } }
-  )
+  const { data } = await sanityFetch({
+    query: postsQuery,
+    tags: [SANITY_POSTS_TAG],
+  })
+  return data
 }
 
 // Helper function to extract first few lines of text from PortableText

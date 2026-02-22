@@ -13,6 +13,54 @@ interface AudioPlayerProps {
 
 type AudioState = 'idle' | 'loading' | 'playing' | 'paused' | 'error'
 
+const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2] as const
+const STORAGE_KEY = 'audio-playback-speed'
+
+function getStoredSpeed(): number {
+  if (typeof window === 'undefined') return 1
+  try {
+    const s = localStorage.getItem(STORAGE_KEY)
+    if (s == null) return 1
+    const n = parseFloat(s)
+    return (SPEED_OPTIONS as readonly number[]).includes(n) ? n : 1
+  } catch {
+    return 1
+  }
+}
+
+function getEffectiveDurationFromAudio(audio: HTMLAudioElement): number {
+  let maxDuration = 0
+
+  if (isFinite(audio.duration) && audio.duration > 0) {
+    maxDuration = Math.max(maxDuration, audio.duration)
+  }
+
+  if (audio.seekable.length > 0) {
+    const seekableEnd = audio.seekable.end(audio.seekable.length - 1)
+    if (isFinite(seekableEnd) && seekableEnd > 0) {
+      maxDuration = Math.max(maxDuration, seekableEnd)
+    }
+  }
+
+  if (audio.buffered.length > 0) {
+    const bufferedEnd = audio.buffered.end(audio.buffered.length - 1)
+    if (isFinite(bufferedEnd) && bufferedEnd > 0) {
+      maxDuration = Math.max(maxDuration, bufferedEnd)
+    }
+  }
+
+  return maxDuration
+}
+
+function getTimelineDurationFromAudio(
+  audio: HTMLAudioElement,
+  durationScale: number
+): number {
+  const rawDuration = getEffectiveDurationFromAudio(audio)
+  const scaledDuration = rawDuration * durationScale
+  return Math.max(scaledDuration, audio.currentTime)
+}
+
 export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
   const [state, setState] = useState<AudioState>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -20,9 +68,12 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
   const [loadingProgress, setLoadingProgress] = useState(0) // 0-100 for loading indicator
   const [currentTime, setCurrentTime] = useState(0) // in seconds
   const [duration, setDuration] = useState(0) // in seconds
+  const [durationScale, setDurationScale] = useState(1)
   const [hasStarted, setHasStarted] = useState(false) // Track if user has clicked play at least once
   const [showLoadingMessage, setShowLoadingMessage] = useState(false) // Show message after delay
+  const [playbackSpeed, setPlaybackSpeed] = useState(getStoredSpeed)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const durationScaleRef = useRef(1)
   const isLoadingRef = useRef(false) // Track loading state without React re-renders
   const wantsToPlayRef = useRef(false) // Track if user wants to play after loading
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -34,6 +85,45 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
     const secs = Math.floor(seconds % 60)
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
+
+  // Keep audio element playbackRate in sync with state
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed
+    }
+  }, [playbackSpeed])
+
+  useEffect(() => {
+    durationScaleRef.current = durationScale
+  }, [durationScale])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadDurationScale = async () => {
+      try {
+        const res = await fetch(
+          `/api/tts/article?slug=${encodeURIComponent(slug)}&meta=1`
+        )
+        if (!res.ok) return
+        const data = (await res.json()) as { durationScale?: number }
+        const nextScale =
+          typeof data.durationScale === 'number' && data.durationScale > 1
+            ? data.durationScale
+            : 1
+        if (!cancelled) {
+          setDurationScale(nextScale)
+        }
+      } catch {
+        // Non-fatal: fallback to unscaled duration
+      }
+    }
+
+    loadDurationScale()
+    return () => {
+      cancelled = true
+    }
+  }, [slug])
 
   useEffect(() => {
     // Create audio element on mount
@@ -54,12 +144,28 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
     }
 
     const handleLoadedMetadata = () => {
-      setDuration(audio.duration)
+      const timelineDuration = getTimelineDurationFromAudio(
+        audio,
+        durationScaleRef.current
+      )
+      if (timelineDuration > 0) {
+        setDuration(prev => Math.max(prev, timelineDuration))
+      }
       // Update loading progress now that we have duration
-      if (audio.buffered.length > 0 && audio.duration > 0) {
+      if (audio.buffered.length > 0 && timelineDuration > 0) {
         const bufferedEnd = audio.buffered.end(audio.buffered.length - 1)
-        const bufferedPercent = (bufferedEnd / audio.duration) * 100
+        const bufferedPercent = (bufferedEnd / timelineDuration) * 100
         setLoadingProgress(Math.min(bufferedPercent, 100))
+      }
+    }
+
+    const handleDurationChange = () => {
+      const timelineDuration = getTimelineDurationFromAudio(
+        audio,
+        durationScaleRef.current
+      )
+      if (timelineDuration > 0) {
+        setDuration(prev => Math.max(prev, timelineDuration))
       }
     }
 
@@ -130,8 +236,13 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
     }
 
     const handleTimeUpdate = () => {
-      if (audio.duration) {
-        const newProgress = (audio.currentTime / audio.duration) * 100
+      const timelineDuration = getTimelineDurationFromAudio(
+        audio,
+        durationScaleRef.current
+      )
+      if (timelineDuration > 0) {
+        setDuration(prev => Math.max(prev, timelineDuration))
+        const newProgress = (audio.currentTime / timelineDuration) * 100
         setProgress(newProgress)
         setCurrentTime(audio.currentTime)
       }
@@ -181,10 +292,15 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
     const handleProgress = () => {
       // Update loading progress based on buffered data
       if (audio.buffered.length > 0) {
-        if (audio.duration && audio.duration > 0) {
+        const timelineDuration = getTimelineDurationFromAudio(
+          audio,
+          durationScaleRef.current
+        )
+        if (timelineDuration > 0) {
           // We have duration, calculate percentage
           const bufferedEnd = audio.buffered.end(audio.buffered.length - 1)
-          const bufferedPercent = (bufferedEnd / audio.duration) * 100
+          const bufferedPercent = (bufferedEnd / timelineDuration) * 100
+          setDuration(prev => Math.max(prev, timelineDuration))
           setLoadingProgress(prev => {
             // Always increase, never decrease
             return Math.max(prev, Math.min(bufferedPercent, 100))
@@ -211,6 +327,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
 
     audio.addEventListener('loadstart', handleLoadStart)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+    audio.addEventListener('durationchange', handleDurationChange)
     audio.addEventListener('canplay', handleCanPlay)
     audio.addEventListener('canplaythrough', handleCanPlayThrough)
     audio.addEventListener('timeupdate', handleTimeUpdate)
@@ -224,6 +341,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
     return () => {
       audio.removeEventListener('loadstart', handleLoadStart)
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      audio.removeEventListener('durationchange', handleDurationChange)
       audio.removeEventListener('canplay', handleCanPlay)
       audio.removeEventListener('canplaythrough', handleCanPlayThrough)
       audio.removeEventListener('timeupdate', handleTimeUpdate)
@@ -304,13 +422,23 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
   }
 
   const handleSeek = (e: MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
     const audio = audioRef.current
-    if (!audio || !duration) return
+    if (!audio) return
+    const seekDuration = Math.max(
+      duration,
+      getTimelineDurationFromAudio(audio, durationScaleRef.current)
+    )
+    if (!seekDuration || !isFinite(seekDuration)) return
+    if (audio.readyState < 2) return // not enough data to seek
 
     const rect = e.currentTarget.getBoundingClientRect()
+    const width = rect.width
+    if (width <= 0) return
     const x = e.clientX - rect.left
-    const percent = x / rect.width
-    const newTime = percent * duration
+    const percent = Math.max(0, Math.min(1, x / width))
+    const newTime = percent * seekDuration
 
     audio.currentTime = newTime
     setProgress(percent * 100)
@@ -333,7 +461,7 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
               shrink-0 w-12 h-12 rounded-full
               flex items-center justify-center
               transition-all duration-200
-              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-primary
+              focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-[#2563eb] focus:border-[#2563eb]
               disabled:opacity-50 disabled:cursor-not-allowed
               relative overflow-hidden
               ${
@@ -392,26 +520,26 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
                 }
               }}
             >
-              {/* Loading indicator background */}
+              {/* Loading indicator background - pointer-events-none so clicks hit the bar */}
               {isLoading && (
                 <div
-                  className="absolute inset-0 bg-button-primary/20 rounded-full transition-all duration-300 ease-out"
+                  className="absolute inset-0 pointer-events-none bg-button-primary/20 rounded-full transition-all duration-300 ease-out"
                   style={{
                     width: `${Math.min(Math.max(loadingProgress, 0), 100)}%`,
                   }}
                 />
               )}
 
-              {/* Played progress */}
+              {/* Played progress - pointer-events-none so clicks hit the bar */}
               {!isLoading && (
                 <div
-                  className="absolute inset-y-0 left-0 bg-button-primary rounded-full transition-all duration-100"
+                  className="absolute inset-y-0 left-0 pointer-events-none bg-button-primary rounded-full transition-all duration-100"
                   style={{ width: `${progress}%` }}
                 />
               )}
 
-              {/* Hover indicator */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Hover indicator - pointer-events-none so clicks hit the bar */}
+              <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
                 <div
                   className="absolute inset-y-0 left-0 bg-button-primary/30 rounded-full"
                   style={{ width: `${progress}%` }}
@@ -419,8 +547,8 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
               </div>
             </div>
 
-            {/* Time Display */}
-            <div className="flex justify-between items-center mt-1">
+            {/* Time Display and Playback Speed */}
+            <div className="flex justify-between items-center mt-1 gap-2">
               <Typography
                 variant="body-small"
                 as="span"
@@ -428,13 +556,35 @@ export default function AudioPlayer({ slug, className }: AudioPlayerProps) {
               >
                 {formatTime(currentTime)}
               </Typography>
-              <Typography
-                variant="body-small"
-                as="span"
-                className="text-foreground-dark tabular-nums"
-              >
-                {formatTime(duration)}
-              </Typography>
+              <div className="flex items-center gap-2">
+                <Typography
+                  variant="body-small"
+                  as="span"
+                  className="text-foreground-dark tabular-nums"
+                >
+                  {formatTime(duration)}
+                </Typography>
+                <select
+                  aria-label="Playback speed"
+                  value={playbackSpeed}
+                  onChange={e => {
+                    const value = parseFloat(e.target.value)
+                    setPlaybackSpeed(value)
+                    try {
+                      localStorage.setItem(STORAGE_KEY, String(value))
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                  className="text-foreground-dark bg-transparent border border-checkbox-border rounded px-1.5 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2563eb] focus:border-[#2563eb] cursor-pointer"
+                >
+                  {SPEED_OPTIONS.map(speed => (
+                    <option key={speed} value={speed}>
+                      {speed}x
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
