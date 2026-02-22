@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { client } from '@/sanity/lib/client'
-import { postBySlugQuery, postSlugsQuery } from '@/lib/sanity/queries'
+import { postBySlugQuery } from '@/lib/sanity/queries'
 import { Post } from '@/types/sanity'
 import { PortableText } from '@portabletext/react'
 import Link from 'next/link'
@@ -12,27 +11,20 @@ import AudioPlayer from '@/components/AudioPlayer'
 import { urlFor } from '@/sanity/lib/image'
 import { portableTextToSpeechText } from '@/lib/tts/portableTextToSpeechText'
 import { getSanityPostTag, SANITY_POSTS_TAG } from '@/lib/sanity/tags'
+import { sanityFetch } from '@/sanity/lib/live'
+import { client } from '@/sanity/lib/client'
 
-async function getPost(slug: string): Promise<Post | null> {
-  return await client.fetch(
-    postBySlugQuery,
-    { slug },
-    { next: { tags: [SANITY_POSTS_TAG, getSanityPostTag(slug)] } }
-  )
-}
-
-async function getPostSlugs() {
-  const slugs = await client.fetch(
-    postSlugsQuery,
-    {},
-    { next: { tags: [SANITY_POSTS_TAG] } }
-  )
-  return slugs.map((post: { slug: { current: string } }) => post.slug.current)
-}
-
-export async function generateStaticParams() {
-  const slugs = await getPostSlugs()
-  return slugs.map((slug: string) => ({ slug }))
+async function getPost(
+  slug: string,
+  options?: { stega?: boolean }
+): Promise<Post | null> {
+  const { data } = await sanityFetch({
+    query: postBySlugQuery,
+    params: { slug },
+    tags: [SANITY_POSTS_TAG, getSanityPostTag(slug)],
+    stega: options?.stega,
+  })
+  return data
 }
 
 export async function generateMetadata({
@@ -41,7 +33,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPost(slug)
+  const post: Post | null = await client.fetch(postBySlugQuery, { slug })
 
   if (!post) {
     return {

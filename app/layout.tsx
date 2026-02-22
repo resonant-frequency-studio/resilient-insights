@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
+import { draftMode } from 'next/headers'
+import { VisualEditing } from 'next-sanity/visual-editing'
 import './globals.css'
 import SmoothScrollProvider from '@/providers/SmoothScrollProvider'
 import ConditionalLayout from '@/components/ConditionalLayout'
+import { SanityLive } from '@/sanity/lib/live'
 
 const cormorantGaramond = Cormorant_Garamond({
   subsets: ['latin'],
@@ -52,11 +55,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode
 }>) {
+  const { isEnabled } = await draftMode()
+
   return (
     <html
       lang="en"
@@ -65,6 +70,14 @@ export default function RootLayout({
       <body className={inter.className}>
         <SmoothScrollProvider />
         <ConditionalLayout>{children}</ConditionalLayout>
+        {!isEnabled && (
+          <SanityLive
+            refreshOnMount={false}
+            refreshOnFocus={false}
+            refreshOnReconnect={false}
+          />
+        )}
+        {isEnabled && <VisualEditing />}
       </body>
     </html>
   )

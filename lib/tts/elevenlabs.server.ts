@@ -5,6 +5,9 @@ const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID
 const ELEVENLABS_MODEL_ID =
   process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2'
 
+/** ElevenLabs multilingual v2 allows up to 10k chars per request */
+export const ELEVENLABS_MAX_CHARS = 10_000
+
 if (!ELEVENLABS_API_KEY) {
   throw new Error('ELEVENLABS_API_KEY environment variable is required')
 }
