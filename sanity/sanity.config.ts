@@ -48,6 +48,7 @@ export default defineConfig({
   basePath: '/studio',
 
   plugins: [
+    // manageSocialPlugin(),
     structureTool({ structure }),
     visionTool(),
     presentationTool({

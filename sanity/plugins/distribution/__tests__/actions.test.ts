@@ -5,7 +5,6 @@ import {
   generateFacebookDraft,
   generateInstagramDraft,
   schedulePost,
-  getRecommendations,
   connectLinkedIn,
   disconnectLinkedIn,
   checkRateLimitStatus,
@@ -222,60 +221,6 @@ describe('distribution actions', () => {
           }),
         })
       )
-    })
-  })
-
-  describe('getRecommendations', () => {
-    it('uses GET request with query params', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ times: [] }),
-      })
-
-      await getRecommendations('linkedin', '2026-01-15')
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '/api/distribution/recommendations?channel=linkedin&date=2026-01-15'
-        ),
-        expect.objectContaining({
-          headers: expect.any(Object),
-        })
-      )
-    })
-
-    it('returns success with data', async () => {
-      const mockData = {
-        times: ['2026-01-15T09:00:00Z', '2026-01-15T12:00:00Z'],
-      }
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockData,
-      })
-
-      const result = await getRecommendations('facebook', '2026-01-15')
-      expect(result.success).toBe(true)
-      expect(result.data).toEqual(mockData)
-    })
-
-    it('returns error on failure', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({ error: 'Invalid channel' }),
-      })
-
-      const result = await getRecommendations('linkedin', '2026-01-15')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Invalid channel')
-    })
-
-    it('handles network errors', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Connection refused'))
-
-      const result = await getRecommendations('instagram', '2026-01-15')
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Connection refused')
     })
   })
 

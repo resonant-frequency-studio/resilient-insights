@@ -61,7 +61,7 @@ export async function generateWithGemini(
 /**
  * List available Gemini models by calling the API directly
  */
-export async function listAvailableModels(): Promise<string[]> {
+async function listAvailableModels(): Promise<string[]> {
   try {
     const apiKey = process.env.GOOGLE_GEMINI_API_KEY
     if (!apiKey) {

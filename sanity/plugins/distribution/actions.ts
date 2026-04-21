@@ -144,50 +144,6 @@ export async function schedulePost(
 }
 
 /**
- * Get recommended posting times
- */
-export async function getRecommendations(
-  channel: 'linkedin' | 'facebook' | 'instagram',
-  date: string
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  const API_BASE_URL =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : 'http://localhost:3000'
-  const DISTRIBUTION_SECRET = process.env.NEXT_PUBLIC_DISTRIBUTION_SECRET || ''
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/distribution/recommendations?channel=${channel}&date=${date}`,
-      {
-        headers: {
-          'X-DISTRIBUTION-SECRET': DISTRIBUTION_SECRET,
-        },
-      }
-    )
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || `HTTP ${response.status}`,
-      }
-    }
-
-    return {
-      success: true,
-      data,
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Network error',
-    }
-  }
-}
-
-/**
  * Connect LinkedIn account (initiate OAuth)
  */
 export async function connectLinkedIn(
